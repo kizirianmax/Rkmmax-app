@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tradutor – RKMMAX</title>
+  <meta name="description" content="Localiza conteúdos e padroniza tom/terminologia.">
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="nav_row">
+      <a href="../index.html" class="logo">RKMMAX</a>
+      <nav>
+        <a href="../index.html#agentes">Agentes</a>
+        <a href="../index.html#beneficios">Benefícios</a>
+        <a href="../index.html#planos">Planos</a>
+        <a href="../index.html#contato">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section">
+    <h1>Tradutor</h1>
+    <p>
+      O agente <strong>Tradutor</strong> é responsável por localizar conteúdos,
+      traduzir documentos e padronizar o tom e a terminologia utilizados em
+      diferentes idiomas, garantindo consistência e clareza.
+    </p>
+
+    <h2>Principais recursos</h2>
+    <ul>
+      <li>Tradução automática com contexto</li>
+      <li>Padronização de termos técnicos</li>
+      <li>Suporte multilíngue</li>
+      <li>Correção e revisão de estilo</li>
+    </ul>
+
+    <p>
+      🔗 <a href="../index.html#agentes">Voltar para os Agentes</a>
+    </p>
+  </main>
+
+  <footer class="footer">
+    <p>© <span id="year"></span> RKMMAX. Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
