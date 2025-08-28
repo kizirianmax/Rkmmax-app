@@ -1,13 +1,220 @@
 <!doctype html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RKMMAX</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <!-- Caminho corrigido -->
-    <script type="module" src="./src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RKMMAX — Plataforma com 12 Agentes de IA</title>
+  <meta name="description" content="RKMMAX: plataforma dinâmica com 12 agentes de IA para produtividade, atendimento e automação." />
+  <link rel="stylesheet" href="./styles.css" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="RKMMAX — Plataforma com 12 Agentes de IA" />
+  <meta property="og:description" content="Produtividade turbinada com 12 agentes inteligentes prontos para ação." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://kizirianmax.site/" />
+  <meta property="og:image" content="https://kizirianmax.site/og-image.png" />
+
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav__row">
+      <a href="#" class="brand">RKMMAX</a>
+      <button class="nav__toggle" aria-label="Abrir menu" id="menuBtn">☰</button>
+      <nav class="nav__links" id="navLinks">
+        <a href="#agentes">Agentes</a>
+        <a href="#beneficios">Benefícios</a>
+        <a href="#precos">Planos</a>
+        <a href="#contato" class="btn btn--sm">Fale Conosco</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero__grid">
+      <div>
+        <h1>12 Agentes de IA. <span class="grad">Um só cockpit.</span></h1>
+        <p class="lead">
+          Automatize tarefas, atenda clientes e escale produtividade com a suíte unificada do RKMMAX.
+        </p>
+        <div class="hero__cta">
+          <a href="#agentes" class="btn">Ver Agentes</a>
+          <a href="#contato" class="btn btn--ghost">Solicitar Demo</a>
+        </div>
+        <ul class="hero__bullets">
+          <li>⚡ Respostas em tempo real</li>
+          <li>🔐 HTTPS & privacidade por padrão</li>
+          <li>🧩 Integra pronto com APIs (em breve)</li>
+        </ul>
+      </div>
+      <div class="card hero__card">
+        <div class="glow"></div>
+        <h3>Painel RKMMAX</h3>
+        <p>Snapshot do status dos agentes e conversas recentes.</p>
+        <img src="https://images.unsplash.com/photo-1551281044-8c5f6c4d07aa?q=80&w=1200&auto=format&fit=crop" alt="Painel RKMMAX" loading="lazy"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENTES -->
+  <section class="section" id="agentes">
+    <div class="container">
+      <h2>Os 12 Agentes</h2>
+      <p class="section__subtitle">Placeholders — trocaremos pelos reais quando a API estiver configurada.</p>
+
+      <div class="grid">
+        <!-- Repita/edite os cards conforme seus agentes reais -->
+        <div class="card">
+          <h3>Atendente IA</h3>
+          <p>Responde clientes 24/7 com base no seu FAQ e documentos.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Vendas Pro</h3>
+          <p>Gera leads, qualifica e agenda follow-ups automaticamente.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Social Media</h3>
+          <p>Cria posts, calendários e relatórios de engajamento.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Analytics</h3>
+          <p>Resumo executivo e insights em linguagem natural.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Suporte Técnico</h3>
+          <p>Triagem, solução de problemas e abertura de tickets.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Documentador</h3>
+          <p>Gera e mantém documentação viva de processos.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Tradutor</h3>
+          <p>Localiza conteúdos e padroniza tom/terminologia.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Pesquisa</h3>
+          <p>Coleta fontes, resume e referencia corretamente.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Gerente de Projetos</h3>
+          <p>Gera cronogramas, riscos e follow-ups automáticos.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Roteirista</h3>
+          <p>Cria roteiros de vídeo, anúncios e funis de copy.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Dev Helper</h3>
+          <p>Gera scaffolds, testes e PRs com boas práticas.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+        <div class="card">
+          <h3>Finanças</h3>
+          <p>Planilhas, dashboards e simulações de cenários.</p>
+          <a href="#" class="link">Ver detalhes</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFÍCIOS -->
+  <section class="section alt" id="beneficios">
+    <div class="container">
+      <h2>Por que o RKMMAX?</h2>
+      <div class="grid grid--3">
+        <div class="card">
+          <h3>Time-to-Value</h3>
+          <p>Comece com templates prontos e personalize depois.</p>
+        </div>
+        <div class="card">
+          <h3>Escalável</h3>
+          <p>Arquitetura preparada para APIs e novas integrações.</p>
+        </div>
+        <div class="card">
+          <h3>Seguro</h3>
+          <p>HTTPS, política de conteúdo e boas práticas de privacidade.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANOS -->
+  <section class="section" id="precos">
+    <div class="container">
+      <h2>Planos iniciais</h2>
+      <div class="grid grid--3">
+        <div class="card price">
+          <h3>Starter</h3>
+          <p class="price__value">R$ 0</p>
+          <ul>
+            <li>Até 2 agentes</li>
+            <li>Suporte por e-mail</li>
+          </ul>
+          <a href="#contato" class="btn btn--block">Começar</a>
+        </div>
+        <div class="card price price--highlight">
+          <h3>Pro</h3>
+          <p class="price__value">R$ 149/mês</p>
+          <ul>
+            <li>Até 8 agentes</li>
+            <li>Prioridade no suporte</li>
+          </ul>
+          <a href="#contato" class="btn btn--block">Assinar</a>
+        </div>
+        <div class="card price">
+          <h3>Enterprise</h3>
+          <p class="price__value">Sob consulta</p>
+          <ul>
+            <li>12+ agentes</li>
+            <li>Integrações sob medida</li>
+          </ul>
+          <a href="#contato" class="btn btn--block">Falar com vendas</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section class="section alt" id="contato">
+    <div class="container">
+      <h2>Fale com a gente</h2>
+      <p>Preencha o formulário e retornamos em até 1 dia útil.</p>
+      <!-- Dica: substitua action pelo seu endpoint (Formspree, Beeceptor, etc.) -->
+      <form class="form" action="https://formspree.io/f/xyyypseudo" method="POST">
+        <div class="form__row">
+          <input type="text" name="nome" placeholder="Seu nome" required />
+          <input type="email" name="email" placeholder="Seu e-mail" required />
+        </div>
+        <textarea name="mensagem" rows="5" placeholder="Como podemos ajudar?" required></textarea>
+        <button class="btn" type="submit">Enviar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- RODAPÉ -->
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> RKMMAX</span>
+      <nav class="footer__links">
+        <a href="#politica">Privacidade</a>
+        <a href="#termos">Termos</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
 </html>
