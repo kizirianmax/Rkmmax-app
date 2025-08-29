@@ -6,6 +6,7 @@ export default function Agents() {
   return (
     <main className="container" style={{ padding: "24px" }}>
       <h1>Agentes</h1>
+
       <ul style={{ listStyle: "none", padding: 0 }}>
         {agents.map((a) => (
           <li
