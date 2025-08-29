@@ -6,13 +6,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* página inicial: lista de agentes */}
+        {/* lista como página inicial */}
         <Route path="/" element={<Agents />} />
-
         {/* detalhe do agente */}
         <Route path="/agent/:id" element={<AgentDetail />} />
-
-        {/* rota alternativa para /agents (opcional) */}
+        {/* rota alternativa (opcional) */}
         <Route path="/agents" element={<Agents />} />
       </Routes>
     </BrowserRouter>
