@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
@@ -26,51 +27,71 @@ export default function Login() {
       if (result.error) {
         setError(result.error.message);
       } else {
-        navigate("/"); // redireciona para home após login/cadastro
+        // sucesso -> redireciona para a Home
+        navigate("/");
       }
     } catch (err) {
       setError("Erro inesperado. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>
-        {mode === "login" ? "Entrar" : "Criar Conta"}
-      </h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={styles.input}
-        />
-        {error && <p style={styles.error}>{error}</p>}
-        <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? "Carregando..." : mode === "login" ? "Entrar" : "Cadastrar"}
-        </button>
-      </form>
-      <div style={styles.switchRow}>
-        <button
-          onClick={() => setMode(mode === "login" ? "signup" : "login")}
-          style={styles.linkBtn}
-        >
-          {mode === "login"
-            ? "Não tem conta? Cadastre-se"
-            : "Já tem conta? Entrar"}
-        </button>
+      <div style={styles.card}>
+        <h2 style={styles.title}>
+          {mode === "login" ? "Entrar" : "Criar Conta"}
+        </h2>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            style={styles.input}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            style={styles.input}
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {error && <p style={styles.error}>{error}</p>}
+          <button style={styles.button} type="submit" disabled={loading}>
+            {loading
+              ? "Carregando..."
+              : mode === "login"
+              ? "Entrar"
+              : "Cadastrar"}
+          </button>
+        </form>
+        <div style={styles.switchRow}>
+          {mode === "login" ? (
+            <p>
+              Não tem conta?{" "}
+              <button
+                style={styles.linkBtn}
+                onClick={() => setMode("signup")}
+              >
+                Cadastre-se
+              </button>
+            </p>
+          ) : (
+            <p>
+              Já tem conta?{" "}
+              <button
+                style={styles.linkBtn}
+                onClick={() => setMode("login")}
+              >
+                Entrar
+              </button>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -78,17 +99,23 @@ export default function Login() {
 
 const styles = {
   container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    background: "#f5f5f5",
+  },
+  card: {
+    width: "100%",
     maxWidth: 400,
-    margin: "60px auto",
-    padding: 20,
-    border: "1px solid #ddd",
-    borderRadius: 10,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+    padding: 24,
+    borderRadius: 12,
+    background: "white",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
     textAlign: "center",
-    fontFamily: "Arial, sans-serif",
   },
   title: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   form: {
     display: "flex",
@@ -97,33 +124,32 @@ const styles = {
   },
   input: {
     padding: 10,
-    fontSize: 16,
-    borderRadius: 6,
+    borderRadius: 8,
     border: "1px solid #ccc",
+    fontSize: 14,
   },
   button: {
-    height: 44,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 8,
     border: "none",
     background: "#0ea5e9",
     color: "white",
-    fontWeight: 700,
-    fontSize: 16,
+    fontWeight: "bold",
     cursor: "pointer",
+  },
+  linkBtn: {
+    background: "transparent",
+    border: "none",
+    color: "#0ea5e9",
+    cursor: "pointer",
+    fontWeight: "600",
   },
   error: {
     color: "red",
     fontSize: 14,
   },
-  linkBtn: {
-    marginTop: 10,
-    background: "transparent",
-    border: "none",
-    color: "#0ea5e9",
-    cursor: "pointer",
-    fontWeight: 600,
-  },
   switchRow: {
-    marginTop: 10,
+    marginTop: 12,
+    fontSize: 14,
   },
 };
