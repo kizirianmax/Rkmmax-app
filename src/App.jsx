@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Home from "./pages/Home.jsx";
-import Agents from "./pages/Agents.jsx";
-import AgentDetail from "./pages/AgentDetail.jsx";
-import Auth from "./pages/Auth.jsx";      // tela antiga (pública)
-import Login from "./pages/Login.jsx";    // tela nova (pública)
+import Home from "./pages/Home";
+import Agents from "./pages/Agents";
+import AgentDetail from "./pages/AgentDetail";
+import Auth from "./pages/Auth";
+import Login from "./pages/Login";
 
-import { AuthProvider } from "./auth/AuthProvider.jsx";
-import AuthGate from "./auth/AuthGate.jsx";
+import { AuthProvider } from "./auth/AuthProvider";
+import AuthGate from "./auth/AuthGate";
 
 export default function App() {
   return (
@@ -41,16 +41,6 @@ export default function App() {
             element={
               <AuthGate>
                 <AgentDetail />
-              </AuthGate>
-            }
-          />
-
-          {/* fallback: qualquer rota desconhecida vai para Home protegida */}
-          <Route
-            path="*"
-            element={
-              <AuthGate>
-                <Home />
               </AuthGate>
             }
           />
