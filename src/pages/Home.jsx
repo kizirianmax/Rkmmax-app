@@ -1,9 +1,29 @@
 // src/pages/Home.jsx
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import agents from "../data/agents";
 
+// 🎨 paleta por agente (ajuste as cores à vontade)
+const COLORS = {
+  emo:      { border: "#9AE6B4", bg: "#F0FFF4", hover: "#E6FFFA", shadow: "rgba(56, 161, 105, .25)" },
+  didak:    { border: "#90CDF4", bg: "#EBF8FF", hover: "#E6FFFA", shadow: "rgba(66, 153, 225, .25)" },
+  finna:    { border: "#68D391", bg: "#F0FFF4", hover: "#F0FFF4", shadow: "rgba(56, 161, 105, .25)" },
+  care:     { border: "#FEB2B2", bg: "#FFF5F5", hover: "#FFF5F5", shadow: "rgba(245, 101, 101, .25)" },
+  criar:    { border: "#F6AD55", bg: "#FFFAF0", hover: "#FFF5F5", shadow: "rgba(221, 107, 32, .25)" },
+  code:     { border: "#63B3ED", bg: "#EBF8FF", hover: "#E6FFFA", shadow: "rgba(49, 130, 206, .25)" },
+  talky:    { border: "#B794F4", bg: "#FAF5FF", hover: "#F7FAFC", shadow: "rgba(128, 90, 213, .25)" },
+  focus:    { border: "#FBD38D", bg: "#FFFAF0", hover: "#FFF5F5", shadow: "rgba(214, 158, 46, .25)" },
+  bizu:     { border: "#81E6D9", bg: "#EDFDFD", hover: "#E6FFFA", shadow: "rgba(49, 151, 149, .25)" },
+  legalis:  { border: "#A0AEC0", bg: "#F7FAFC", hover: "#EDF2F7", shadow: "rgba(113, 128, 150, .25)" },
+  planx:    { border: "#F6E05E", bg: "#FFFFF0", hover: "#FFF5F5", shadow: "rgba(214, 158, 46, .25)" },
+  orac:     { border: "#C4B5FD", bg: "#FAF5FF", hover: "#F7FAFC", shadow: "rgba(139, 92, 246, .25)" },
+  serginho: { border: "#FDE68A", bg: "#FFFBEB", hover: "#FEF3C7", shadow: "rgba(217, 119, 6, .25)" },
+};
+
 export default function Home() {
+  const [hoverId, setHoverId] = useState(null);
+
+  // — estilos base
   const container = {
     maxWidth: 980,
     margin: "0 auto",
@@ -15,6 +35,7 @@ export default function Home() {
     lineHeight: 1.2,
     fontWeight: 800,
     marginBottom: 8,
+    letterSpacing: "0.06em",
   };
 
   const subtitle = {
@@ -24,80 +45,64 @@ export default function Home() {
 
   const grid = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
     gap: 16,
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
   };
 
-  const card = {
+  const cardBase = {
     display: "block",
-    textDecoration: "none",
-    border: "1px solid #e5e7eb",
-    borderRadius: 12,
     padding: 16,
+    borderRadius: 12,
+    border: "1px solid #e5e7eb",
     background: "#fff",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-    transition: "transform .12s ease, box-shadow .12s ease, border-color .12s",
+    textDecoration: "none",
+    color: "inherit",
+    boxShadow: "0 1px 2px rgba(0,0,0,.04)",
+    transition: "all .18s ease",
   };
 
-  const cardHover = {
-    transform: "translateY(-2px)",
-    boxShadow: "0 6px 16px rgba(0,0,0,0.06)",
-    borderColor: "#d1d5db",
+  const name = {
+    fontWeight: 700,
+    marginBottom: 6,
   };
 
-  const name = { fontSize: 18, fontWeight: 700, marginBottom: 6, color: "#111827" };
-  const desc = { fontSize: 14, color: "#4b5563", lineHeight: 1.5 };
-
-  // pequeno helper para hover inline
-  const withHover = (base) => {
-    const node = { ...base };
-    return {
-      ...node,
-      onMouseEnter: (e) => Object.assign(e.currentTarget.style, cardHover),
-      onMouseLeave: (e) => Object.assign(e.currentTarget.style, base),
-    };
-  };
-
-  const badge = { marginRight: 8 };
-
-  const emojis = {
-    emo: "💙",
-    didak: "📚",
-    finna: "💸",
-    care: "🩺",
-    criar: "✨",
-    code: "💻",
-    talky: "🗣️",
-    focus: "🎯",
-    bizu: "📝",
-    legalis: "⚖️",
-    planx: "🧭",
-    orac: "🔮",
-    serginho: "🤖",
+  const description = {
+    color: "#475569",
+    fontSize: 14,
+    lineHeight: 1.45,
   };
 
   return (
     <main style={container}>
       <h1 style={title}>Bem-vindo ao R K M M A X 🚀</h1>
-      <p style={subtitle}>
-        Escolha um dos agentes abaixo para conversar.
-      </p>
+      <p style={subtitle}>Escolha um dos agentes abaixo para conversar.</p>
 
       <div style={grid}>
-        {agents.map((a) => (
-          <Link
-            key={a.id}
-            to={`/agents/${a.id}`}
-            style={withHover(card)}
-            aria-label={`Abrir agente ${a.name}`}
-          >
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-              <span style={badge}>{emojis[a.id] || "🤖"}</span>
-              <span style={name}>{a.name}</span>
-            </div>
-            <p style={desc}>{a.description}</p>
-          </Link>
-        ))}
+        {agents.map((a) => {
+          const pal = COLORS[a.id] || { border: "#e5e7eb", bg: "#fff", hover: "#fff", shadow: "rgba(0,0,0,.08)" };
+          const isHover = hoverId === a.id;
+
+          const card = {
+            ...cardBase,
+            borderColor: pal.border,
+            background: isHover ? pal.hover : pal.bg,
+            transform: isHover ? "translateY(-2px)" : "none",
+            boxShadow: isHover ? `0 8px 22px ${pal.shadow}` : cardBase.boxShadow,
+          };
+
+          return (
+            <Link
+              key={a.id}
+              to={`/agents/${a.id}`}
+              style={card}
+              onMouseEnter={() => setHoverId(a.id)}
+              onMouseLeave={() => setHoverId(null)}
+            >
+              <div style={{ ...name, color: "#111827" }}>{a.name}</div>
+              <div style={description}>{a.description}</div>
+            </Link>
+          );
+        })}
       </div>
     </main>
   );
