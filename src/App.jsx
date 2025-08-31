@@ -1,10 +1,10 @@
+// src/App.jsx
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Agents from "./pages/Agents";
 import AgentDetail from "./pages/AgentDetail";
-import Auth from "./pages/Auth";
 import Login from "./pages/Login";
 
 import { AuthProvider } from "./auth/AuthProvider";
@@ -16,10 +16,9 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           {/* ROTAS PÚBLICAS */}
-          <Route path="/auth" element={<Auth />} />
           <Route path="/login" element={<Login />} />
 
-          {/* ROTAS PROTEGIDAS (passam pelo AuthGate) */}
+          {/* ROTAS PROTEGIDAS */}
           <Route
             path="/"
             element={
@@ -37,7 +36,7 @@ export default function App() {
             }
           />
           <Route
-            path="/agent/:id"
+            path="/agents/:id"
             element={
               <AuthGate>
                 <AgentDetail />
