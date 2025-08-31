@@ -2,10 +2,10 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Agents from "./pages/Agents";
 import AgentDetail from "./pages/AgentDetail";
-import Login from "./pages/Login";
 
 import { AuthProvider } from "./auth/AuthProvider";
 import AuthGate from "./auth/AuthGate";
@@ -15,10 +15,10 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* ROTAS PÚBLICAS */}
+          {/* Rota pública */}
           <Route path="/login" element={<Login />} />
 
-          {/* ROTAS PROTEGIDAS */}
+          {/* Rotas privadas */}
           <Route
             path="/"
             element={
