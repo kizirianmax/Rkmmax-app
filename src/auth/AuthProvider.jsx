@@ -1,46 +1,42 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+// src/auth/AuthProvider.jsx
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-// Contexto de autenticação
-const AuthCtx = createContext();
+const AuthContext = createContext({ user: null, loading: true });
 
-// Hook para usar o contexto em qualquer componente
-export function useAuth() {
-  return useContext(AuthCtx);
-}
-
-export default function AuthProvider({ children }) {
-  const [session, setSession] = useState(null);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Pega sessão atual
-    const currentSession = supabase.auth.session();
-    setSession(currentSession);
-    setLoading(false);
+    // pega sessão atual
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+    init();
 
-    // Escuta mudanças na sessão
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
-      }
-    );
+    // escuta mudanças de auth
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
 
     return () => {
-      listener?.unsubscribe();
+      // desinscreve ao desmontar
+      sub.subscription?.unsubscribe?.();
     };
   }, []);
 
-  // Usuário não logado → tratamos como convidado
-  function isGuest() {
-    return !session?.user;
-  }
+  const value = {
+    user,
+    loading,
+    signOut: () => supabase.auth.signOut(),
+  };
 
-  const value = { session, isGuest };
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
 
-  return (
-    <AuthCtx.Provider value={value}>
-      {loading ? <div style={{ padding: 24 }}>Carregando...</div> : children}
-    </AuthCtx.Provider>
-  );
+export function useAuth() {
+  return useContext(AuthContext);
 }
