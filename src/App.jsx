@@ -36,7 +36,7 @@ export default function App() {
             }
           />
           <Route
-            path="/agents/:id"
+            path="/agent/:id"
             element={
               <AuthGate>
                 <AgentDetail />
