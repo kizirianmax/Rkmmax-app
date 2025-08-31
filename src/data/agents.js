@@ -1,5 +1,4 @@
 // src/data/agents.js
-
 const agents = [
   { id: "emo", name: "Emo", description: "Mentor emocional – apoio psicológico e motivação" },
   { id: "didak", name: "Didak", description: "Instrutor – ensino e explicação de conteúdos" },
@@ -13,6 +12,7 @@ const agents = [
   { id: "legalis", name: "Legalis", description: "IA jurídica – leis, contratos e direitos" },
   { id: "planx", name: "Planx", description: "Planejamento de vida e carreira" },
   { id: "orac", name: "Orac", description: "Visão estratégica – decisões complexas" },
+  { id: "serginho", name: "Serginho", description: "Novo agente personalizado" }
 ];
 
 export default agents;
