@@ -3,6 +3,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import Agents from "./pages/Agents";
 import AgentDetail from "./pages/AgentDetail";
@@ -17,6 +18,7 @@ export default function App() {
         <Routes>
           {/* Rota pública */}
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Rotas privadas */}
           <Route
@@ -36,7 +38,7 @@ export default function App() {
             }
           />
           <Route
-            path="/agent/:id"
+            path="/agents/:id"
             element={
               <AuthGate>
                 <AgentDetail />
