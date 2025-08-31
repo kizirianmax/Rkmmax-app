@@ -23,7 +23,7 @@ export default function AgentDetail() {
       <h1 className="text-3xl font-bold mb-4">{agent.name}</h1>
       <p className="text-gray-700 text-lg mb-6">{agent.description}</p>
 
-      {/* Mensagem especial só para o Serginho */}
+      {/* 🔥 Bloco especial só para o Serginho */}
       {agent.id === "serginho" && (
         <div className="p-4 mb-6 rounded-lg bg-yellow-100 border border-yellow-400">
           <p className="text-yellow-800 font-semibold">
