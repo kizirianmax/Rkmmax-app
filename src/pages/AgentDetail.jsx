@@ -7,34 +7,83 @@ export default function AgentDetail() {
   const { id } = useParams();
   const agent = agents.find((a) => a.id === id);
 
+  // --- estilos no mesmo espírito da Home ---
+  const container = {
+    maxWidth: 980,
+    margin: "0 auto",
+    padding: "24px 16px",
+  };
+
+  const title = {
+    fontSize: 36,
+    lineHeight: 1.2,
+    fontWeight: 800,
+    marginBottom: 8,
+  };
+
+  const subtitle = {
+    color: "#555",
+    fontSize: 18,
+    marginBottom: 24,
+  };
+
+  const card = {
+    background: "white",
+    border: "1px solid #e5e7eb",
+    borderRadius: 12,
+    padding: 16,
+    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+    marginBottom: 16,
+  };
+
+  const backLink = {
+    color: "#2563eb",
+    textDecoration: "underline",
+    marginTop: 16,
+    display: "inline-block",
+  };
+
   if (!agent) {
     return (
-      <main className="max-w-3xl mx-auto p-6">
-        <h1 className="text-2xl font-bold text-red-600">Agente não encontrado</h1>
-        <Link to="/" className="text-blue-500 underline mt-4 block">
-          Voltar para a Home
-        </Link>
+      <main style={container}>
+        <div style={card}>
+          <h1 style={{ ...title, color: "#dc2626" }}>Agente não encontrado</h1>
+          <Link to="/" style={backLink}>
+            Voltar para a Home
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">{agent.name}</h1>
-      <p className="text-gray-700 text-lg mb-6">{agent.description}</p>
+    <main style={container}>
+      <div style={card}>
+        <h1 style={title}>{agent.name}</h1>
+        <p style={subtitle}>{agent.description}</p>
 
-      {/* 🔥 Bloco especial só para o Serginho */}
-      {agent.id === "serginho" && (
-        <div className="p-4 mb-6 rounded-lg bg-yellow-100 border border-yellow-400">
-          <p className="text-yellow-800 font-semibold">
-            👋 Oi, eu sou o Serginho, cheguei para somar aqui no RKMMax 😎🚀
-          </p>
-        </div>
-      )}
+        {/* 🔥 bloco especial para o Serginho */}
+        {agent.id === "serginho" && (
+          <div
+            style={{
+              padding: 16,
+              marginTop: 16,
+              marginBottom: 8,
+              borderRadius: 10,
+              background: "#fef9c3", // yellow-100
+              border: "1px solid #facc15", // yellow-400
+            }}
+          >
+            <p style={{ color: "#a16207", fontWeight: 600 }}>
+              👋 Oi, eu sou o Serginho, cheguei para somar aqui no RKMMax 😎🚀
+            </p>
+          </div>
+        )}
 
-      <Link to="/" className="text-blue-500 underline">
-        Voltar para a Home
-      </Link>
+        <Link to="/" style={backLink}>
+          Voltar para a Home
+        </Link>
+      </div>
     </main>
   );
 }
