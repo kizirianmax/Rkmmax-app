@@ -2,14 +2,18 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-const AuthContext = createContext({ user: null, loading: true });
+const AuthContext = createContext({
+  user: null,
+  loading: true,
+  signOut: () => {},
+});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // pega sessão atual
+    // sessão atual
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
@@ -17,14 +21,16 @@ export function AuthProvider({ children }) {
     };
     init();
 
-    // escuta mudanças de auth
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    // mudanças de auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
 
+    // cleanup
     return () => {
-      // desinscreve ao desmontar
-      sub.subscription?.unsubscribe?.();
+      subscription?.unsubscribe();
     };
   }, []);
 
