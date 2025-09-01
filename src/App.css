@@ -1,0 +1,148 @@
+/* ============ RKMMax – Base UI ============ */
+
+/* 1) Reset/Normalize simples */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f5f6f8;          /* fundo claro elegante */
+  color: #111827;               /* cinza-900 */
+  line-height: 1.5;
+}
+
+/* 2) Tipografia */
+h1, h2, h3 {
+  margin: 0 0 .6rem;
+  font-weight: 700;
+  color: #0f172a;               /* slate-900 */
+}
+h1 { font-size: clamp(1.6rem, 2vw + 1rem, 2.2rem); }
+h2 { font-size: clamp(1.25rem, 1.3vw + .9rem, 1.6rem); }
+p { margin: 0 0 1rem; color: #334155; } /* slate-700 */
+
+/* 3) Layout utilitário */
+.container {
+  width: min(1024px, 92vw);
+  margin: 0 auto;
+  padding: 24px 0;
+}
+.section { margin: 24px 0; }
+.row { display: flex; gap: 16px; flex-wrap: wrap; }
+.col { flex: 1 1 280px; }
+
+/* 4) Cards */
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;    /* gray-200 */
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 16px -12px rgba(2, 6, 23, .12); /* slate-950 */
+}
+.card-muted { background: #fafafa; }
+
+/* 5) Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .7rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: #2563eb;          /* primary */
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
+  text-decoration: none;
+}
+.btn:hover { background: #1e40af; }
+.btn:active { transform: translateY(1px); }
+.btn-outline {
+  background: #fff;
+  color: #1e40af;
+  border-color: #93c5fd;        /* blue-300 */
+}
+.btn-outline:hover { background: #eff6ff; }
+
+/* 6) Inputs & Forms */
+.input, input[type="text"], input[type="email"], input[type="password"] , input[type="number"],
+select, textarea {
+  width: 100%;
+  padding: .7rem .9rem;
+  border: 1px solid #d1d5db;     /* gray-300 */
+  border-radius: 10px;
+  background: #fff;
+  color: #0f172a;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+input::placeholder, textarea::placeholder { color: #9ca3af; }
+input:focus, select:focus, textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+}
+.label {
+  display: block;
+  font-size: .92rem;
+  color: #475569;
+  margin: 10px 0 6px;
+}
+
+/* 7) Links */
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+
+/* 8) Nav simples (se usar) */
+.navbar {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(255,255,255,.85);
+  backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+}
+.navbar-inner { height: 60px; display: flex; align-items: center; justify-content: space-between; }
+
+/* 9) Footer simples */
+.footer { color: #64748b; padding: 32px 0; }
+
+/* 10) Helpers */
+.center { display: grid; place-items: center; }
+.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}
+.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}
+.gap-1{gap:.25rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}
+
+/* 11) Página de autenticação – layout agradável */
+.auth-wrapper {
+  min-height: calc(100vh - 60px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.auth-card {
+  width: min(480px, 92vw);
+}
+
+/* 12) Tabelas (para listas de planos/agentes) */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: .8rem 1rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
+.table thead th { background: #f8fafc; font-weight: 700; }
+
+/* 13) Estado vazio */
+.empty {
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 28px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* 14) Feedback (sucesso/erro/info) */
+.alert { padding: .9rem 1rem; border-radius: 10px; }
+.alert.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.alert.error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.alert.info    { background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; }
