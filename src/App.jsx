@@ -7,6 +7,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import Agents from "./pages/Agents";
 import AgentDetail from "./pages/AgentDetail";
+import PlansScreen from "./pages/PlansScreen";
 
 import { AuthProvider } from "./auth/AuthProvider";
 import AuthGate from "./auth/AuthGate";
@@ -16,7 +17,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Rota pública */}
+          {/* Rotas públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
@@ -42,6 +43,14 @@ export default function App() {
             element={
               <AuthGate>
                 <AgentDetail />
+              </AuthGate>
+            }
+          />
+          <Route
+            path="/planos"
+            element={
+              <AuthGate>
+                <PlansScreen />
               </AuthGate>
             }
           />
