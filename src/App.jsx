@@ -47,7 +47,7 @@ export default function App() {
             }
           />
           <Route
-            path="/planos"
+            path="/plans"
             element={
               <AuthGate>
                 <PlansScreen />
