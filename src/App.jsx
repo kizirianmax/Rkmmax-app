@@ -11,50 +11,24 @@ import PlansScreen from "./pages/PlansScreen";
 
 import { AuthProvider } from "./auth/AuthProvider";
 import AuthGate from "./auth/AuthGate";
+import ErrorBoundary from "./ErrorBoundary";
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          {/* Rotas públicas */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-
-          {/* Rotas privadas */}
-          <Route
-            path="/"
-            element={
-              <AuthGate>
-                <Home />
-              </AuthGate>
-            }
-          />
-          <Route
-            path="/agents"
-            element={
-              <AuthGate>
-                <Agents />
-              </AuthGate>
-            }
-          />
-          <Route
-            path="/agents/:id"
-            element={
-              <AuthGate>
-                <AgentDetail />
-              </AuthGate>
-            }
-          />
-          <Route
-            path="/plans"
-            element={
-              <AuthGate>
-                <PlansScreen />
-              </AuthGate>
-            }
-          />
-        </Routes>
+        <ErrorBoundary>
+          <AuthGate>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/reset" element={<ResetPassword />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/agents" element={<Agents />} />
+              <Route path="/agents/:id" element={<AgentDetail />} />
+              <Route path="/plans" element={<PlansScreen />} />
+            </Routes>
+          </AuthGate>
+        </ErrorBoundary>
       </BrowserRouter>
     </AuthProvider>
   );
