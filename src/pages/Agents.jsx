@@ -3,18 +3,21 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const AGENTS = [
-  { id: "emo",    name: "Emo",    desc: "Mentor emocional (apoio e motivação) 🫶" },
-  { id: "didak",  name: "Didak",  desc: "Instrutor – explica e ensina 📚" },
-  { id: "finna",  name: "Finna",  desc: "Inteligência financeira 💸" },
-  { id: "care",   name: "Care",   desc: "Saúde e bem-estar 💊" },
-  { id: "criar",  name: "Criar",  desc: "Criatividade, escrita e ideias ✍️" },
-  { id: "code",   name: "Code",   desc: "Programação e depuração 💻" },
-  { id: "talky",  name: "Talky",  desc: "Comunicação e persuasão 🗣️" },
-  { id: "focus",  name: "Focus",  desc: "Produtividade e metas 🎯" },
-  { id: "bizu",   name: "Bizu",   desc: "Resumos e provas ⚡" },
-  { id: "legalis",name: "Legalis",desc: "IA jurídica (leis e contratos) ⚖️" },
-  { id: "planx",  name: "Planx",  desc: "Planejamento de vida e carreira 🧭" },
-  { id: "orac",   name: "Orac",   desc: "Visão estratégica e decisões 🔭" },
+  { id: "emo",     name: "Emo",     desc: "Mentor emocional — apoio e motivação 🫶" },
+  { id: "didak",   name: "Didak",   desc: "Instrutor — explica e ensina 📚" },
+  { id: "finna",   name: "Finna",   desc: "Inteligência financeira 💸" },
+  { id: "care",    name: "Care",    desc: "Saúde e bem-estar 💊" },
+  { id: "criar",   name: "Criar",   desc: "Criatividade, escrita e ideias ✍️" },
+  { id: "code",    name: "Code",    desc: "Programação e depuração 💻" },
+  { id: "talky",   name: "Talky",   desc: "Comunicação e persuasão 🗣️" },
+  { id: "focus",   name: "Focus",   desc: "Produtividade e metas 🎯" },
+  { id: "bizu",    name: "Bizu",    desc: "Resumos e provas ⚡" },
+  { id: "legalis", name: "Legalis", desc: "IA jurídica (leis e contratos) ⚖️" },
+  { id: "planx",   name: "Planx",   desc: "Planejamento de vida e carreira 🧭" },
+  { id: "orac",    name: "Orac",    desc: "Visão estratégica e decisões 🔭" },
+
+  // 13º agente — especial e permanente
+  { id: "serginho", name: "Serginho", desc: "Agente especial/generalista, gênio. Orquestra tudo com base em fontes confiáveis ⭐" },
 ];
 
 export default function Agents() {
