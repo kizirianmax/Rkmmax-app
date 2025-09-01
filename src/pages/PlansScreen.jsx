@@ -1,119 +1,67 @@
 // src/pages/PlansScreen.jsx
 import React from "react";
+import { Link } from "react-router-dom";
 
-const PRICES = {
-  BR: {
-    simple: { 
-      label: "Simples", 
-      price: 14.90, 
-      currency: "R$", 
-      perks: [
-        "30 perguntas/dia", 
-        "Sem imagens", 
-        "12 agentes + Serginho (básico)"
-      ] 
-    },
-    medium: { 
-      label: "Médio", 
-      price: 24.90, 
-      currency: "R$", 
-      perks: [
-        "100 perguntas/dia", 
-        "Até 30 imagens/mês", 
-        "Agentes mais inteligentes"
-      ] 
-    },
-    top: { 
-      label: "Top", 
-      price: 34.99, 
-      currency: "R$", 
-      perks: [
-        "Uso justo (quase ilimitado)", 
-        "Até 100 imagens/mês", 
-        "Suporte prioritário"
-      ] 
-    }
+const PLANS = [
+  {
+    id: "simple",
+    name: "Simples",
+    price: "R$14.9",
+    bullets: [
+      "30 perguntas/dia",
+      "Sem imagens",
+      "12 agentes + Serginho (básico)",
+    ],
   },
-  EU: {
-    simple: { 
-      label: "Simple", 
-      price: 9.90, 
-      currency: "€", 
-      perks: [
-        "30 questions/day", 
-        "No images", 
-        "12 agents + Serginho (basic)"
-      ] 
-    },
-    medium: { 
-      label: "Medium", 
-      price: 14.99, 
-      currency: "€", 
-      perks: [
-        "100 questions/day", 
-        "Up to 30 images/month", 
-        "Smarter agents"
-      ] 
-    },
-    top: { 
-      label: "Top", 
-      price: 19.99, 
-      currency: "€", 
-      perks: [
-        "Fair use (near unlimited)", 
-        "Up to 100 images/month", 
-        "Priority support"
-      ] 
-    }
-  }
-};
-
-function detectRegion() {
-  const locale = navigator.language || "en-US";
-  return locale.includes("pt-BR") ? "BR" : "EU";
-}
+  {
+    id: "medium",
+    name: "Médio",
+    price: "R$24.9",
+    bullets: [
+      "100 perguntas/dia",
+      "Até 30 imagens/mês",
+      "Agentes mais inteligentes",
+    ],
+  },
+  {
+    id: "top",
+    name: "Top",
+    price: "R$34.99",
+    bullets: [
+      "Uso justo (quase ilimitado)",
+      "Até 100 imagens/mês",
+      "Suporte prioritário",
+    ],
+  },
+];
 
 export default function PlansScreen() {
-  const region = detectRegion();
-  const prices = PRICES[region];
-
   return (
-    <main style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
-      <h1>Planos RKMMAX 🚀</h1>
-      <p>Região detectada: <b>{region === "BR" ? "Brasil" : "Europa"}</b></p>
+    <div className="container">
+      <h1 className="mb-1">Planos RKMMax 🚀</h1>
+      <p className="mb-3">Região detectada: <strong>Brasil</strong></p>
 
-      {Object.values(prices).map((plan, i) => (
-        <div 
-          key={i} 
-          style={{
-            border: "1px solid #ccc",
-            borderRadius: "12px",
-            padding: "16px",
-            marginBottom: "12px",
-            background: "#f9f9f9"
-          }}
-        >
-          <h2>{plan.label} — {plan.currency}{plan.price}</h2>
-          <ul>
-            {plan.perks.map((perk, j) => (
-              <li key={j}>{perk}</li>
-            ))}
-          </ul>
-          <button
-            style={{
-              padding: "10px 16px",
-              marginTop: "8px",
-              borderRadius: "8px",
-              background: "#2563eb",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer"
-            }}
-          >
-            Assinar
-          </button>
-        </div>
-      ))}
-    </main>
+      <div className="row">
+        {PLANS.map((p) => (
+          <div className="col" key={p.id}>
+            <div className="card">
+              <h2 className="mb-1">
+                {p.name} — {p.price}
+              </h2>
+              <ul className="mb-3">
+                {p.bullets.map((b, i) => (
+                  <li key={i} style={{ marginBottom: 6 }}>{b}</li>
+                ))}
+              </ul>
+
+              {/* Botão AGORA CLICÁVEL */}
+              <Link className="btn" to={`/subscribe/${p.id}`}>
+                Assinar
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
