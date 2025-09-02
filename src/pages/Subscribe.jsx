@@ -1,20 +1,16 @@
-// src/pages/Subscribe.jsx
+  // src/pages/Subscribe.jsx
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 
 /**
- * Mapa local apenas para exibir o resumo do plano na tela.
- * (Os preços reais/IDs são lidos pela função serverless via .env)
+ * Mapa local apenas para exibir o resumo do plano escolhido.
+ * (Os preços reais/IDs são lidos pela função serverless no Netlify.)
  */
 const PLAN_DATA = {
   simple: {
     name: "Simples",
     price: "R$14.9",
-    perks: [
-      "30 perguntas/dia",
-      "Sem imagens",
-      "12 agentes + Serginho (básico)",
-    ],
+    perks: ["30 perguntas/dia", "Sem imagens", "12 agentes + Serginho (básico)"],
   },
   medium: {
     name: "Médio",
@@ -30,53 +26,61 @@ const PLAN_DATA = {
 
 export default function Subscribe() {
   const { planId } = useParams();
-  const [loading, setLoading] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
-
   const plan =
     PLAN_DATA[planId] || { name: "Plano", price: "—", perks: [] };
 
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+
+  /**
+   * Chama a função serverless do Netlify que cria a Checkout Session
+   * e redireciona o usuário para a página segura do Stripe.
+   */
   const handleContinue = async () => {
     try {
       setErrMsg("");
       setLoading(true);
 
-      // Chama a função serverless do Netlify que cria a sessão do Stripe
-      const res = await fetch("/.netlify/functions/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId }),
-      });
-
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`Falha ao iniciar checkout (${res.status}): ${txt}`);
-      }
+      const res = await fetch(
+        "/.netlify/functions/create-checkout-session",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ planId }),
+        }
+      );
 
       const data = await res.json();
 
+      if (!res.ok) {
+        throw new Error(data?.error || "Falha ao iniciar pagamento.");
+      }
+
+      // A função retorna { id, url }. Redirecionar para o Stripe:
       if (data?.url) {
-        // Redireciona para o Checkout seguro do Stripe
         window.location.href = data.url;
       } else {
-        throw new Error("Resposta sem URL de checkout.");
+        throw new Error("URL de checkout não recebida.");
       }
     } catch (err) {
-      setErrMsg(err.message || "Erro ao iniciar pagamento.");
+      console.error(err);
+      setErrMsg(err.message || "Erro inesperado. Tente novamente.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h1 className="mb-1">Assinar: {plan.name}</h1>
-        <p className="mb-3">
+    <div className="container" style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
+      <div className="card" style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
+        <h1 className="mb-1" style={{ marginBottom: 8 }}>
+          Assinar: {plan.name}
+        </h1>
+        <p className="mb-3" style={{ marginBottom: 12 }}>
           Valor: <strong>{plan.price}</strong> / mês
         </p>
 
         {plan.perks.length > 0 && (
-          <ul className="mb-3">
+          <ul className="mb-3" style={{ marginBottom: 12 }}>
             {plan.perks.map((item, i) => (
               <li key={i} style={{ marginBottom: 6 }}>
                 {item}
@@ -86,21 +90,49 @@ export default function Subscribe() {
         )}
 
         {errMsg && (
-          <p className="mb-2" style={{ color: "#b91c1c" }}>
+          <div
+            style={{
+              background: "#fee2e2",
+              border: "1px solid #fecaca",
+              color: "#991b1b",
+              borderRadius: 8,
+              padding: "8px 12px",
+              marginBottom: 12,
+            }}
+          >
             {errMsg}
-          </p>
+          </div>
         )}
 
-        <div className="row gap-2">
+        <div className="row gap-2" style={{ display: "flex", gap: 12 }}>
           <button
             className="btn"
             onClick={handleContinue}
             disabled={loading}
+            style={{
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              padding: "10px 16px",
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
           >
-            {loading ? "Redirecionando..." : "Continuar pagamento"}
+            {loading ? "Redirecionando…" : "Continuar pagamento"}
           </button>
 
-          <Link className="btn btn-outline" to="/plans">
+          <Link
+            className="btn btn-outline"
+            to="/plans"
+            style={{
+              border: "1px solid #d1d5db",
+              borderRadius: 8,
+              padding: "10px 16px",
+              textDecoration: "none",
+              color: "#111827",
+              background: "#fff",
+            }}
+          >
             Voltar aos planos
           </Link>
         </div>
