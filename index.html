@@ -2,11 +2,43 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>RKMMAX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RKMMax – IA com Alma</title>
+    <style>
+      body { font-family: system-ui, Arial, sans-serif; margin: 0; padding: 24px; }
+      .ok { background:#e8fff0; border:1px solid #b7efc5; padding:12px; border-radius:8px; }
+      .erro { background:#fff0f0; border:1px solid #f1b3b3; padding:12px; border-radius:8px; white-space:pre-wrap }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <h1>RKMMax online ✅</h1>
+      <p class="ok">
+        Se você está vendo esta mensagem, o deploy do Netlify está funcionando.
+        Em alguns segundos o React deve assumir a página. Se algo quebrar,
+        uma mensagem de erro aparecerá abaixo.
+      </p>
+    </div>
+
+    <!-- Captura erros de JS e mostra na tela para debug -->
+    <script>
+      window.addEventListener('error', function (e) {
+        const box = document.getElementById('root');
+        const msg = document.createElement('div');
+        msg.className = 'erro';
+        msg.textContent = 'Erro de runtime: ' + e.message;
+        box.appendChild(msg);
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        const box = document.getElementById('root');
+        const msg = document.createElement('div');
+        msg.className = 'erro';
+        msg.textContent = 'Promise rejeitada: ' + (e.reason && e.reason.message ? e.reason.message : e.reason);
+        box.appendChild(msg);
+      });
+    </script>
+
+    <!-- Vite/React: no build vira /assets/xxx.js automaticamente -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
