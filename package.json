@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "vite"
+    "start": "vite",
+    "serve": "vite preview --port 4173" 
   },
   "dependencies": {
     "react": "^18.2.0",
