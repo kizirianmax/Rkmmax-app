@@ -1,53 +1,49 @@
 // netlify/functions/create-checkout-session.js
-import Stripe from "stripe";
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
-});
+exports.handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
 
-// Mapeia os planos para os preços do Stripe (definidos no .env.local / Netlify)
-const PRICE_BY_PLAN = {
-  simple: process.env.STRIPE_PRICE_SIMPLE,
-  medium: process.env.STRIPE_PRICE_MEDIUM,
-  top: process.env.STRIPE_PRICE_TOP,
-};
-
-// URL do app (local ou em produção)
-const APP_URL = process.env.APP_URL || "http://localhost:5173";
-
-export async function handler(event) {
   try {
-    const { planId } = JSON.parse(event.body);
+    const { planId } = JSON.parse(event.body || "{}");
 
-    if (!PRICE_BY_PLAN[planId]) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Plano inválido." }),
-      };
+    // Mapeia o planId vindo da rota para o PRICE ID do Stripe
+    const priceMap = {
+      basic: process.env.STRIPE_PRICE_BASIC,      // ex: price_123
+      medium: process.env.STRIPE_PRICE_MEDIUM,    // ex: price_456
+      premium: process.env.STRIPE_PRICE_PREMIUM,  // ex: price_789
+    };
+
+    const priceId = priceMap[planId];
+    if (!priceId) {
+      return { statusCode: 400, body: "Invalid planId" };
     }
 
+    // URL do seu site
+    const origin =
+      process.env.APP_URL ||
+      event.headers.origin ||
+      `https://${event.headers.host}`;
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       mode: "subscription",
-      line_items: [
-        {
-          price: PRICE_BY_PLAN[planId],
-          quantity: 1,
-        },
-      ],
-      success_url: `${APP_URL}/success`,
-      cancel_url: `${APP_URL}/plans`,
+      line_items: [{ price: priceId, quantity: 1 }],
+      allow_promotion_codes: true,
+      success_url: `${origin}/?checkout=success`,
+      cancel_url: `${origin}/plans?checkout=cancel`,
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ id: session.id, url: session.url }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: session.url }),
     };
-  } catch (error) {
-    console.error("Erro Stripe:", error);
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: err.message }),
     };
   }
-}
+};
