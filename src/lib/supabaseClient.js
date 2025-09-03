@@ -1,12 +1,13 @@
+// src/lib/supabaseClient.js
+
 import { createClient } from "@supabase/supabase-js";
 
+// Pega as variáveis do .env
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,      // mantém sessão no device
-    autoRefreshToken: true,    // renova tokens automaticamente
-    detectSessionInUrl: true,  // lida com retorno do OAuth
-  },
-});
+// Cria o cliente do Supabase
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Exporta como default (corrige o erro que apareceu no Bolt/Netlify)
+export default supabase;
