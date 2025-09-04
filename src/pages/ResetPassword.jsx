@@ -1,7 +1,7 @@
 // src/pages/ResetPassword.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabaseClient";
+import supabase from "../lib/supabaseClient";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -18,26 +18,31 @@ export default function ResetPassword() {
       setMsg("A nova senha precisa ter pelo menos 6 caracteres.");
       return;
     }
+
     if (pass1 !== pass2) {
       setMsg("As senhas não coincidem.");
       return;
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password: pass1 });
+
+    const { error } = await supabase.auth.updateUser({
+      password: pass1,
+    });
+
     setLoading(false);
 
-    if (error) setMsg(error.message);
-    else {
-      setMsg("Senha redefinida com sucesso! Você já pode entrar.");
-      // espera 1,5s e manda pro login
-      setTimeout(() => navigate("/login"), 1500);
+    if (error) {
+      setMsg(error.message);
+    } else {
+      setMsg("Senha atualizada com sucesso!");
+      navigate("/login");
     }
   }
 
   return (
     <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4 text-center">Redefinir senha</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">Redefinir Senha</h1>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
@@ -48,24 +53,26 @@ export default function ResetPassword() {
           onChange={(e) => setPass1(e.target.value)}
           required
         />
+
         <input
           type="password"
-          placeholder="Confirme a nova senha"
+          placeholder="Confirmar senha"
           className="w-full border p-2 rounded"
           value={pass2}
           onChange={(e) => setPass2(e.target.value)}
           required
         />
+
         <button
           type="submit"
           className="w-full bg-blue-600 text-white p-2 rounded disabled:opacity-60"
           disabled={loading}
         >
-          {loading ? "Salvando..." : "Salvar nova senha"}
+          {loading ? "Atualizando..." : "Atualizar Senha"}
         </button>
       </form>
 
-      {msg && <p className="mt-3 text-red-600">{msg}</p>}
+      {msg && <p className="mt-3 text-red-600 text-center">{msg}</p>}
     </main>
   );
 }
