@@ -1,78 +1,96 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import "./../App.css";
 
 export default function Auth() {
-  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [canChange, setCanChange] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  async function handleLogin(e) {
+  // Verifica se chegamos via link de recuperação (tem access_token na URL)
+  useEffect(() => {
+    async function checkRecovery() {
+      setLoading(true);
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session) {
+          // sessão válida -> pode trocar a senha
+          setCanChange(true);
+        } else {
+          setMsg("Link inválido ou expirado. Solicite novamente.");
+        }
+      } catch (e) {
+        setMsg("Não foi possível validar o link.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    checkRecovery();
+  }, []);
+
+  async function handleSetNewPassword(e) {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    setMsg("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) setError(error.message);
-    setLoading(false);
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      setMsg("❌ Erro: " + error.message);
+    } else {
+      setMsg("✅ Senha alterada com sucesso! Faça login novamente.");
+      // encerra a sessão atual (por segurança) e manda pro login
+      await supabase.auth.signOut();
+      navigate("/login");
+    }
   }
 
-  async function handleSignup(e) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  if (loading) {
+    return (
+      <div className="container">
+        <h2>Carregando…</h2>
+      </div>
+    );
+  }
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) setError(error.message);
-    setLoading(false);
+  if (!canChange) {
+    return (
+      <div className="container">
+        <h2>⚠️ Não foi possível redefinir</h2>
+        {msg && <p className="message">{msg}</p>}
+        <p>
+          <Link to="/reset" className="link">
+            Tentar novamente
+          </Link>
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div style={{ maxWidth: "400px", margin: "40px auto" }}>
-      <h2>Autenticação</h2>
-
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Seu e-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        />
+    <div className="container">
+      <h2>🔒 Definir nova senha</h2>
+      <form onSubmit={handleSetNewPassword} className="form">
         <input
           type="password"
-          placeholder="Sua senha"
+          className="input"
+          placeholder="Nova senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
+          required
+          minLength={6}
         />
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        >
-          {loading ? "Entrando..." : "Entrar"}
+        <button type="submit" className="button">
+          Salvar nova senha
         </button>
       </form>
-
-      <button
-        onClick={handleSignup}
-        disabled={loading}
-        style={{ width: "100%", padding: "10px" }}
-      >
-        Criar conta
-      </button>
+      {msg && <p className="message">{msg}</p>}
+      <p>
+        <Link to="/login" className="link">
+          Voltar ao login
+        </Link>
+      </p>
     </div>
   );
 }
