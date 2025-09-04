@@ -1,72 +1,62 @@
 // src/pages/Home.jsx
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthProvider";
+import { Link } from "react-router-dom";
 
 export default function Home() {
-  const navigate = useNavigate();
-  const { user, loading, signOut } = useAuth();
-
-  if (loading) {
-    return (
-      <main style={{ maxWidth: 800, margin: "40px auto", padding: 16 }}>
-        <h2>Carregando…</h2>
-      </main>
-    );
-  }
-
-  // Visitante (não logado)
-  if (!user) {
-    return (
-      <main style={{ maxWidth: 800, margin: "40px auto", padding: 16 }}>
-        <h1>Bem-vindo ao RKMMAX 🚀</h1>
-        <p>Crie sua conta ou entre para usar os agentes.</p>
-
-        <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-          <Link to="/login" style={btn()}>Entrar</Link>
-          <Link to="/plans" style={btn("outline")}>Ver planos</Link>
-        </div>
-      </main>
-    );
-  }
-
-  // Usuário logado
   return (
-    <main style={{ maxWidth: 800, margin: "40px auto", padding: 16 }}>
-      <h1>Olá, {user.email || "usuário"} 😎</h1>
-      <p>Escolha para onde ir:</p>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Bem-vindo ao RKMMax 🚀</h1>
+      <p style={styles.subtitle}>
+        Sua plataforma de inteligência artificial modular.
+      </p>
 
-      <div style={{ display: "flex", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
-        <button onClick={() => navigate("/agents")} style={btn()}>
-          Ver agentes
-        </button>
-        <button onClick={() => navigate("/plans")} style={btn("outline")}>
-          Planos e preços
-        </button>
-        <button onClick={signOut} style={btn("danger")}>
-          Sair
-        </button>
+      <div style={styles.buttons}>
+        <Link to="/login" style={styles.buttonLogin}>
+          Entrar
+        </Link>
+        <Link to="/signup" style={styles.buttonSignup}>
+          Criar Conta
+        </Link>
       </div>
-    </main>
+    </div>
   );
 }
 
-function btn(variant = "primary") {
-  const base = {
-    padding: "10px 16px",
-    borderRadius: 8,
-    border: "1px solid #2563eb",
-    background: "#2563eb",
-    color: "#fff",
-    cursor: "pointer",
+const styles = {
+  container: {
+    textAlign: "center",
+    marginTop: "50px",
+    fontFamily: "Arial, sans-serif",
+  },
+  title: {
+    fontSize: "32px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+  },
+  subtitle: {
+    fontSize: "18px",
+    color: "#555",
+    marginBottom: "30px",
+  },
+  buttons: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "20px",
+  },
+  buttonLogin: {
+    padding: "12px 24px",
+    backgroundColor: "#3498db",
+    color: "white",
     textDecoration: "none",
-    display: "inline-block",
-  };
-  if (variant === "outline") {
-    return { ...base, background: "transparent", color: "#2563eb" };
-  }
-  if (variant === "danger") {
-    return { ...base, background: "#ef4444", borderColor: "#ef4444" };
-  }
-  return base;
-}
+    borderRadius: "6px",
+    fontWeight: "bold",
+  },
+  buttonSignup: {
+    padding: "12px 24px",
+    backgroundColor: "#2ecc71",
+    color: "white",
+    textDecoration: "none",
+    borderRadius: "6px",
+    fontWeight: "bold",
+  },
+};
