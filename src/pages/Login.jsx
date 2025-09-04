@@ -1,7 +1,10 @@
+Atualize o arquivo `src/pages/Login.jsx` com o seguinte conteúdo:
+
+```jsx
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import supabase from "../lib/supabaseClient.js";  // ✅ corrigido: default import + extensão .js
+import supabase from "../lib/supabaseClient.js";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,25 +13,23 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
+  // Função de login
   async function handleLogin(e) {
     e.preventDefault();
     setMsg("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     setLoading(false);
-
     if (error) {
       setMsg(error.message);
     } else {
-      navigate("/"); // login ok → redireciona para Home
+      navigate("/");
     }
   }
 
+  // Função de reset de senha
   async function handleResetPassword() {
     setMsg("");
     if (!email) {
@@ -36,10 +37,8 @@ export default function Login() {
       return;
     }
 
-    const redirectTo = `${window.location.origin}/reset`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
-    });
+    const redirectTo = `${window.location.origin}/reset`; // página que você pode criar depois
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 
     if (error) setMsg(error.message);
     else setMsg("Enviamos um e-mail com o link para redefinir a senha.");
@@ -48,7 +47,6 @@ export default function Login() {
   return (
     <main className="max-w-md mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4 text-center">Entrar</h1>
-
       <form onSubmit={handleLogin} className="space-y-3">
         <input
           type="email"
@@ -58,7 +56,6 @@ export default function Login() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-
         <input
           type="password"
           placeholder="Senha"
@@ -67,7 +64,6 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-
         <button
           type="submit"
           className="w-full bg-blue-600 text-white p-2 rounded disabled:opacity-60"
