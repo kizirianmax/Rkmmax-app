@@ -1,6 +1,3 @@
-Atualize o arquivo `src/pages/Login.jsx` com o seguinte conteúdo:
-
-```jsx
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -19,13 +16,17 @@ export default function Login() {
     setMsg("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setLoading(false);
+
     if (error) {
       setMsg(error.message);
     } else {
-      navigate("/");
+      navigate("/"); // após login vai pra Home
     }
   }
 
@@ -37,8 +38,10 @@ export default function Login() {
       return;
     }
 
-    const redirectTo = `${window.location.origin}/reset`; // página que você pode criar depois
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    const redirectTo = `${window.location.origin}/reset`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
 
     if (error) setMsg(error.message);
     else setMsg("Enviamos um e-mail com o link para redefinir a senha.");
@@ -72,18 +75,18 @@ export default function Login() {
           {loading ? "Entrando..." : "Entrar"}
         </button>
       </form>
-
       <button
         onClick={handleResetPassword}
         className="mt-4 text-blue-600 underline"
       >
         Esqueci minha senha
       </button>
-
       <p className="mt-2 text-sm">
-        Não tem conta? <Link to="/auth" className="text-blue-600 underline">Cadastre-se</Link>
+        Não tem conta?{" "}
+        <Link to="/auth" className="text-blue-600 underline">
+          Cadastre-se
+        </Link>
       </p>
-
       {msg && <p className="mt-3 text-red-600">{msg}</p>}
     </main>
   );
