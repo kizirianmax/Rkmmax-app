@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../lib/supabaseClient";
+import supabase from "../lib/supabaseClient.js";  // ✅ corrigido: default import + extensão .js
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,25 +15,31 @@ export default function Login() {
     setMsg("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setLoading(false);
+
     if (error) {
       setMsg(error.message);
     } else {
-      navigate("/"); // logou, vai pra Home
+      navigate("/"); // login ok → redireciona para Home
     }
   }
 
   async function handleResetPassword() {
     setMsg("");
     if (!email) {
-      setMsg("Digite seu e-mail acima para receber o link de redefinição.");
+      setMsg("Digite seu e-mail acima para redefinir a senha.");
       return;
     }
 
-    const redirectTo = `${window.location.origin}/reset`; // página que criaremos abaixo
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    const redirectTo = `${window.location.origin}/reset`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
 
     if (error) setMsg(error.message);
     else setMsg("Enviamos um e-mail com o link para redefinir a senha.");
