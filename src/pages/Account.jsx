@@ -1,108 +1,92 @@
-// src/pages/Account.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 
 export default function Account() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState({ email: "", username: "" });
 
-  // carrega usuário logado; se não houver, manda para /login
   useEffect(() => {
-    let isMounted = true;
+    // Pega sessão atual
+    const currentSession = supabase.auth.session
+      ? supabase.auth.session()
+      : null;
+    setSession(currentSession);
 
-    async function loadUser() {
-      setLoading(true);
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error(error);
+    // Listener de mudanças na sessão
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
       }
+    );
 
-      const currentUser = data?.user ?? null;
-      if (!currentUser) {
-        navigate("/login", { replace: true });
-      } else if (isMounted) {
-        setUser(currentUser);
-      }
-      setLoading(false);
-    }
-
-    loadUser();
-
-    // também escuta mudanças de sessão (login/logout)
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      const u = session?.user ?? null;
-      setUser(u);
-      if (!u) navigate("/login", { replace: true });
-    });
+    setLoading(false);
 
     return () => {
-      isMounted = false;
-      sub?.subscription?.unsubscribe?.();
+      authListener?.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
-  async function handleLogout() {
+  useEffect(() => {
+    if (session?.user) {
+      getProfile();
+    }
+  }, [session]);
+
+  async function getProfile() {
     try {
-      await supabase.auth.signOut();
-      navigate("/login", { replace: true });
-    } catch (e) {
-      console.error(e);
-      alert("Não foi possível sair. Tente novamente.");
+      setLoading(true);
+      let { data, error } = await supabase
+        .from("profiles")
+        .select(`email, username`)
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setProfile({
+          email: data.email,
+          username: data.username,
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao carregar perfil:", error.message);
+    } finally {
+      setLoading(false);
     }
   }
 
-  // enquanto carrega
-  if (loading) {
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/login");
+  }
+
+  if (!session) {
     return (
-      <main className="container">
-        <div className="card">
-          <h1>Carregando sua conta…</h1>
-          <p>Um instante…</p>
-        </div>
-      </main>
+      <div className="container">
+        <h2>Você não está logado</h2>
+        <Link to="/login">Ir para Login</Link>
+      </div>
     );
   }
 
-  // interface
   return (
-    <main className="container">
-      <div className="card">
-        <h1>Minha conta</h1>
+    <div className="container">
+      <h2>Minha Conta</h2>
+      {loading ? (
+        <p>Carregando...</p>
+      ) : (
+        <>
+          <p><strong>Email:</strong> {profile.email}</p>
+          <p><strong>Usuário:</strong> {profile.username}</p>
+        </>
+      )}
 
-        <div className="grid">
-          <div>
-            <p><strong>Email:</strong> {user?.email}</p>
-            {user?.user_metadata?.full_name && (
-              <p><strong>Nome:</strong> {user.user_metadata.full_name}</p>
-            )}
-            <p>
-              <strong>Usuário desde:</strong>{" "}
-              {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}
-            </p>
-          </div>
-
-          <div>
-            <h3>Status da assinatura</h3>
-            <p>
-              Esta área exibirá o status do seu plano após conectarmos o webhook do
-              Stripe (ativo, cancelado, período de teste, etc.).
-            </p>
-
-            {/* Enquanto o Portal do Cliente do Stripe não estiver ativado,
-               deixamos o botão apontando para /subscribe */}
-            <div style={{ marginTop: 12 }}>
-              <Link className="btn" to="/subscribe">Gerenciar assinatura</Link>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: 24, display: "flex", gap: 12 }}>
-          <Link className="btn" to="/">Voltar para a Home</Link>
-          <button className="btn" onClick={handleLogout}>Sair</button>
-        </div>
-      </div>
-    </main>
+      <button onClick={handleLogout} className="btn">
+        Sair
+      </button>
+    </div>
   );
 }
