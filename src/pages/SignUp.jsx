@@ -1,83 +1,81 @@
+// src/pages/Signup.jsx
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import "../App.css";
+import { useNavigate } from "react-router-dom";
 
-export default function SignUp() {
-  const navigate = useNavigate();
+export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
-    setSuccessMsg("");
     setLoading(true);
 
     try {
+      // Cria usuário no Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) {
-        setErrorMsg(error.message || "Erro ao criar conta.");
-      } else if (data?.user) {
-        setSuccessMsg("Conta criada! Verifique seu e-mail para confirmar.");
-        // redireciona para login após cadastro
-        setTimeout(() => navigate("/login"), 2500);
-      } else {
-        setErrorMsg("Não foi possível criar sua conta.");
+      if (error) throw error;
+
+      const user = data.user;
+
+      if (user) {
+        // Cria perfil básico vinculado ao user_id
+        const { error: insertError } = await supabase.from("profiles").insert([
+          {
+            user_id: user.id,
+            agente_modo: "auto", // default
+            prefs: {}, // pode ajustar depois
+          },
+        ]);
+
+        if (insertError) throw insertError;
       }
+
+      alert("Conta criada com sucesso! Confira seu e-mail para confirmar.");
+      navigate("/login");
     } catch (err) {
-      setErrorMsg("Erro inesperado. " + (err?.message || ""));
+      console.error("Erro no cadastro:", err.message);
+      alert("Erro ao criar conta: " + err.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="container">
-      <h1>Criar Conta</h1>
-
-      <form onSubmit={handleSubmit} className="card">
-        <label>
-          E-mail
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Criar Conta</h2>
+        <form onSubmit={handleSignup} className="space-y-4">
           <input
             type="email"
-            placeholder="seu@email.com"
+            placeholder="Seu e-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full border rounded p-2"
             required
-            autoComplete="email"
           />
-        </label>
-
-        <label>
-          Senha
           <input
             type="password"
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Sua senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full border rounded p-2"
             required
-            autoComplete="new-password"
           />
-        </label>
-
-        {errorMsg && <p className="error">{errorMsg}</p>}
-        {successMsg && <p className="success">{successMsg}</p>}
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Criando..." : "Criar conta"}
-        </button>
-      </form>
-
-      <div className="muted">
-        Já tem conta? <Link to="/login">Entrar</Link>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          >
+            {loading ? "Criando conta..." : "Criar Conta"}
+          </button>
+        </form>
       </div>
     </div>
   );
