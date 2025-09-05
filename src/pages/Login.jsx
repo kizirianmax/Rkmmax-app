@@ -1,9 +1,11 @@
+// src/pages/Login.jsx
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import supabase from "../lib/supabaseClient";  // ✅ importação corrigida
+import supabase from "../lib/supabaseClient";
 import "../App.css";
 
-export default function Login() {
+function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,21 +23,24 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
-      navigate("/dashboard"); // redireciona após login
+      console.log("✅ Login realizado:", data);
+      navigate("/plans"); // vai para tela de planos
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Entrar</h2>
+      <h2>Login</h2>
+
       <form onSubmit={handleLogin}>
         <input
           type="email"
-          placeholder="Seu e-mail"
+          placeholder="Seu email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+
         <input
           type="password"
           placeholder="Sua senha"
@@ -43,14 +48,17 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
+
+        <button type="submit">Entrar</button>
       </form>
 
-      {error && <p className="error">{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
       <p>
-        Não tem conta? <Link to="/signup">Cadastre-se</Link>
+        Não tem conta? <Link to="/signup">Cadastre-se aqui</Link>
       </p>
     </div>
   );
 }
+
+export default Login;
