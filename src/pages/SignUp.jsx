@@ -1,69 +1,82 @@
-// src/pages/Signup.jsx
-
+// src/pages/SignUp.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient"; // << CORRIGIDO: named import
 import "../App.css";
 
-function Signup() {
+export default function SignUp() {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSignup = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
-    setMessage("");
+    setErrorMsg("");
+    setLoading(true);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      console.log("✅ Cadastro realizado:", data);
-      setMessage("Conta criada! Verifique seu email para confirmar.");
-      // Opcional: já redirecionar após signup
-      // navigate("/plans");
+      if (error) throw error;
+
+      if (data?.user) {
+        alert("Conta criada! Confirme seu e-mail antes de entrar.");
+        navigate("/login");
+      }
+    } catch (err) {
+      setErrorMsg(err.message || "Erro ao criar conta.");
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="signup-container">
-      <h2>Criar Conta</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>Criar Conta</h1>
 
-      <form onSubmit={handleSignup}>
-        <input
-          type="email"
-          placeholder="Seu email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit} className="auth-form">
+          <label className="auth-label">
+            E-mail
+            <input
+              type="email"
+              className="auth-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="voce@email.com"
+              required
+            />
+          </label>
 
-        <input
-          type="password"
-          placeholder="Sua senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <label className="auth-label">
+            Senha
+            <input
+              type="password"
+              className="auth-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </label>
 
-        <button type="submit">Cadastrar</button>
-      </form>
+          {errorMsg && <p className="auth-error">{errorMsg}</p>}
 
-      {error && <p className="error-message">{error}</p>}
-      {message && <p className="success-message">{message}</p>}
+          <button className="auth-button" type="submit" disabled={loading}>
+            {loading ? "Criando..." : "Cadastrar"}
+          </button>
+        </form>
 
-      <p>
-        Já tem conta? <Link to="/login">Entrar</Link>
-      </p>
+        <div className="auth-links">
+          <Link to="/login">Já tenho conta</Link>
+        </div>
+      </div>
     </div>
   );
 }
-
-export default Signup;
