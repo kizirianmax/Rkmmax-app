@@ -1,64 +1,82 @@
 // src/pages/Login.jsx
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient"; // << CORRIGIDO: named import
 import "../App.css";
 
-function Login() {
+export default function Login() {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleLogin = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
+    setErrorMsg("");
+    setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      console.log("✅ Login realizado:", data);
-      navigate("/plans"); // vai para tela de planos
+      if (error) throw error;
+
+      // login OK -> manda para a home (ajuste a rota se quiser)
+      if (data?.user) navigate("/");
+    } catch (err) {
+      setErrorMsg(err.message || "Falha no login. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>Entrar</h1>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Seu email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit} className="auth-form">
+          <label className="auth-label">
+            E-mail
+            <input
+              type="email"
+              className="auth-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="voce@email.com"
+              required
+            />
+          </label>
 
-        <input
-          type="password"
-          placeholder="Sua senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <label className="auth-label">
+            Senha
+            <input
+              type="password"
+              className="auth-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </label>
 
-        <button type="submit">Entrar</button>
-      </form>
+          {errorMsg && <p className="auth-error">{errorMsg}</p>}
 
-      {error && <p className="error-message">{error}</p>}
+          <button className="auth-button" type="submit" disabled={loading}>
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
 
-      <p>
-        Não tem conta? <Link to="/signup">Cadastre-se aqui</Link>
-      </p>
+        <div className="auth-links">
+          <Link to="/reset-password">Esqueci minha senha</Link>
+          <span>•</span>
+          <Link to="/signup">Criar conta</Link>
+        </div>
+      </div>
     </div>
   );
 }
-
-export default Login;
