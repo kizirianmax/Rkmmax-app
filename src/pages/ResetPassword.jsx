@@ -1,60 +1,49 @@
+// src/pages/ResetPassword.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import "./../App.css";
 
-export default function ResetPassword() {
+function ResetPassword() {
   const [email, setEmail] = useState("");
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [error, setError] = useState(null);
 
-  async function handleReset(e) {
+  const handleReset = async (e) => {
     e.preventDefault();
-    setMsg("");
-    setLoading(true);
-
-    const redirectTo = `${window.location.origin}/auth`; // rota que definirá a nova senha
+    setError(null);
+    setMessage(null);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
+      redirectTo: `${window.location.origin}/update-password`,
     });
 
-    setLoading(false);
-
     if (error) {
-      setMsg("❌ Erro: " + error.message);
+      setError(error.message);
     } else {
-      setMsg("✅ Enviamos um e-mail com o link para redefinir sua senha.");
+      setMessage("Enviamos um link de redefinição para seu e-mail!");
     }
-  }
+  };
 
   return (
-    <div className="container">
-      <h2>🔑 Esqueci minha senha</h2>
-
-      <form onSubmit={handleReset} className="form">
+    <div className="reset-container">
+      <h2>Redefinir Senha</h2>
+      <form onSubmit={handleReset}>
         <input
           type="email"
-          className="input"
           placeholder="Seu e-mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-
-        <button type="submit" className="button" disabled={loading}>
-          {loading ? "Enviando..." : "Enviar link de redefinição"}
-        </button>
+        <button type="submit">Enviar link</button>
       </form>
-
-      {msg && <p className="message">{msg}</p>}
-
+      {message && <p style={{ color: "green" }}>{message}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <p>
-        Lembrou a senha?{" "}
-        <Link to="/login" className="link">
-          Fazer login
-        </Link>
+        Voltar para o <Link to="/login">Login</Link>
       </p>
     </div>
   );
 }
+
+export default ResetPassword;
