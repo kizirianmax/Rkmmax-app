@@ -1,80 +1,65 @@
+// src/pages/Login.jsx
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import "../App.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
     setLoading(true);
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        setErrorMsg(error.message || "Falha no login.");
-      } else if (data?.user) {
-        // redireciona após login
-        navigate("/account");
-      } else {
-        setErrorMsg("Não foi possível autenticar. Tente novamente.");
-      }
+      if (error) throw error;
+
+      // login feito, vai para home
+      navigate("/home");
     } catch (err) {
-      setErrorMsg("Erro inesperado. " + (err?.message || ""));
+      console.error("Erro no login:", err.message);
+      alert("Erro ao entrar: " + err.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="container">
-      <h1>Entrar</h1>
-
-      <form onSubmit={handleSubmit} className="card">
-        <label>
-          E-mail
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+        <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
-            placeholder="seu@email.com"
+            placeholder="Seu e-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full border rounded p-2"
             required
-            autoComplete="email"
           />
-        </label>
-
-        <label>
-          Senha
           <input
             type="password"
             placeholder="Sua senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-full border rounded p-2"
             required
-            autoComplete="current-password"
           />
-        </label>
-
-        {errorMsg && <p className="error">{errorMsg}</p>}
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Entrando..." : "Entrar"}
-        </button>
-      </form>
-
-      <div className="muted">
-        <Link to="/reset-password">Esqueci minha senha</Link>
-        {" · "}
-        <Link to="/signup">Criar conta</Link>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          >
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
       </div>
     </div>
   );
