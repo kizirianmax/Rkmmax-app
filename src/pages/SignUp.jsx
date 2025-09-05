@@ -1,69 +1,69 @@
-// src/pages/SignUp.jsx
+// src/pages/Signup.jsx
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../lib/supabaseClient";
-import "./../App.css";
+import supabase from "../lib/supabaseClient";
+import "../App.css";
 
-export default function SignUp() {
+function Signup() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  async function handleSignUp(e) {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    setMsg("");
-    setLoading(true);
+    setError("");
+    setMessage("");
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    setLoading(false);
-
     if (error) {
-      setMsg("❌ Erro: " + error.message);
+      setError(error.message);
     } else {
-      setMsg("✅ Cadastro realizado com sucesso! Verifique seu e-mail.");
-      navigate("/login");
+      console.log("✅ Cadastro realizado:", data);
+      setMessage("Conta criada! Verifique seu email para confirmar.");
+      // Opcional: já redirecionar após signup
+      // navigate("/plans");
     }
-  }
+  };
 
   return (
-    <div className="container">
-      <h2>📝 Criar Conta</h2>
-      <form onSubmit={handleSignUp} className="form">
+    <div className="signup-container">
+      <h2>Criar Conta</h2>
+
+      <form onSubmit={handleSignup}>
         <input
           type="email"
-          placeholder="Seu e-mail"
+          placeholder="Seu email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="input"
         />
+
         <input
           type="password"
           placeholder="Sua senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="input"
         />
-        <button type="submit" className="button" disabled={loading}>
-          {loading ? "Carregando..." : "Cadastrar"}
-        </button>
+
+        <button type="submit">Cadastrar</button>
       </form>
 
-      {msg && <p className="message">{msg}</p>}
+      {error && <p className="error-message">{error}</p>}
+      {message && <p className="success-message">{message}</p>}
 
       <p>
-        Já tem conta?{" "}
-        <Link to="/login" className="link">
-          Fazer login
-        </Link>
+        Já tem conta? <Link to="/login">Entrar</Link>
       </p>
     </div>
   );
 }
+
+export default Signup;
