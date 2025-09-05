@@ -1,37 +1,89 @@
-// netlify/functions/chat.js
-import OpenAI from "openai";
+ // netlify/functions/chat.js
+// Função Serverless no Netlify para conversar com a API da OpenAI
 
-export const handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+const OpenAI = require("openai");
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*", // troque por seu domínio se quiser restringir
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+exports.handler = async (event) => {
+  // Preflight CORS
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: corsHeaders, body: "OK" };
   }
 
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "OPENAI_API_KEY não configurada nas variáveis do Netlify",
+      }),
+    };
+  }
+
+  let payload = {};
   try {
-    const { model, messages } = JSON.parse(event.body || "{}");
-    if (!model || !messages) {
-      return { statusCode: 400, body: "Missing model or messages" };
-    }
+    payload = JSON.parse(event.body || "{}");
+  } catch {
+    return {
+      statusCode: 400,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "JSON inválido no corpo da requisição" }),
+    };
+  }
 
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  // Aceita { messages: [...] } ou { prompt: "texto" }
+  const messages =
+    payload.messages ||
+    (payload.prompt ? [{ role: "user", content: payload.prompt }] : null);
 
-    const resp = await client.chat.completions.create({
-      model,
-      messages, // [{role:"user", content:"..."}]
-      temperature: 0.6,
-      max_tokens: 800,
+  if (!messages || !Array.isArray(messages)) {
+    return {
+      statusCode: 400,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Envie 'messages' como array ou 'prompt' como string",
+      }),
+    };
+  }
+
+  const client = new OpenAI({ apiKey });
+
+  try {
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages,
+      temperature: 0.7,
     });
 
-    const reply = resp.choices?.[0]?.message?.content ?? "";
+    const reply = completion?.choices?.[0]?.message?.content ?? "";
+
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({ reply }),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: err.message }),
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Falha ao chamar OpenAI",
+        details: err?.message || String(err),
+      }),
     };
   }
 };
