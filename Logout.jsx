@@ -1,26 +1,27 @@
 // src/pages/Logout.jsx
-
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 
-function Logout() {
+export default function Logout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const doLogout = async () => {
-      await supabase.auth.signOut();
-      navigate("/login"); // redireciona pro login depois de sair
-    };
-
-    doLogout();
+    (async () => {
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.error("Erro ao fazer logout:", err?.message || err);
+      } finally {
+        // Leva o usuário para a tela de login após sair
+        navigate("/login", { replace: true });
+      }
+    })();
   }, [navigate]);
 
   return (
-    <div className="logout-container">
-      <p>Saindo da conta...</p>
+    <div className="container">
+      <p>Saindo...</p>
     </div>
   );
 }
-
-export default Logout;
