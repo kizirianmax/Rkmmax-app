@@ -1,8 +1,10 @@
 [build]
-  publish   = "dist"
   command = "npm run build"
+  publish = "dist"
 
-[[redirects]]
-  from = "/*"
-  to   = "/index.html"
-  status = 200
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[build.environment]
+  NODE_VERSION = "18"
