@@ -1,47 +1,40 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../lib/supabaseClient";
-import "./../App.css";
+import supabase from "../lib/supabaseClient";  // ✅ importação corrigida
+import "../App.css";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  async function handleLogin(e) {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setMsg("");
-    setLoading(true);
+    setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    setLoading(false);
-
     if (error) {
-      setMsg("❌ Erro: " + error.message);
+      setError(error.message);
     } else {
-      setMsg("✅ Login realizado com sucesso!");
-      navigate("/plans");
+      navigate("/dashboard"); // redireciona após login
     }
-  }
+  };
 
   return (
-    <div className="container">
-      <h2>🔑 Login</h2>
-      <form onSubmit={handleLogin} className="form">
+    <div className="login-container">
+      <h2>Entrar</h2>
+      <form onSubmit={handleLogin}>
         <input
           type="email"
           placeholder="Seu e-mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="input"
         />
         <input
           type="password"
@@ -49,20 +42,14 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="input"
         />
-        <button type="submit" className="button" disabled={loading}>
-          {loading ? "Carregando..." : "Entrar"}
-        </button>
+        <button type="submit">Login</button>
       </form>
 
-      {msg && <p className="message">{msg}</p>}
+      {error && <p className="error">{error}</p>}
 
       <p>
-        Não tem conta?{" "}
-        <Link to="/signup" className="link">
-          Cadastre-se
-        </Link>
+        Não tem conta? <Link to="/signup">Cadastre-se</Link>
       </p>
     </div>
   );
