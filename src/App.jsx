@@ -1,31 +1,35 @@
-
-// src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-import Home from "./pages/Home";
+import ErrorBoundary from "./ErrorBoundary";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import Subscribe from "./pages/Subscribe";
-import PlansScreen from "./pages/PlansScreen";
+import Home from "./pages/Home";
 import Account from "./pages/Account";
-
-import "./App.css";
+import Agents from "./pages/Agents";
+import AgentDetail from "./pages/AgentDetail";
+import PlansScreen from "./pages/PlansScreen";
+import Subscribe from "./pages/Subscribe";
+import ResetPassword from "./pages/ResetPassword";
+import Logout from "./pages/Logout"; // ✅ Importamos o Logout
 
 function App() {
   return (
-    <Router>
-      <div className="app">
+    <ErrorBoundary>
+      <Router>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/subscribe" element={<Subscribe />} />
-          <Route path="/plans" element={<PlansScreen />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/agents" element={<Agents />} />
+          <Route path="/agents/:id" element={<AgentDetail />} />
+          <Route path="/plans" element={<PlansScreen />} />
+          <Route path="/subscribe" element={<Subscribe />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/logout" element={<Logout />} /> {/* ✅ Nova rota */}
         </Routes>
-      </div>
-    </Router>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
