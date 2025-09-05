@@ -1,44 +1,49 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { pickModel } from "../lib/modelPicker";
-import { needsFullModel } from "../lib/complexity";
 import { supabase } from "../lib/supabaseClient";
+import pickModel from "../lib/modelPicker";
+import { needsFullModel } from "../lib/complexity";
 
 export default function Agents() {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    async function fetchAgents() {
+      try {
+        const { data, error } = await supabase.from("agents").select("*");
+
+        if (error) {
+          console.error("Erro ao buscar agentes:", error.message);
+        } else {
+          setAgents(data || []);
+        }
+      } catch (err) {
+        console.error("Erro inesperado:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchAgents();
   }, []);
 
-  async function fetchAgents() {
-    try {
-      setLoading(true);
-
-      const { data, error } = await supabase.from("agents").select("*");
-
-      if (error) throw error;
-      if (data) setAgents(data);
-    } catch (err) {
-      console.error("Erro ao carregar agentes:", err.message);
-    } finally {
-      setLoading(false);
-    }
+  if (loading) {
+    return <p>Carregando agentes...</p>;
   }
 
   return (
-    <div className="container">
-      <h2>Agentes</h2>
-      {loading ? (
-        <p>Carregando...</p>
+    <div>
+      <h1>Agentes</h1>
+      {agents.length === 0 ? (
+        <p>Nenhum agente encontrado.</p>
       ) : (
         <ul>
           {agents.map((agent) => (
             <li key={agent.id}>
-              <Link to={`/agents/${agent.id}`}>
-                {agent.name} – Modelo: {pickModel(agent.complexity)}
-                {needsFullModel(agent.complexity) && " (Full)"}
+              <Link to={`/agent/${agent.id}`}>
+                {agent.name} – Modelo:{" "}
+                {pickModel(agent, needsFullModel(agent) ? "full" : "simple")}
               </Link>
             </li>
           ))}
