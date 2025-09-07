@@ -1,81 +1,83 @@
-// src/pages/Signup.jsx
+// src/pages/SignUp.jsx
 import React, { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-export default function Signup() {
+export default function SignUp() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [pass, setPass] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [msg, setMsg] = useState("");
 
-  const handleSignup = async (e) => {
+  async function handleSignUp(e) {
     e.preventDefault();
+    setMsg("");
     setLoading(true);
 
-    try {
-      // Cria usuário no Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: pass,
+    });
 
-      if (error) throw error;
+    setLoading(false);
 
-      const user = data.user;
-
-      if (user) {
-        // Cria perfil básico vinculado ao user_id
-        const { error: insertError } = await supabase.from("profiles").insert([
-          {
-            user_id: user.id,
-            agente_modo: "auto", // default
-            prefs: {}, // pode ajustar depois
-          },
-        ]);
-
-        if (insertError) throw insertError;
-      }
-
-      alert("Conta criada com sucesso! Confira seu e-mail para confirmar.");
-      navigate("/login");
-    } catch (err) {
-      console.error("Erro no cadastro:", err.message);
-      alert("Erro ao criar conta: " + err.message);
-    } finally {
-      setLoading(false);
+    if (error) {
+      setMsg(`Erro: ${error.message}`);
+    } else {
+      setMsg("Cadastro realizado! Verifique seu e-mail para confirmar a conta.");
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Criar Conta</h2>
-        <form onSubmit={handleSignup} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Seu e-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded p-2"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Sua senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded p-2"
-            required
-          />
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
+      <div className="w-full max-w-md bg-gray-800 border border-gray-700 rounded-2xl shadow-md p-6">
+        <h1 className="text-2xl font-bold text-center mb-2">Criar Conta</h1>
+        <p className="text-center text-gray-300 mb-6">
+          Comece a usar o RKMMAX em poucos segundos
+        </p>
+
+        <form onSubmit={handleSignUp} className="space-y-4">
+          <div>
+            <label className="text-sm text-gray-300">E-mail</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500"
+              placeholder="voce@email.com"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-300">Senha</label>
+            <input
+              type="password"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              required
+              className="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500"
+              placeholder="••••••••"
+            />
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+            className="w-full bg-green-600 hover:bg-green-500 disabled:opacity-70 px-3 py-2 rounded-lg font-semibold"
           >
-            {loading ? "Criando conta..." : "Criar Conta"}
+            {loading ? "Cadastrando..." : "Criar Conta"}
           </button>
         </form>
+
+        {msg && <p className="mt-4 text-center text-yellow-400">{msg}</p>}
+
+        <div className="mt-6 text-sm text-center text-gray-300">
+          Já tem conta?{" "}
+          <Link to="/login" className="text-indigo-400 hover:underline">
+            Entrar
+          </Link>
+        </div>
       </div>
     </div>
   );
