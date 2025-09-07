@@ -4,25 +4,34 @@ import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const handler = async (event) => {
+  // Aceita apenas POST
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+    return {
+      statusCode: 405,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+      body: JSON.stringify({ error: "Method Not Allowed" }),
+    };
   }
 
   try {
     const { priceKey } = JSON.parse(event.body || "{}");
-
     if (!priceKey) {
-      return { statusCode: 400, body: "Missing priceKey" };
+      return {
+        statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+        body: JSON.stringify({ error: "Missing priceKey" }),
+      };
     }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      line_items: [
-        {
-          price: priceKey, // vem do front (ex: price_12345)
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceKey, quantity: 1 }],
       allow_promotion_codes: true,
       success_url: `${process.env.APP_URL}/subscribe?status=success`,
       cancel_url: `${process.env.APP_URL}/subscribe?status=cancelled`,
@@ -33,16 +42,21 @@ export const handler = async (event) => {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
       },
-      body: JSON.stringify({ id: session.id, url: session.url }),
+      body: JSON.stringify({ url: session.url }),
     };
   } catch (err) {
-    console.error("Stripe session error:", err);
+    console.error("Stripe error:", err);
     return {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
       body: JSON.stringify({
-        error: "Erro interno ao criar checkout",
-        details: err.message,
+        error: err?.message || "Erro interno ao criar checkout",
       }),
     };
   }
