@@ -1,117 +1,129 @@
 // src/pages/PlansScreen.jsx
 import React from "react";
-import { loadStripe } from "@stripe/stripe-js";
 
-// Pode não existir em produção ainda; só inicializa se houver
-const PK = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
-const stripePromise = PK ? loadStripe(PK) : null;
+// Chama a Function do Netlify que cria a sessão no Stripe
+async function handleCheckout(priceKey) {
+  try {
+    const res = await fetch("/.netlify/functions/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priceKey }),
+    });
+
+    const data = await res.json();
+
+    if (data?.url) {
+      window.location.href = data.url; // redireciona para o Checkout do Stripe
+    } else {
+      alert("Erro ao iniciar checkout: " + (data?.error || "desconhecido"));
+      console.error("Checkout response:", data);
+    }
+  } catch (err) {
+    console.error("Erro no checkout:", err);
+    alert("Erro ao processar checkout");
+  }
+}
 
 export default function PlansScreen() {
-  // Função chamada ao clicar em "Assinar"
-  async function assinar(priceEnvKey) {
-    try {
-      const priceKey = import.meta.env[priceEnvKey]; // lê a env do Netlify
-
-      if (!priceKey) {
-        alert(`Preço não configurado: ${priceEnvKey}`);
-        return;
-      }
-
-      const res = await fetch("/.netlify/functions/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceKey }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Falha ao criar sessão");
-
-      // preferimos a URL vinda do backend
-      if (data.url) {
-        window.location.href = data.url;
-        return;
-      }
-
-      // fallback via Stripe.js caso o backend retorne sessionId
-      if (stripePromise && data.id) {
-        const stripe = await stripePromise;
-        await stripe.redirectToCheckout({ sessionId: data.id });
-        return;
-      }
-
-      alert("Não foi possível redirecionar para o checkout.");
-    } catch (e) {
-      console.error(e);
-      alert("Erro ao iniciar pagamento: " + e.message);
-    }
-  }
-
-  // --- UI (mantém a estrutura de cartões e botões "Assinar") ---
   return (
     <div className="plans-wrapper">
-      {/* BRASIL */}
-      <section>
-        <div className="card">
-          <h2>🇧🇷 Básico Brasil</h2>
-          <p>Acesso inicial ao RKMMAX</p>
-          <p className="price">R$ 14,90/mês</p>
-          <button className="btn"
-            onClick={() => assinar("STRIPE_PRICE_SIMPLE_BR")}>
-            Assinar
-          </button>
-        </div>
+      <h1 className="plans-title">Planos RKMMAX</h1>
 
-        <div className="card">
-          <h2>🇧🇷 Intermediário Brasil</h2>
-          <p>Mais recursos e suporte</p>
-          <p className="price">R$ 29,90/mês</p>
-          <button className="btn"
-            onClick={() => assinar("STRIPE_PRICE_MEDIUM_BR")}>
-            Assinar
-          </button>
-        </div>
+      {/* ---- BRASIL ---- */}
+      <section className="plans-section">
+        <h2 className="plans-subtitle">🇧🇷 Brasil (BRL)</h2>
 
-        <div className="card">
-          <h2>🇧🇷 Premium Brasil</h2>
-          <p>Tudo incluso, máxima performance</p>
-          <p className="price">R$ 49,00/mês</p>
-          <button className="btn"
-            onClick={() => assinar("STRIPE_PRICE_TOP_BR")}>
-            Assinar
-          </button>
+        <div className="cards">
+          <div className="card">
+            <h3 className="card-title">Básico</h3>
+            <p className="card-desc">Acesso inicial ao RKMMAX</p>
+            <p className="price">R$ 14,90/mês</p>
+            <button
+              className="btn"
+              onClick={() =>
+                handleCheckout("price_1S3RNLENxlkCT0yfu3UlZ7gM")
+              }
+            >
+              Assinar
+            </button>
+          </div>
+
+          <div className="card">
+            <h3 className="card-title">Intermediário</h3>
+            <p className="card-desc">Mais recursos e suporte</p>
+            <p className="price">R$ 29,90/mês</p>
+            <button
+              className="btn"
+              onClick={() =>
+                handleCheckout("price_1S3RPwENxlkCT0yfGUL2ae8N")
+              }
+            >
+              Assinar
+            </button>
+          </div>
+
+          <div className="card">
+            <h3 className="card-title">Premium</h3>
+            <p className="card-desc">Tudo incluso, máxima performance</p>
+            <p className="price">R$ 39,90/mês</p>
+            <button
+              className="btn"
+              onClick={() =>
+                handleCheckout("price_1S3RSCENxlkCT0yf1pE1yLIQ")
+              }
+            >
+              Assinar
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* EUA */}
-      <section>
-        <div className="card">
-          <h2>🌍 Básico EUA</h2>
-          <p>Acesso inicial ao RKMMAX</p>
-          <p className="price">US$ 15,00/mês</p>
-          <button className="btn"
-            onClick={() => assinar("STRIPE_PRICE_SIMPLE_US")}>
-            Assinar
-          </button>
-        </div>
+      {/* ---- EUA ---- */}
+      <section className="plans-section">
+        <h2 className="plans-subtitle">🌍 EUA (USD)</h2>
 
-        <div className="card">
-          <h2>🌍 Intermediário EUA</h2>
-          <p>Mais recursos e suporte</p>
-          <p className="price">US$ 25,00/mês</p>
-          <button className="btn"
-            onClick={() => assinar("STRIPE_PRICE_MEDIUM_US")}>
-            Assinar
-          </button>
-        </div>
+        <div className="cards">
+          <div className="card">
+            <h3 className="card-title">Basic</h3>
+            <p className="card-desc">Starter access to RKMMAX</p>
+            <p className="price">$ 10.00 / month</p>
+            <button
+              className="btn"
+              onClick={() =>
+                handleCheckout("price_1S4XDMENxlkCT0yfyRplY90w")
+              }
+            >
+              Subscribe
+            </button>
+          </div>
 
-        <div className="card">
-          <h2>🌍 Premium EUA</h2>
-          <p>Tudo incluso, máxima performance</p>
-          <p className="price">US$ 40,00/mês</p>
-          <button className="btn"
-            onClick={() => assinar("STRIPE_PRICE_TOP_US")}>
-            Assinar
-          </button>
+          <div className="card">
+            <h3 className="card-title">Intermediate</h3>
+            <p className="card-desc">More features and support</p>
+            <p className="price">$ 25.00 / month</p>
+            <button
+              className="btn"
+              onClick={() =>
+                handleCheckout("price_1S3RZGENxlkCT0yfLlOjV8Ns")
+              }
+            >
+              Subscribe
+            </button>
+          </div>
+
+          <div className="card">
+            <h3 className="card-title">Premium</h3>
+            <p className="card-desc">All included, maximum performance</p>
+            <p className="price">$ 40.00 / month</p>
+            <button
+              className="btn"
+              onClick={() =>
+                handleCheckout("price_1S4XSRENxlkCT0yf17FK5R9Y")
+              }
+            >
+              Subscribe
+            </button>
+          </div>
         </div>
       </section>
     </div>
