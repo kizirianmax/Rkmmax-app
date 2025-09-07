@@ -1,62 +1,67 @@
-// --- PlansScreen.jsx ---
-// Mapeamento dos preços no Stripe por moeda/país
-const PLANS = {
-  BRL: [
-    {
-      tier: "Básico",
-      priceLabel: "R$ 14,90/mês",
-      priceKey: "price_1S3RNLENxIkCT0yfu3UlZ7gM", // BR - Basic
-    },
-    {
-      tier: "Intermediário",
-      priceLabel: "R$ 29,90/mês",
-      priceKey: "price_1S3RPwENxIkCT0yfGUL2ae8N", // BR - Intermediate
-    },
-    {
-      tier: "Premium",
-      priceLabel: "R$ 49,00/mês",
-      priceKey: "price_1S3RSCENxIkCT0yf1pE1yLIQ", // BR - Premium
-    },
-  ],
-  USD: [
-    {
-      tier: "Basic",
-      priceLabel: "$ 10.00 / month",
-      priceKey: "price_1S4XDMENxIkCT0yfyply90w", // US - Basic
-    },
-    {
-      tier: "Intermediate",
-      priceLabel: "$ 25.00 / month",
-      priceKey: "price_1S3RZGENxIkCT0yf1L0jV8Ns", // US - Intermediate
-    },
-    {
-      tier: "Premium",
-      priceLabel: "$ 30.00 / month",
-      priceKey: "price_1S4XSRENxIkCT0yf17FK5R9Y", // US - Premium
-    },
-  ],
+import React from "react";
+
+const PlansScreen = () => {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white px-4">
+      <h1 className="text-3xl font-bold mb-6">Planos RKMMAX</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl w-full">
+        {/* Plano Básico */}
+        <div className="bg-gray-800 p-6 rounded-2xl shadow-lg text-center">
+          <h2 className="text-xl font-semibold mb-2">🇧🇷 Brasil (BRL)</h2>
+          <h3 className="text-lg text-blue-400 mb-4">Básico</h3>
+          <p className="mb-4">Acesso inicial ao RKMMAX</p>
+          <p className="text-2xl font-bold mb-6">R$ 14,90/mês</p>
+          <button
+            className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg"
+            onClick={() => iniciarCheckout("price_brasil_basico")}
+          >
+            Assinar
+          </button>
+        </div>
+
+        {/* Plano Premium */}
+        <div className="bg-gray-800 p-6 rounded-2xl shadow-lg text-center">
+          <h2 className="text-xl font-semibold mb-2">🇧🇷 Brasil (BRL)</h2>
+          <h3 className="text-lg text-green-400 mb-4">Premium</h3>
+          <p className="mb-4">Tudo incluso, máxima performance</p>
+          <p className="text-2xl font-bold mb-6">R$ 39,90/mês</p>
+          <button
+            className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg"
+            onClick={() => iniciarCheckout("price_brasil_premium")}
+          >
+            Assinar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-// Exemplo de função de checkout já utilizando o priceKey
-async function startCheckout(priceKey) {
+// ⚡ Função para chamar a função do Netlify
+async function iniciarCheckout(priceKey) {
   try {
-    const res = await fetch("/.netlify/functions/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceKey }),
-    });
+    const response = await fetch(
+      "/.netlify/functions/create-checkout-session",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceKey }),
+      }
+    );
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Erro desconhecido");
-
-    // Redireciona para o Stripe Checkout
-    window.location.href = data.url;
+    const data = await response.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Erro ao iniciar checkout");
+      console.error(data);
+    }
   } catch (err) {
-    alert(`Erro ao iniciar checkout: ${err.message || "desconhecido"}`);
+    console.error(err);
+    alert("Erro de conexão com o servidor.");
   }
 }
 
-// …no JSX dos seus cards, use algo assim:
-// {PLANS.BRL.map(plan => (
-//   <button onClick={() => startCheckout(plan.priceKey)}>Assinar</button>
-// ))}
+// ✅ Correção final
+export default PlansScreen;
