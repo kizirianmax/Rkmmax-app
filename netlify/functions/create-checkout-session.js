@@ -1,75 +1,94 @@
 // netlify/functions/create-checkout-session.js
-// Backend: cria uma sessão de Checkout do Stripe para assinaturas
-
-const stripeSecret = process.env.STRIPE_SECRET_KEY;
-if (!stripeSecret) {
-  console.error("STRIPE_SECRET_KEY não definido nas variáveis de ambiente!");
-}
-const stripe = require("stripe")(stripeSecret);
-
-/** Util: resposta JSON */
-const json = (statusCode, data, extraHeaders = {}) => ({
-  statusCode,
-  headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",          // libere o front (ajuste se quiser)
-    "Access-Control-Allow-Methods": "POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-    ...extraHeaders,
-  },
-  body: JSON.stringify(data),
-});
+// Node 18+ (padrão no Netlify). Precisa do pacote "stripe" instalado no projeto.
 
 exports.handler = async (event) => {
   try {
-    // Preflight CORS
-    if (event.httpMethod === "OPTIONS") {
-      return json(200, { ok: true });
-    }
-
-    // Só POST
+    // Apenas POST
     if (event.httpMethod !== "POST") {
-      return json(405, { error: "Method Not Allowed" });
+      return {
+        statusCode: 405,
+        body: JSON.stringify({ error: "Method not allowed" }),
+      };
     }
 
-    if (!stripeSecret) {
-      return json(500, { error: "Servidor sem STRIPE_SECRET_KEY configurada" });
-    }
-
-    // Pega origem/host de forma robusta (local, Netlify, etc.)
-    const proto = event.headers["x-forwarded-proto"] || "https";
-    const host  = event.headers.host || "localhost:5173";
-    const origin = event.headers.origin || `${proto}://${host}`;
-
-    // Lê o body
-    let body;
+    // Parse do body
+    let payload = {};
     try {
-      body = JSON.parse(event.body || "{}");
+      payload = JSON.parse(event.body || "{}");
     } catch {
-      return json(400, { error: "JSON inválido" });
+      return { statusCode: 400, body: JSON.stringify({ error: "Bad JSON" }) };
     }
 
-    const { priceId, email } = body;
-    if (!priceId) {
-      return json(400, { error: "priceId é obrigatório" });
+    // Mapa de chaves amigáveis -> variáveis de ambiente
+    const PRICE_MAP = {
+      // Brasil
+      simple_br: process.env.STRIPE_PRICE_SIMPLE_BR,
+      medium_br: process.env.STRIPE_PRICE_MEDIUM_BR,
+      top_br: process.env.STRIPE_PRICE_TOP_BR,
+      // EUA
+      simple_us: process.env.STRIPE_PRICE_SIMPLE_US,
+      medium_us: process.env.STRIPE_PRICE_MEDIUM_US,
+      top_us: process.env.STRIPE_PRICE_TOP_US,
+    };
+
+    const priceKey = String(payload.priceKey || "").toLowerCase();
+    const price = PRICE_MAP[priceKey];
+
+    if (!price) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "priceKey inválido" }),
+      };
     }
 
-    // Cria a sessão de checkout (assinatura)
+    // Stripe
+    const stripeSecret = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecret) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "STRIPE_SECRET_KEY não configurada" }),
+      };
+    }
+
+    const Stripe = require("stripe");
+    const stripe = Stripe(stripeSecret);
+
+    // URLs de retorno
+    const appUrl =
+      process.env.APP_URL ||
+      process.env.URL || // Netlify define URL do site publicado
+      "https://kizirianmax.site"; // fallback
+
+    const success_url = `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancel_url = `${appUrl}/pricing?canceled=1`;
+
+    // Cria sessão de checkout
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      payment_method_types: ["card"],
-      customer_email: email || undefined, // opcional
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/subscribe?success=1`,
-      cancel_url: `${origin}/subscribe?canceled=1`,
-      // Você pode adicionar metadata aqui se quiser rastrear plano/usuário
-      // metadata: { plan: priceId, source: "web" },
+      line_items: [{ price, quantity: 1 }],
+      success_url,
+      cancel_url,
+      allow_promotion_codes: true,
+      // Para identificar o plano escolhido (opcional)
+      metadata: { priceKey },
+      // Para quem usa login, pode passar customer_email aqui se tiver
+      // customer_email: payload.email || undefined,
     });
 
-    return json(200, { url: session.url });
+    // CORS + resposta
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ id: session.id, url: session.url }),
+    };
   } catch (err) {
-    console.error("Stripe error:", err);
-    // Mostre mensagem amigável, detalle no console
-    return json(500, { error: "Falha ao criar sessão de checkout" });
+    console.error(err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Erro interno ao criar checkout" }),
+    };
   }
 };
