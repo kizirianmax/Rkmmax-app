@@ -1,15 +1,32 @@
-// src/lib/supabaseClient.js
-import { createClient } from "@supabase/supabase-js";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
-// Pega as variáveis do ambiente (Netlify / Vite / Bolt)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+function Agents() {
+  const [agents, setAgents] = useState([]);
 
-// Checagem de segurança: alerta se variáveis não estiverem configuradas
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("❌ Supabase URL ou Anon Key não configurados!");
-  console.error("Verifique as variáveis de ambiente no Netlify/Bolt:");
-  console.error("VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY");
+  useEffect(() => {
+    async function fetchAgents() {
+      const { data, error } = await supabase.from("agents").select("*");
+      if (error) {
+        console.error("Erro ao buscar agentes:", error.message);
+      } else {
+        setAgents(data);
+      }
+    }
+
+    fetchAgents();
+  }, []);
+
+  return (
+    <div>
+      <h1>Lista de Agentes</h1>
+      <ul>
+        {agents.map((agent) => (
+          <li key={agent.id}>{agent.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export default Agents;
