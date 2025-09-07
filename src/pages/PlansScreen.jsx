@@ -1,120 +1,62 @@
-// src/pages/PlansScreen.jsx
-import React, { useState } from "react";
+// --- PlansScreen.jsx ---
+// Mapeamento dos preços no Stripe por moeda/país
+const PLANS = {
+  BRL: [
+    {
+      tier: "Básico",
+      priceLabel: "R$ 14,90/mês",
+      priceKey: "price_1S3RNLENxIkCT0yfu3UlZ7gM", // BR - Basic
+    },
+    {
+      tier: "Intermediário",
+      priceLabel: "R$ 29,90/mês",
+      priceKey: "price_1S3RPwENxIkCT0yfGUL2ae8N", // BR - Intermediate
+    },
+    {
+      tier: "Premium",
+      priceLabel: "R$ 49,00/mês",
+      priceKey: "price_1S3RSCENxIkCT0yf1pE1yLIQ", // BR - Premium
+    },
+  ],
+  USD: [
+    {
+      tier: "Basic",
+      priceLabel: "$ 10.00 / month",
+      priceKey: "price_1S4XDMENxIkCT0yfyply90w", // US - Basic
+    },
+    {
+      tier: "Intermediate",
+      priceLabel: "$ 25.00 / month",
+      priceKey: "price_1S3RZGENxIkCT0yf1L0jV8Ns", // US - Intermediate
+    },
+    {
+      tier: "Premium",
+      priceLabel: "$ 30.00 / month",
+      priceKey: "price_1S4XSRENxIkCT0yf17FK5R9Y", // US - Premium
+    },
+  ],
+};
 
-const PLANS = [
-  {
-    id: "br-basic",
-    title: "Básico",
-    desc: "Acesso inicial ao RKMMAX",
-    priceLabel: "R$ 14,90/mês",
-    currency: "BRL",
-    priceKey: "price_XXXX_brl_basic", // <<< SEU price do Stripe
-  },
-  {
-    id: "br-premium",
-    title: "Premium",
-    desc: "Tudo incluso, máxima performance",
-    priceLabel: "R$ 39,90/mês",
-    currency: "BRL",
-    priceKey: "price_XXXX_brl_premium", // <<< SEU price do Stripe
-  },
-];
+// Exemplo de função de checkout já utilizando o priceKey
+async function startCheckout(priceKey) {
+  try {
+    const res = await fetch("/.netlify/functions/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priceKey }),
+    });
 
-export default function PlansScreen() {
-  const [loadingId, setLoadingId] = useState(null);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erro desconhecido");
 
-  const startCheckout = async (priceKey) => {
-    setLoadingId(priceKey);
-    try {
-      const res = await fetch("/.netlify/functions/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceKey }),
-      });
-
-      let data = {};
-      try {
-        data = await res.json();
-      } catch {
-        throw new Error("Resposta inválida do servidor");
-      }
-
-      if (!res.ok) {
-        const msg = data?.details || data?.error || res.statusText || "desconhecido";
-        throw new Error(msg);
-      }
-
-      if (data?.url) {
-        window.location.href = data.url; // redireciona pro Checkout
-        return;
-      }
-
-      throw new Error("Não veio URL do checkout");
-    } catch (err) {
-      alert(`Erro ao iniciar checkout: ${err?.message || err || "desconhecido"}`);
-      console.error("Checkout start error:", err);
-    } finally {
-      setLoadingId(null);
-    }
-  };
-
-  return (
-    <div style={styles.page}>
-      <h1 style={styles.h1}>Planos RKMMAX</h1>
-
-      <div style={styles.grid}>
-        {PLANS.map((p) => (
-          <div key={p.id} style={styles.card}>
-            <div style={styles.flag}>
-              {p.currency === "BRL" ? "🇧🇷 Brasil (BRL)" : "🌎"}
-            </div>
-            <h2 style={styles.title}>{p.title}</h2>
-            <p style={styles.desc}>{p.desc}</p>
-            <p style={styles.price}>{p.priceLabel}</p>
-
-            <button
-              onClick={() => startCheckout(p.priceKey)}
-              disabled={loadingId === p.priceKey}
-              style={{ ...styles.btn, opacity: loadingId === p.priceKey ? 0.7 : 1 }}
-            >
-              {loadingId === p.priceKey ? "Iniciando…" : "Assinar"}
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+    // Redireciona para o Stripe Checkout
+    window.location.href = data.url;
+  } catch (err) {
+    alert(`Erro ao iniciar checkout: ${err.message || "desconhecido"}`);
+  }
 }
 
-const styles = {
-  page: { minHeight: "100vh", background: "#0f172a", color: "#e2e8f0", padding: 32 },
-  h1: { textAlign: "center", marginBottom: 24, fontSize: 32, color: "#7dd3fc" },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: 16,
-    maxWidth: 1000,
-    margin: "0 auto",
-  },
-  card: {
-    background: "#0b1220",
-    border: "1px solid #1f2a44",
-    borderRadius: 16,
-    padding: 20,
-    boxShadow: "0 6px 20px rgba(0,0,0,.25)",
-  },
-  flag: { fontSize: 14, opacity: 0.8, marginBottom: 6 },
-  title: { fontSize: 22, margin: "6px 0 4px" },
-  desc: { fontSize: 14, opacity: 0.9, minHeight: 40 },
-  price: { fontSize: 18, margin: "8px 0 18px", color: "#a5b4fc" },
-  btn: {
-    width: "100%",
-    padding: "10px 14px",
-    borderRadius: 10,
-    border: "none",
-    cursor: "pointer",
-    background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
-    color: "white",
-    fontWeight: 700,
-  },
-};
+// …no JSX dos seus cards, use algo assim:
+// {PLANS.BRL.map(plan => (
+//   <button onClick={() => startCheckout(plan.priceKey)}>Assinar</button>
+// ))}
