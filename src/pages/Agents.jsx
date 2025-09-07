@@ -1,46 +1,67 @@
+// src/pages/Agents.jsx
 import React, { useEffect, useState } from "react";
-// se você já tem um supabaseClient no projeto, use ele:
-import { supabase } from "../supabaseClient"; 
-// Se não tiver, use isto no lugar da linha acima:
-// import { createClient } from "@supabase/supabase-js";
-// const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
+import { supabase } from "../supabaseClient"; // mantém o caminho que você já usa
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
 
 export default function Agents() {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadAgents() {
-      const { data, error } = await supabase
-        .from("agents")
-        .select("id, name, description")
-        .order("id", { ascending: true });
-
-      if (error) {
-        console.error("Erro ao carregar agentes:", error.message);
-        setAgents([]); // evita travar a tela
-      } else {
-        setAgents(data || []);
-      }
-      setLoading(false);
-    }
-    loadAgents();
+    fetchAgents();
   }, []);
 
-  if (loading) return <p style={{ textAlign: "center" }}>Carregando agentes...</p>;
-  if (!agents.length) return <p style={{ textAlign: "center" }}>Nenhum agente encontrado.</p>;
+  const fetchAgents = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("agents") // tabela agents (tudo minúsculo)
+      .select("id, name, role, description, avatar_url")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Erro ao carregar agentes:", error.message);
+      setAgents([]);
+    } else {
+      setAgents(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  if (loading) {
+    return <p style={{ textAlign: "center", marginTop: "2rem" }}>Carregando...</p>;
+  }
+
+  if (!agents.length) {
+    return <p style={{ textAlign: "center", marginTop: "2rem" }}>Nenhum agente encontrado.</p>;
+  }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1 style={{ textAlign: "center", color: "#00bfff" }}>Agentes</h1>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {agents.map((a) => (
-          <li key={a.id} style={{ marginBottom: 15, padding: 15, background: "#111827", borderRadius: 10, color: "#f9fafb" }}>
-            <h2 style={{ margin: 0 }}>{a.name}</h2>
-            <p style={{ margin: "6px 0 0" }}>{a.description}</p>
-          </li>
-        ))}
-      </ul>
+    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {agents.map((agent) => (
+        <Card key={agent.id} className="rounded-2xl shadow-md">
+          <CardHeader>
+            <CardTitle>{agent.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {agent.avatar_url && (
+              <img
+                src={agent.avatar_url}
+                alt={agent.name}
+                className="w-16 h-16 rounded-full mb-2"
+              />
+            )}
+            <p><strong>Função:</strong> {agent.role || "—"}</p>
+            <p className="text-sm mt-2">{agent.description}</p>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
