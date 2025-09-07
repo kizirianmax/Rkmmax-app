@@ -1,16 +1,22 @@
 // src/pages/Agents.jsx
 import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient"; // mantém o caminho que você já usa
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { supabase } from "../supabaseClient";
+
+function mask(str = "", keep = 6) {
+  if (!str) return "∅";
+  if (str.length <= keep) return "*".repeat(str.length);
+  return str.slice(0, keep) + "…" + "*".repeat(Math.max(0, str.length - keep - 1));
+}
 
 export default function Agents() {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  // Lê as variáveis do build (Vite)
+  // Se vierem vazias no site publicado, é 100% problema de env no Netlify.
+  const SUPA_URL = import.meta.env.VITE_SUPABASE_URL;
+  const SUPA_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   useEffect(() => {
     fetchAgents();
@@ -18,50 +24,57 @@ export default function Agents() {
 
   const fetchAgents = async () => {
     setLoading(true);
+    setErr("");
 
-    const { data, error } = await supabase
-      .from("agents") // tabela agents (tudo minúsculo)
-      .select("id, name, role, description, avatar_url")
+    const { data, error, count } = await supabase
+      .from("agents")
+      .select("id, name, role, description, avatar_url", { count: "exact", head: false })
       .order("name", { ascending: true });
 
     if (error) {
-      console.error("Erro ao carregar agentes:", error.message);
+      console.error("Supabase error:", error);
+      setErr(`${error.message} (code: ${error.code ?? "n/a"})`);
       setAgents([]);
     } else {
+      console.log("Supabase OK:", { count: data?.length, sample: data?.[0] });
       setAgents(data || []);
     }
-
     setLoading(false);
   };
 
-  if (loading) {
-    return <p style={{ textAlign: "center", marginTop: "2rem" }}>Carregando...</p>;
-  }
-
-  if (!agents.length) {
-    return <p style={{ textAlign: "center", marginTop: "2rem" }}>Nenhum agente encontrado.</p>;
-  }
-
   return (
-    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {agents.map((agent) => (
-        <Card key={agent.id} className="rounded-2xl shadow-md">
-          <CardHeader>
-            <CardTitle>{agent.name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {agent.avatar_url && (
-              <img
-                src={agent.avatar_url}
-                alt={agent.name}
-                className="w-16 h-16 rounded-full mb-2"
-              />
-            )}
-            <p><strong>Função:</strong> {agent.role || "—"}</p>
-            <p className="text-sm mt-2">{agent.description}</p>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="p-4">
+      {/* Bloco de diagnóstico (pode remover depois) */}
+      <div className="mb-4 rounded-xl p-3" style={{ background: "#123", color: "#9ee" }}>
+        <div><b>DEBUG</b></div>
+        <div>ENV VITE_SUPABASE_URL: <code>{mask(SUPA_URL)}</code></div>
+        <div>ENV VITE_SUPABASE_ANON_KEY: <code>{mask(SUPA_KEY)}</code></div>
+        <div>Rows carregadas: <b>{agents.length}</b></div>
+        {err ? <div style={{ color: "#ffb" }}>Erro: {err}</div> : null}
+      </div>
+
+      {loading && <p style={{ textAlign: "center", marginTop: "2rem" }}>Carregando…</p>}
+      {!loading && !agents.length && !err && (
+        <p style={{ textAlign: "center", marginTop: "2rem" }}>Nenhum agente encontrado.</p>
+      )}
+      {!loading && agents.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {agents.map((a) => (
+            <div key={a.id} className="rounded-2xl shadow-md bg-[#0b1e36] p-4">
+              <div className="text-lg font-semibold mb-1">{a.name}</div>
+              {a.avatar_url && (
+                <img
+                  src={a.avatar_url}
+                  alt={a.name}
+                  className="w-16 h-16 rounded-full mb-2"
+                />
+              )}
+              <div><b>Função:</b> {a.role || "—"}</div>
+              <div className="text-sm mt-2 opacity-90">{a.description}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
