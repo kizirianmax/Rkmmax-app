@@ -1,23 +1,25 @@
 // netlify/functions/prices.js
 import Stripe from "stripe";
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const handler = async (event) => {
   try {
-    const regionParam = event.queryStringParameters?.region || "BR";
+    // Região padrão = BR, mas pode vir via query string (?region=US)
+    const region = event.queryStringParameters?.region || "BR";
 
+    // Lista até 100 prices ativos no Stripe
     const list = await stripe.prices.list({
       active: true,
       limit: 100,
       expand: ["data.product"],
     });
 
+    // Filtra por região usando lookup_key ou metadata.region
     const filtered = list.data.filter((p) => {
       const lookup = (p.lookup_key || "").toLowerCase();
-      const regionMatch =
-        lookup.startsWith(`rkm_${regionParam.toLowerCase()}_`) ||
-        p.metadata?.region === regionParam;
-      return regionMatch && p.recurring;
+      const metaRegion = p.metadata?.region || "";
+      return lookup.startsWith(`rkm_${region.toLowerCase()}_`) || metaRegion === region;
     });
 
     return {
@@ -26,16 +28,7 @@ export const handler = async (event) => {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify(
-        filtered.map((p) => ({
-          id: p.id,
-          nickname: p.nickname,
-          currency: p.currency,
-          amount: p.unit_amount / 100,
-          interval: p.recurring?.interval,
-          product: typeof p.product === "object" ? p.product.name : p.product,
-        }))
-      ),
+      body: JSON.stringify(filtered, null, 2),
     };
   } catch (err) {
     return {
