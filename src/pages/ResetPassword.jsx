@@ -1,168 +1,150 @@
 // src/pages/ResetPassword.jsx
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
 
 export default function ResetPassword() {
-  const navigate = useNavigate();
-
-  // modo 1: pedir link por e-mail
   const [email, setEmail] = useState("");
-  const [sending, setSending] = useState(false);
-
-  // modo 2: redefinir senha após clicar no link de recuperação
-  const [isRecovery, setIsRecovery] = useState(false);
-  const [password, setPassword] = useState("");
+  const [newPass, setNewPass] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [updating, setUpdating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [isRecovery, setIsRecovery] = useState(false);
 
-  // Detecta se chegamos aqui via link de recuperação
+  // Detecta se a página foi aberta a partir do link de recuperação
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setIsRecovery(true);
-      }
-    });
+    // Ex.: .../#access_token=...&type=recovery
+    const hash = window.location.hash || "";
+    const isRec = hash.includes("type=recovery");
+    setIsRecovery(isRec);
 
-    // Checa sessão atual — alguns provedores já deixam a sessão pronta ao chegar
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        // Se a sessão já existir, provavelmente é o fluxo de recovery
-        // Mantemos a tela de "definir nova senha"
-        setIsRecovery(true);
-      }
-    })();
-
-    return () => sub.subscription.unsubscribe();
+    // Opcional: garante a sessão do recovery
+    // Supabase costuma setar a sessão automaticamente quando chega com o hash.
+    // Mas se quiser confirmar:
+    // supabase.auth.getSession().then(({ data }) => console.log("session:", data.session));
   }, []);
 
-  const handleSendEmail = async (e) => {
+  async function sendResetEmail(e) {
     e.preventDefault();
-    setSending(true);
+    setMsg("");
+    setLoading(true);
     try {
-      const redirectTo =
-        (typeof window !== "undefined" &&
-          `${window.location.origin}/reset-password`) ||
-        undefined;
-
+      const redirectTo = `${window.location.origin}/reset-password`;
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo,
       });
       if (error) throw error;
-      alert("Se o e-mail existir, enviaremos um link para redefinição.");
+      setMsg("Enviamos um link de recuperação para o seu e-mail.");
     } catch (err) {
-      console.error(err);
-      alert("Erro ao enviar o link: " + (err?.message || err));
+      setMsg(`Erro: ${err.message || "falha ao enviar o e-mail"}`);
     } finally {
-      setSending(false);
+      setLoading(false);
     }
-  };
+  }
 
-  const handleUpdatePassword = async (e) => {
+  async function updatePassword(e) {
     e.preventDefault();
-    if (password.length < 6) {
-      alert("A nova senha precisa ter pelo menos 6 caracteres.");
+    setMsg("");
+    if (!newPass || newPass.length < 6) {
+      setMsg("A nova senha precisa ter pelo menos 6 caracteres.");
       return;
     }
-    if (password !== confirm) {
-      alert("As senhas não coincidem.");
+    if (newPass !== confirm) {
+      setMsg("As senhas não conferem.");
       return;
     }
-    setUpdating(true);
+
+    setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
+      const { error } = await supabase.auth.updateUser({ password: newPass });
       if (error) throw error;
-      alert("Senha atualizada com sucesso! Você será redirecionado.");
-      navigate("/login");
+      setMsg("Senha alterada com sucesso! Você já pode entrar normalmente.");
+      // Opcional: redirecionar após alguns segundos:
+      // setTimeout(() => (window.location.href = "/login"), 1500);
     } catch (err) {
-      console.error(err);
-      alert("Erro ao atualizar senha: " + (err?.message || err));
+      setMsg(`Erro: ${err.message || "falha ao alterar a senha"}`);
     } finally {
-      setUpdating(false);
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10">
-      <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
+      <div className="w-full max-w-md bg-gray-800 border border-gray-700 rounded-2xl shadow-md p-6">
+        <h1 className="text-2xl font-bold text-center mb-2">
+          {isRecovery ? "Definir nova senha" : "Recuperar senha"}
+        </h1>
+        <p className="text-center text-gray-300 mb-6">
+          {isRecovery
+            ? "Crie sua nova senha para acessar sua conta."
+            : "Informe seu e-mail para receber o link de recuperação."}
+        </p>
+
         {!isRecovery ? (
-          <>
-            <h1 className="text-2xl font-bold mb-4">Recuperar senha</h1>
-            <form onSubmit={handleSendEmail} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">E-mail</label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border rounded p-2"
-                  placeholder="seu@email.com"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={sending}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
-              >
-                {sending ? "Enviando..." : "Enviar link de recuperação"}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/login")}
-                className="w-full bg-gray-200 text-gray-800 py-2 rounded hover:bg-gray-300"
-              >
-                Voltar ao login
-              </button>
-            </form>
-          </>
+          <form onSubmit={sendResetEmail} className="space-y-4">
+            <div>
+              <label className="text-sm text-gray-300">E-mail</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500"
+                placeholder="voce@email.com"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 px-3 py-2 rounded-lg font-semibold"
+            >
+              {loading ? "Enviando..." : "Enviar link de recuperação"}
+            </button>
+          </form>
         ) : (
-          <>
-            <h1 className="text-2xl font-bold mb-4">Definir nova senha</h1>
-            <form onSubmit={handleUpdatePassword} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Nova senha
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border rounded p-2"
-                  placeholder="******"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Confirmar senha
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="w-full border rounded p-2"
-                  placeholder="******"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={updating}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
-              >
-                {updating ? "Atualizando..." : "Atualizar senha"}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/login")}
-                className="w-full bg-gray-200 text-gray-800 py-2 rounded hover:bg-gray-300"
-              >
-                Cancelar
-              </button>
-            </form>
-          </>
+          <form onSubmit={updatePassword} className="space-y-4">
+            <div>
+              <label className="text-sm text-gray-300">Nova senha</label>
+              <input
+                type="password"
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                required
+                minLength={6}
+                className="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500"
+                placeholder="••••••••"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-gray-300">Confirmar senha</label>
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                required
+                minLength={6}
+                className="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-500 disabled:opacity-70 px-3 py-2 rounded-lg font-semibold"
+            >
+              {loading ? "Salvando..." : "Salvar nova senha"}
+            </button>
+          </form>
+        )}
+
+        {msg && <p className="mt-4 text-center text-yellow-400">{msg}</p>}
+
+        {!isRecovery && (
+          <p className="mt-6 text-center text-gray-400 text-sm">
+            Depois de clicar no link do e-mail, você será trazido de volta para esta página
+            para definir a nova senha.
+          </p>
         )}
       </div>
     </div>
