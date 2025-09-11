@@ -3,23 +3,34 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function handler(event) {
+export const handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
   try {
-    const { priceId } = JSON.parse(event.body);
+    const { priceKey } = JSON.parse(event.body || "{}");
+    if (!priceKey) {
+      return { statusCode: 400, body: "Missing priceKey" };
+    }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${process.env.URL}/success`,
-      cancel_url: `${process.env.URL}/cancel`,
+      line_items: [{ price: priceKey, quantity: 1 }],
+      allow_promotion_codes: true,
+      success_url: `${process.env.APP_URL || "https://kizirianmax.site"}/subscribe?status=success`,
+      cancel_url: `${process.env.APP_URL || "https://kizirianmax.site"}/subscribe?status=cancelled`,
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ id: session.id }),
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ id: session.id, url: session.url }),
     };
   } catch (err) {
-    return { statusCode: 500, body: err.message };
+    console.error(err);
+    return { statusCode: 500, body: JSON.stringify({ error: "Erro ao criar checkout" }) };
   }
-}
+};
