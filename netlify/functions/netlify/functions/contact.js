@@ -1,0 +1,26 @@
+// netlify/functions/contact.js
+exports.handler = async (event) => {
+  // Habilita CORS
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, x-api-token",
+  };
+
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers };
+  }
+
+  // Aqui você pode simular envio de contato
+  const data = JSON.parse(event.body || "{}");
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify({
+      ok: true,
+      message: "Contato recebido com sucesso!",
+      data,
+    }),
+  };
+};
