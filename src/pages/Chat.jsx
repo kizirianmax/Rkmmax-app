@@ -3,21 +3,36 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import AGENTS from "../data/agents";
 
+// ===== Configurações =====
+const SHOW_HUMAN_SUPPORT = true;                 // torne false para ocultar
+const WHATSAPP_NUMBER = "55SEUNUMEROAQUI";       // DDI+DDD+número
+
+function openWhatsAppEmergency(agent) {
+  const text = agent?.id === "serginho"
+    ? "Suporte crítico: preciso de ajuda com meu projeto (Serginho)."
+    : `Suporte crítico sobre o especialista ${agent?.name} (orquestrado pelo Serginho).`;
+
+  const appDeepLink = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`;
+  const webFallback = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+
+  window.location.href = appDeepLink;
+  setTimeout(() => {
+    window.open(webFallback, "_blank", "noopener,noreferrer");
+  }, 600);
+}
+
 export default function Chat() {
   const { id } = useParams();
   const agent = AGENTS.find((a) => a.id === id);
-
-  // responsivo: mobile = 100% largura; desktop = centralizado até 720px
-  const getWide = () => (typeof window !== "undefined" ? window.innerWidth >= 900 : false);
-  const [isWide, setIsWide] = useState(getWide());
-  useEffect(() => {
-    const onResize = () => setIsWide(getWide());
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  const isSerginho = agent?.id === "serginho";
 
   const [messages, setMessages] = useState([
-    { from: "agent", text: `Olá! Sou ${agent?.name}. Como posso ajudar?` },
+    {
+      from: "agent",
+      text: isSerginho
+        ? "Sou o Serginho. Me diga seu objetivo e eu orquestro tudo. Se preferir, chame um especialista."
+        : `Olá! Sou ${agent?.name}. Como posso ajudar?`,
+    },
   ]);
   const [input, setInput] = useState("");
   const contentRef = useRef(null);
@@ -65,12 +80,12 @@ export default function Chat() {
         color: "#e6eef5",
       }}
     >
-      {/* COLUNA CENTRAL (100% no mobile; 720px centrado no desktop) */}
+      {/* COLUNA CENTRAL (100% mobile; centrado desktop) */}
       <div
         style={{
           width: "100%",
-          maxWidth: isWide ? 720 : "100%",
-          margin: isWide ? "0 auto" : 0,
+          maxWidth: 720,
+          margin: "0 auto",
           display: "flex",
           flexDirection: "column",
         }}
@@ -103,7 +118,7 @@ export default function Chat() {
             overscrollBehavior: "contain",
           }}
         >
-          {/* Cabeçalho do agente (sticky dentro do mesmo container) */}
+          {/* Cabeçalho do agente (sticky) */}
           <div
             style={{
               position: "sticky",
@@ -129,7 +144,7 @@ export default function Chat() {
             </div>
           </div>
 
-          {/* Mensagens (quem rola é o container acima) */}
+          {/* Mensagens */}
           <div
             style={{
               marginTop: 12,
@@ -173,17 +188,40 @@ export default function Chat() {
           <div style={{ height: 12 }} />
         </div>
 
-        {/* INPUT fixo embaixo do frame */}
+        {/* Rodapé com link de emergência + input fixo */}
         <div
           style={{
             position: "sticky",
             bottom: 0,
-            padding: `12px 12px calc(12px + env(safe-area-inset-bottom, 0px))`,
+            padding: `8px 12px calc(12px + env(safe-area-inset-bottom, 0px))`,
             background: "linear-gradient(0deg, rgba(15,23,42,.98), rgba(15,23,42,.85))",
             borderTop: "1px solid rgba(255,255,255,.08)",
             flexShrink: 0,
           }}
         >
+          {/* Suporte humano discreto (canto esquerdo) */}
+          {SHOW_HUMAN_SUPPORT && (
+            <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between" }}>
+              <button
+                onClick={() => openWhatsAppEmergency(agent)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#9fe5b5",
+                  fontSize: 12,
+                  opacity: 0.85,
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                }}
+                title="Use apenas se o chat falhar ou for crítico"
+              >
+                ⚠ Suporte humano (WhatsApp)
+              </button>
+              {/* espaço para futuras ações do chat, se quiser */}
+              <span style={{ fontSize: 12, opacity: 0.6 }} />
+            </div>
+          )}
+
           <div style={{ display: "flex", gap: 8 }}>
             <input
               value={input}
@@ -215,8 +253,9 @@ export default function Chat() {
               Enviar
             </button>
           </div>
+
           <div style={{ fontSize: 12, opacity: 0.7, marginTop: 6 }}>
-            * Protótipo offline. Depois conectamos à sua API/IA (Supabase/Node).
+            * Suporte padrão é 100% inteligente (Serginho). O humano é só para emergências.
           </div>
         </div>
       </div>
