@@ -7,6 +7,15 @@ export default function Chat() {
   const { id } = useParams();
   const agent = AGENTS.find((a) => a.id === id);
 
+  // responsivo: mobile = 100% largura; desktop = centralizado até 720px
+  const getWide = () => (typeof window !== "undefined" ? window.innerWidth >= 900 : false);
+  const [isWide, setIsWide] = useState(getWide());
+  useEffect(() => {
+    const onResize = () => setIsWide(getWide());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const [messages, setMessages] = useState([
     { from: "agent", text: `Olá! Sou ${agent?.name}. Como posso ajudar?` },
   ]);
@@ -14,10 +23,8 @@ export default function Chat() {
   const contentRef = useRef(null);
 
   useEffect(() => {
-    // rola para o fim sempre que chegar msg nova
     const el = contentRef.current;
     if (!el) return;
-    // tenta achar a última bolha dentro do content
     const last = el.querySelector("[data-msg]:last-child");
     last?.scrollIntoView({ block: "end", behavior: "smooth" });
   }, [messages]);
@@ -48,7 +55,7 @@ export default function Chat() {
   }
 
   return (
-    // FRAME: tela inteira, sem rolagem na página
+    // FRAME: altura total, sem rolar a página
     <div
       style={{
         height: "100svh",
@@ -58,11 +65,12 @@ export default function Chat() {
         color: "#e6eef5",
       }}
     >
-      {/* COLUNA CENTRAL */}
+      {/* COLUNA CENTRAL (100% no mobile; 720px centrado no desktop) */}
       <div
         style={{
           width: "100%",
-          maxWidth: 720,
+          maxWidth: isWide ? 720 : "100%",
+          margin: isWide ? "0 auto" : 0,
           display: "flex",
           flexDirection: "column",
         }}
@@ -85,7 +93,7 @@ export default function Chat() {
           <Link to="/agents" style={{ color: "#e6eef5", opacity: 0.9 }}>Agentes</Link>
         </div>
 
-        {/* CONTENT: rola tudo daqui pra baixo (cabeçalho + mensagens) */}
+        {/* ÁREA ROLÁVEL: cabeçalho do agente + mensagens */}
         <div
           ref={contentRef}
           style={{
@@ -95,7 +103,7 @@ export default function Chat() {
             overscrollBehavior: "contain",
           }}
         >
-          {/* Cabeçalho do agente (STICKY DENTRO DO MESMO CONTAINER) */}
+          {/* Cabeçalho do agente (sticky dentro do mesmo container) */}
           <div
             style={{
               position: "sticky",
@@ -121,7 +129,7 @@ export default function Chat() {
             </div>
           </div>
 
-          {/* Caixa das mensagens (só estética; quem rola é o contentRef) */}
+          {/* Mensagens (quem rola é o container acima) */}
           <div
             style={{
               marginTop: 12,
@@ -162,11 +170,10 @@ export default function Chat() {
             ))}
           </div>
 
-          {/* Espaço para não ficar colado no input quando rolar ao fim */}
           <div style={{ height: 12 }} />
         </div>
 
-        {/* INPUT: fixo embaixo do frame */}
+        {/* INPUT fixo embaixo do frame */}
         <div
           style={{
             position: "sticky",
