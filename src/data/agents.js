@@ -1,109 +1,111 @@
 // src/data/agents.js
-// Lista completa (13). Export default para combinar com seus imports atuais.
 
 const AGENTS = [
   {
     id: "serginho",
-    principal: true,
     name: "Serginho",
-    emoji: "⚡🧠",
-    role: "Agente Principal — orquestrador dos 12 especialistas",
+    role: "Orquestrador",
     description:
-      "Gênio generalista, confiável e metódico. Aprende e evolui sobre qualquer assunto, prioriza fontes confiáveis e explica passo a passo. Orquestra e coordena os 12 agentes especialistas.",
-    tags: ["generalista", "estratégia", "pesquisa", "explicações", "citações"],
-    controls: [
-      "emo","didak","finna","care","criar","code",
-      "talky","focus","bizu","legalis","planx","orac"
-    ],
-    learns: true,
-    avatar_url: "https://i.pravatar.cc/150?img=13"
+      "Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula todas as interações.",
+    avatar_url: "/avatars/serginho.png",
+    principal: true,
   },
-
-  // 12 especialistas
   {
     id: "emo",
     name: "Emo",
     role: "Mentor emocional",
-    description: "Apoio psicológico, motivação e inteligência emocional.",
-    avatar_url: "https://i.pravatar.cc/150?img=1"
+    description:
+      "Apoio psicológico, empatia e motivação para fortalecer sua jornada.",
+    avatar_url: "/avatars/emo.png",
   },
   {
     id: "didak",
     name: "Didak",
     role: "Instrutor",
-    description: "Explica conceitos, ensina conteúdos e facilita o aprendizado.",
-    avatar_url: "https://i.pravatar.cc/150?img=2"
+    description:
+      "Explica conceitos, ensina conteúdos e facilita o aprendizado em qualquer nível.",
+    avatar_url: "/avatars/didak.png",
   },
   {
     id: "finna",
     name: "Finna",
     role: "Inteligência financeira",
-    description: "Ajuda no controle de gastos e planejamento financeiro.",
-    avatar_url: "https://i.pravatar.cc/150?img=3"
+    description:
+      "Controle de gastos, organização e planejamento financeiro prático.",
+    avatar_url: "/avatars/finna.png",
   },
   {
     id: "care",
     name: "Care",
     role: "Saúde e bem-estar",
-    description: "Dicas de autocuidado e saúde do dia a dia.",
-    avatar_url: "https://i.pravatar.cc/150?img=4"
+    description:
+      "Dicas de autocuidado, hábitos saudáveis e equilíbrio físico e mental.",
+    avatar_url: "/avatars/care.png",
   },
   {
     id: "criar",
     name: "Criar",
     role: "Criatividade",
-    description: "Inspira ideias em escrita, arte e inovação.",
-    avatar_url: "https://i.pravatar.cc/150?img=5"
+    description:
+      "Explosão de ideias, escrita, arte e soluções criativas para qualquer projeto.",
+    avatar_url: "/avatars/criar.png",
   },
   {
     id: "code",
     name: "Code",
-    role: "Programador",
-    description: "Auxilia em código, lógica e depuração de sistemas.",
-    avatar_url: "https://i.pravatar.cc/150?img=6"
+    role: "Programação",
+    description:
+      "Ajuda com lógica, códigos, debug e desenvolvimento inteligente.",
+    avatar_url: "/avatars/code.png",
   },
   {
     id: "talky",
     name: "Talky",
     role: "Comunicação",
-    description: "Aprimora textos, discursos e interações sociais.",
-    avatar_url: "https://i.pravatar.cc/150?img=7"
+    description:
+      "Especialista em textos, fala, redes sociais e persuasão.",
+    avatar_url: "/avatars/talky.png",
   },
   {
     id: "focus",
     name: "Focus",
     role: "Produtividade",
-    description: "Ajuda a organizar, focar e atingir metas.",
-    avatar_url: "https://i.pravatar.cc/150?img=8"
+    description:
+      "Organização, foco e metas claras para transformar ideias em ação.",
+    avatar_url: "/avatars/focus.png",
   },
   {
     id: "bizu",
     name: "Bizu",
     role: "Resumos e provas",
-    description: "Faz resumos rápidos e ajuda em revisões de estudo.",
-    avatar_url: "https://i.pravatar.cc/150?img=9"
+    description:
+      "Estudo rápido, revisões objetivas e preparação eficiente para provas.",
+    avatar_url: "/avatars/bizu.png",
   },
   {
     id: "legalis",
     name: "Legalis",
-    role: "IA jurídica",
-    description: "Explica leis, contratos e direitos de forma clara.",
-    avatar_url: "https://i.pravatar.cc/150?img=10"
+    role: "IA Jurídica",
+    description:
+      "Orientações sobre leis, contratos, direitos e questões jurídicas.",
+    avatar_url: "/avatars/legalis.png",
   },
   {
     id: "planx",
     name: "Planx",
-    role: "Planejamento de vida e carreira",
-    description: "Orienta em decisões profissionais e pessoais.",
-    avatar_url: "https://i.pravatar.cc/150?img=11"
+    role: "Planejamento",
+    description:
+      "Planejamento de vida e carreira, ajudando você a definir e alcançar objetivos.",
+    avatar_url: "/avatars/planx.png",
   },
   {
     id: "orac",
     name: "Orac",
     role: "Visão estratégica",
-    description: "Ajuda em estratégia, cenários e tomada de decisão.",
-    avatar_url: "https://i.pravatar.cc/150?img=12"
-  }
+    description:
+      "Análise de cenários complexos e decisões inteligentes para o futuro.",
+    avatar_url: "/avatars/orac.png", // aqui entra o avatar baseado em você
+  },
 ];
 
 export default AGENTS;
