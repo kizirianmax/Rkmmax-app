@@ -3,110 +3,90 @@ import React from "react";
 import { Link } from "react-router-dom";
 import AGENTS from "../data/agents";
 
-const WHATSAPP_NUMBER = ""; 
-// Ex.: "5511999999999". Se deixar vazio, vai abrir sem número (página genérica).
-const waLink = (name) =>
-  WHATSAPP_NUMBER
-    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-        `Quero falar com o agente ${name}`
-      )}`
-    : `https://wa.me/?text=${encodeURIComponent(
-        `Quero falar com o agente ${name}`
-      )}`;
+const WHATSAPP_NUMBER = "55SEUNUMEROAQUI"; // coloque aqui seu número com DDI+DDD
+
+function openWhatsApp(agentName) {
+  const text = `Quero falar com o agente ${agentName}`;
+  const appDeepLink = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(
+    text
+  )}`;
+  const webFallback = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    text
+  )}`;
+
+  window.location.href = appDeepLink;
+  setTimeout(() => {
+    window.open(webFallback, "_blank", "noopener,noreferrer");
+  }, 600);
+}
 
 export default function Agents() {
   return (
     <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
-      <h1 style={{ marginBottom: "1rem", color: "#15d0d4", fontSize: 28, textAlign: "center" }}>
-        Lista de Agentes
-      </h1>
-
+      <h1 style={{ marginBottom: 24 }}>Lista de Agentes</h1>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-          gap: "16px",
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+          gap: 16,
         }}
       >
         {AGENTS.map((a) => (
           <div
             key={a.id}
             style={{
-              background: "rgba(255,255,255,.06)",
+              background: "rgba(255,255,255,.05)",
               borderRadius: 12,
               padding: 16,
               boxShadow: "0 8px 18px rgba(0,0,0,.25)",
-              transition: "transform .12s ease",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.01)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
-            <Link to={`/agent/${a.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <img
-                  src={a.avatar_url}
-                  alt={a.name}
-                  width={56}
-                  height={56}
-                  style={{ borderRadius: "50%", objectFit: "cover" }}
-                />
-                <div>
-                  <div style={{ fontWeight: 700 }}>
-                    {a.name}{" "}
-                    {a.principal && (
-                      <span
-                        style={{
-                          marginLeft: 8,
-                          fontSize: 12,
-                          padding: "2px 8px",
-                          borderRadius: 999,
-                          background: "rgba(21,208,212,.15)",
-                          color: "#15d0d4",
-                        }}
-                      >
-                        Principal
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: 12, opacity: 0.8 }}>{a.role}</div>
-                </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <img
+                src={a.avatar_url}
+                alt={a.name}
+                width={50}
+                height={50}
+                style={{ borderRadius: "50%", objectFit: "cover" }}
+              />
+              <div>
+                <h3 style={{ margin: 0 }}>{a.name}</h3>
+                <p style={{ margin: 0, fontSize: 13, opacity: 0.8 }}>{a.role}</p>
               </div>
-
-              <div style={{ marginTop: 10, fontSize: 14, lineHeight: 1.4, color: "#ddd" }}>
-                {a.description}
-              </div>
-            </Link>
-
-            {/* Ações: Chat interno e WhatsApp */}
-            <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+            </div>
+            <p style={{ marginTop: 12, fontSize: 14 }}>{a.description}</p>
+            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <Link
                 to={`/chat/${a.id}`}
                 style={{
+                  flex: 1,
+                  textAlign: "center",
                   textDecoration: "none",
                   color: "#e6eef5",
-                  border: "1px solid #e6eef5",
+                  border: "1px solid #15d0d4",
                   padding: "8px 14px",
                   borderRadius: 8,
-                  display: "inline-block",
+                  background: "rgba(21,208,212,.15)",
+                  fontWeight: 600,
                 }}
               >
                 💬 Chat no app
               </Link>
-              <a
-                href={waLink(a.name)}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                onClick={() => openWhatsApp(a.name)}
                 style={{
-                  textDecoration: "none",
+                  flex: 1,
                   color: "#e6eef5",
-                  border: "1px solid #e6eef5",
+                  border: "1px solid #25d366",
                   padding: "8px 14px",
                   borderRadius: 8,
-                  display: "inline-block",
+                  background: "rgba(37,211,102,.15)",
+                  fontWeight: 600,
+                  cursor: "pointer",
                 }}
               >
                 📲 WhatsApp
-              </a>
+              </button>
             </div>
           </div>
         ))}
