@@ -3,6 +3,16 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 import AGENTS from "../data/agents";
 
+const WHATSAPP_NUMBER = "";
+const waLink = (name) =>
+  WHATSAPP_NUMBER
+    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        `Quero falar com o agente ${name}`
+      )}`
+    : `https://wa.me/?text=${encodeURIComponent(
+        `Quero falar com o agente ${name}`
+      )}`;
+
 export default function AgentDetails() {
   const { id } = useParams();
   const agent = AGENTS.find((a) => a.id === id);
@@ -11,26 +21,22 @@ export default function AgentDetails() {
     return (
       <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
         <h1 style={{ color: "#ff6b6b" }}>Agente não encontrado</h1>
-        <Link to="/agents" style={{ color: "#15d0d4" }}>
-          ← Voltar
-        </Link>
+        <Link to="/agents" style={{ color: "#15d0d4" }}>← Voltar</Link>
       </div>
     );
   }
 
   return (
     <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
-      <Link to="/agents" style={{ color: "#15d0d4" }}>
-        ← Voltar
-      </Link>
+      <Link to="/agents" style={{ color: "#15d0d4" }}>← Voltar</Link>
 
       <div
         style={{
           marginTop: 16,
-          background: "rgba(255,255,255,0.06)",
+          background: "rgba(255,255,255,.06)",
           borderRadius: 12,
           padding: 20,
-          boxShadow: "0 8px 18px rgba(0,0,0,0.25)",
+          boxShadow: "0 8px 18px rgba(0,0,0,.25)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -67,25 +73,37 @@ export default function AgentDetails() {
           {agent.description}
         </p>
 
-        {/* CTA – troque o href para sua rota de chat quando estiver pronto */}
-        <a
-          href={`https://wa.me/?text=Quero%20falar%20com%20o%20agente%20${encodeURIComponent(
-            agent.name
-          )}`}
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            display: "inline-block",
-            marginTop: 12,
-            padding: "10px 14px",
-            borderRadius: 10,
-            border: "1px solid rgba(255,255,255,.15)",
-            textDecoration: "none",
-            color: "#e6eef5",
-          }}
-        >
-          💬 Falar com este agente
-        </a>
+        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+          <Link
+            to={`/chat/${agent.id}`}
+            style={{
+              textDecoration: "none",
+              color: "#e6eef5",
+              border: "1px solid #e6eef5",
+              padding: "10px 14px",
+              borderRadius: 10,
+              display: "inline-block",
+            }}
+          >
+            💬 Chat no app
+          </Link>
+
+          <a
+            href={waLink(agent.name)}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              textDecoration: "none",
+              color: "#e6eef5",
+              border: "1px solid #e6eef5",
+              padding: "10px 14px",
+              borderRadius: 10,
+              display: "inline-block",
+            }}
+          >
+            📲 WhatsApp
+          </a>
+        </div>
       </div>
     </div>
   );
