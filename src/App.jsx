@@ -1,19 +1,37 @@
 // src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from "react-router-dom";
 
-import Agents from "./pages/Agents";            // ✅ default export
-import AgentDetails from "./pages/AgentDetails"; // ✅ nova página de detalhes
+import Agents from "./pages/Agents.jsx";
+import AgentDetails from "./pages/AgentDetail.jsx"; // <-- se seu arquivo for AgentDetails.jsx, troque aqui
 
 function Navbar() {
   return (
-    <nav style={{
-      display: "flex", gap: 16, padding: "12px 16px",
-      background: "rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.08)"
-    }}>
-      <Link to="/" style={{ textDecoration: "none", color: "#e6eef5", fontWeight: 700 }}>RKMMax</Link>
+    <nav
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+        padding: "12px 16px",
+        background: "rgba(255,255,255,0.06)",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <Link to="/" style={{ textDecoration: "none", color: "#e6eef5", fontWeight: 700 }}>
+        RKMMax
+      </Link>
+
       <div style={{ flex: 1 }} />
-      <Link to="/agents" style={{ textDecoration: "none", color: "#e6eef5" }}>Agentes</Link>
+
+      <Link to="/agents" style={{ textDecoration: "none", color: "#e6eef5" }}>
+        Agentes
+      </Link>
     </nav>
   );
 }
@@ -23,6 +41,9 @@ function Home() {
     <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
       <h1 style={{ marginBottom: "0.5rem", color: "#15d0d4" }}>Bem-vindo 👋</h1>
       <p>Use o menu acima para acessar a lista de agentes.</p>
+      <div style={{ marginTop: "1rem" }}>
+        <Link to="/agents" style={{ color: "#15d0d4" }}>Ver agentes</Link>
+      </div>
     </div>
   );
 }
@@ -32,7 +53,7 @@ function NotFound() {
     <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
       <h1 style={{ color: "#ff6b6b" }}>404</h1>
       <p>Página não encontrada.</p>
-      <Link to="/agents" style={{ color: "#15d0d4" }}>Ver agentes</Link>
+      <Link to="/agents" style={{ color: "#15d0d4" }}>Ir para Agentes</Link>
     </div>
   );
 }
@@ -40,14 +61,21 @@ function NotFound() {
 export default function App() {
   return (
     <Router>
-      <div style={{ minHeight: "100vh", background: "linear-gradient(180deg,#0f172a,#0b1220)" }}>
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "linear-gradient(180deg,#0f172a,#0b1220)",
+        }}
+      >
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/agent/:id" element={<AgentDetails />} />
-          {/* redireciona antigos caminhos, se precisar */}
+
+          {/* redireciona caminhos antigos (opcional) */}
           <Route path="/agentes" element={<Navigate to="/agents" replace />} />
+
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
