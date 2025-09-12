@@ -86,7 +86,7 @@ export default function Chat() {
           background: "rgba(255,255,255,.06)",
           borderRadius: 12,
           padding: 12,
-          height: "calc(100svh - 260px)", // espaço visível considerando cabeçalho + input
+          height: "calc(100svh - 170px)", // espaço visível considerando cabeçalho + input
           overflowY: "auto",
           boxShadow: "0 8px 18px rgba(0,0,0,.25)",
         }}
