@@ -11,10 +11,15 @@ export default function Chat() {
     { from: "agent", text: `Olá! Sou ${agent?.name}. Como posso ajudar?` },
   ]);
   const [input, setInput] = useState("");
-  const listRef = useRef(null);
+  const contentRef = useRef(null);
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+    // rola para o fim sempre que chegar msg nova
+    const el = contentRef.current;
+    if (!el) return;
+    // tenta achar a última bolha dentro do content
+    const last = el.querySelector("[data-msg]:last-child");
+    last?.scrollIntoView({ block: "end", behavior: "smooth" });
   }, [messages]);
 
   if (!agent) {
@@ -42,128 +47,134 @@ export default function Chat() {
     }, 400);
   }
 
-  function onKey(e) {
-    if (e.key === "Enter") send();
-  }
-
   return (
-    // Fundo total e conteúdo centralizado (padrão de apps tipo mapas)
+    // FRAME: tela inteira, sem rolagem na página
     <div
       style={{
-        minHeight: "100svh",
-        color: "#e6eef5",
+        height: "100svh",
+        overflow: "hidden",
         display: "flex",
         justifyContent: "center",
+        color: "#e6eef5",
       }}
     >
-      {/* Coluna principal com largura limitada */}
+      {/* COLUNA CENTRAL */}
       <div
         style={{
           width: "100%",
-          maxWidth: 720,              // <- largura máxima (padrão que você pediu)
+          maxWidth: 720,
           display: "flex",
           flexDirection: "column",
-          padding: "0 12px",          // respiro lateral no celular
         }}
       >
-        {/* Barra superior (igual às outras telas) */}
+        {/* BARRA SUPERIOR */}
         <div
           style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 3,
-            background: "linear-gradient(180deg, rgba(15,23,42,.98), rgba(15,23,42,.85))",
-            borderBottom: "1px solid rgba(255,255,255,.08)",
+            height: 48,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "0 12px",
+            background: "rgba(255,255,255,0.06)",
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            flexShrink: 0,
           }}
         >
-          <div style={{ padding: "12px 0", display: "flex", alignItems: "center" }}>
-            <Link to={`/agent/${agent.id}`} style={{ color: "#15d0d4", marginRight: 12 }}>
-              ← Voltar
-            </Link>
-            <div style={{ flex: 1 }} />
-            <Link to="/agents" style={{ color: "#e6eef5", opacity: 0.9 }}>Agentes</Link>
-          </div>
+          <Link to={`/agent/${agent.id}`} style={{ color: "#15d0d4" }}>← Voltar</Link>
+          <div style={{ flex: 1 }} />
+          <Link to="/agents" style={{ color: "#e6eef5", opacity: 0.9 }}>Agentes</Link>
         </div>
 
-        {/* Cabeçalho do agente (fixo) */}
+        {/* CONTENT: rola tudo daqui pra baixo (cabeçalho + mensagens) */}
         <div
-          style={{
-            position: "sticky",
-            top: 48, // logo abaixo da barra superior acima
-            zIndex: 2,
-            background: "linear-gradient(180deg, rgba(15,23,42,.98), rgba(15,23,42,.85))",
-            padding: "10px 0 8px",
-            borderBottom: "1px solid rgba(255,255,255,.08)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <img
-              src={agent.avatar_url}
-              alt={agent.name}
-              width={48}
-              height={48}
-              style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-            />
-            <div>
-              <div style={{ fontWeight: 800 }}>{agent.name}</div>
-              <div style={{ fontSize: 12, opacity: 0.8 }}>{agent.role}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Área de mensagens: ocupa todo o espaço entre o cabeçalho e o input */}
-        <div
-          ref={listRef}
+          ref={contentRef}
           style={{
             flex: 1,
-            marginTop: 12,
-            background: "rgba(255,255,255,.06)",
-            borderRadius: 12,
-            padding: 12,
             overflowY: "auto",
-            boxShadow: "0 8px 18px rgba(0,0,0,.25)",
+            padding: "8px 12px 12px",
             overscrollBehavior: "contain",
           }}
         >
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                justifyContent: m.from === "user" ? "flex-end" : "flex-start",
-                marginBottom: 8,
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: "85%",
-                  padding: "8px 12px",
-                  borderRadius: 10,
-                  background:
-                    m.from === "user" ? "rgba(21,208,212,.15)" : "rgba(255,255,255,.06)",
-                  border:
-                    m.from === "user"
-                      ? "1px solid rgba(21,208,212,.25)"
-                      : "1px solid rgba(255,255,255,.08)",
-                  fontSize: 14,
-                  lineHeight: 1.5,
-                }}
-              >
-                {m.text}
+          {/* Cabeçalho do agente (STICKY DENTRO DO MESMO CONTAINER) */}
+          <div
+            style={{
+              position: "sticky",
+              top: 0,
+              zIndex: 2,
+              background: "linear-gradient(180deg, rgba(15,23,42,.98), rgba(15,23,42,.85))",
+              borderBottom: "1px solid rgba(255,255,255,.08)",
+              padding: "10px 0 8px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <img
+                src={agent.avatar_url}
+                alt={agent.name}
+                width={48}
+                height={48}
+                style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+              />
+              <div>
+                <div style={{ fontWeight: 800 }}>{agent.name}</div>
+                <div style={{ fontSize: 12, opacity: 0.8 }}>{agent.role}</div>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Caixa das mensagens (só estética; quem rola é o contentRef) */}
+          <div
+            style={{
+              marginTop: 12,
+              background: "rgba(255,255,255,.06)",
+              borderRadius: 12,
+              padding: 12,
+              boxShadow: "0 8px 18px rgba(0,0,0,.25)",
+            }}
+          >
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                data-msg
+                style={{
+                  display: "flex",
+                  justifyContent: m.from === "user" ? "flex-end" : "flex-start",
+                  marginBottom: 8,
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "85%",
+                    padding: "8px 12px",
+                    borderRadius: 10,
+                    background:
+                      m.from === "user" ? "rgba(21,208,212,.15)" : "rgba(255,255,255,.06)",
+                    border:
+                      m.from === "user"
+                        ? "1px solid rgba(21,208,212,.25)"
+                        : "1px solid rgba(255,255,255,.08)",
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {m.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Espaço para não ficar colado no input quando rolar ao fim */}
+          <div style={{ height: 12 }} />
         </div>
 
-        {/* Input fixo embaixo com safe-area; sempre visível */}
+        {/* INPUT: fixo embaixo do frame */}
         <div
           style={{
             position: "sticky",
             bottom: 0,
-            zIndex: 4,
-            background:
-              "linear-gradient(0deg, rgba(15,23,42,.98), rgba(15,23,42,.85))",
-            padding: `12px 0 calc(12px + env(safe-area-inset-bottom, 0px))`,
+            padding: `12px 12px calc(12px + env(safe-area-inset-bottom, 0px))`,
+            background: "linear-gradient(0deg, rgba(15,23,42,.98), rgba(15,23,42,.85))",
+            borderTop: "1px solid rgba(255,255,255,.08)",
+            flexShrink: 0,
           }}
         >
           <div style={{ display: "flex", gap: 8 }}>
