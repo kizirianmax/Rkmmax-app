@@ -2,8 +2,9 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import Agents from "./pages/Agents";
-import AgentDetails from "./pages/AgentDetail";
+import AgentDetail from "./pages/AgentDetail";
 import Chat from "./pages/Chat";
+import AppInfo from "./pages/AppInfo";
 
 function Navbar() {
   return (
@@ -22,6 +23,9 @@ function Navbar() {
       <div style={{ flex: 1 }} />
       <Link to="/agents" style={{ textDecoration: "none", color: "#e6eef5" }}>
         Agentes
+      </Link>
+      <Link to="/info" style={{ textDecoration: "none", color: "#e6eef5", opacity: 0.9 }}>
+        Info
       </Link>
     </nav>
   );
@@ -42,14 +46,13 @@ export default function App() {
     <Router>
       <div style={{ minHeight: "100vh", background: "linear-gradient(180deg,#0f172a,#0b1220)" }}>
         <Navbar />
-
         <Routes>
-          {/* Home já abre a lista */}
+          {/* Home já abre em Agentes */}
           <Route path="/" element={<Navigate to="/agents" replace />} />
           <Route path="/agents" element={<Agents />} />
-          <Route path="/agent/:id" element={<AgentDetails />} />
-          {/* Novo chat interno */}
+          <Route path="/agent/:id" element={<AgentDetail />} />
           <Route path="/chat/:id" element={<Chat />} />
+          <Route path="/info" element={<AppInfo />} />
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
