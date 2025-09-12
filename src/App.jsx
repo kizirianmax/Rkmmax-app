@@ -1,7 +1,6 @@
 // src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
-
 import Agents from "./pages/Agents";
 import AgentDetails from "./pages/AgentDetail";
 
@@ -16,13 +15,10 @@ function Navbar() {
         borderBottom: "1px solid rgba(255,255,255,0.08)",
       }}
     >
-      {/* vai direto pra lista */}
-      <Link to="/agents" style={{ textDecoration: "none", color: "#e6eef5", fontWeight: 700 }}>
-        RKMMax
+      <Link to="/" style={{ textDecoration: "none", color: "#e6eef5", fontWeight: 700 }}>
+        RKMMAX
       </Link>
-
       <div style={{ flex: 1 }} />
-
       <Link to="/agents" style={{ textDecoration: "none", color: "#e6eef5" }}>
         Agentes
       </Link>
@@ -48,16 +44,10 @@ export default function App() {
       <div style={{ minHeight: "100vh", background: "linear-gradient(180deg,#0f172a,#0b1220)" }}>
         <Navbar />
         <Routes>
-          {/* ⭐ Página inicial já mostra a lista */}
-          <Route path="/" element={<Agents />} />
-
-          {/* Lista e detalhes */}
+          {/* Home já abre a lista */}
+          <Route path="/" element={<Navigate to="/agents" replace />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/agent/:id" element={<AgentDetails />} />
-
-          {/* Compatibilidade com /agentes (pt-BR) */}
-          <Route path="/agentes" element={<Navigate to="/agents" replace />} />
-
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
