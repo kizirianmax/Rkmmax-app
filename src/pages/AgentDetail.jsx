@@ -1,3 +1,4 @@
+// src/pages/AgentDetails.jsx
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import AGENTS from "../data/agents";
@@ -18,6 +19,7 @@ export default function AgentDetails() {
   return (
     <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
       <Link to="/agents" style={{ color: "#15d0d4" }}>← Voltar</Link>
+
       <div style={{
         marginTop: 16, background: "rgba(255,255,255,0.06)",
         borderRadius: 12, padding: 20,
@@ -36,6 +38,7 @@ export default function AgentDetails() {
             <div style={{ fontSize: 13, opacity: 0.8 }}>{agent.role}</div>
           </div>
         </div>
+
         <p style={{ marginTop: 16, fontSize: 15, lineHeight: 1.6, color: "#ddd" }}>
           {agent.description}
         </p>
