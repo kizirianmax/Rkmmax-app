@@ -31,14 +31,13 @@ export default function Chat() {
     if (!text) return;
     setMessages((m) => [...m, { from: "user", text }]);
     setInput("");
-    // resposta simples provisória; depois conectamos na sua IA
+    // Resposta provisória; depois conectamos na sua IA/Backend
     setTimeout(() => {
       setMessages((m) => [
         ...m,
         {
           from: "agent",
-          text:
-            `Recebi: “${text}”. Em breve este chat responderá com a IA do ${agent.name}.`,
+          text: `Recebi: “${text}”. Em breve este chat responderá com a IA do ${agent.name}.`,
         },
       ]);
     }, 400);
@@ -49,31 +48,45 @@ export default function Chat() {
   }
 
   return (
-    <div style={{ padding: "1.5rem", color: "#e6eef5", minHeight: "100vh" }}>
+    <div style={{ padding: "1.5rem", color: "#e6eef5", minHeight: "100svh" }}>
       <Link to={`/agent/${agent.id}`} style={{ color: "#15d0d4" }}>← Voltar</Link>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
-        <img
-          src={agent.avatar_url}
-          alt={agent.name}
-          width={48}
-          height={48}
-          style={{ borderRadius: "50%", objectFit: "cover" }}
-        />
-        <div>
-          <div style={{ fontWeight: 800 }}>{agent.name}</div>
-          <div style={{ fontSize: 12, opacity: 0.8 }}>{agent.role}</div>
+      {/* Cabeçalho fixo com avatar e nome */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
+          background: "linear-gradient(180deg, rgba(15,23,42,.98), rgba(15,23,42,.85))",
+          padding: "10px 0 8px",
+          borderBottom: "1px solid rgba(255,255,255,.08)",
+          marginTop: 8,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <img
+            src={agent.avatar_url}
+            alt={agent.name}
+            width={48}
+            height={48}
+            style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+          />
+          <div>
+            <div style={{ fontWeight: 800 }}>{agent.name}</div>
+            <div style={{ fontSize: 12, opacity: 0.8 }}>{agent.role}</div>
+          </div>
         </div>
       </div>
 
+      {/* Lista de mensagens */}
       <div
         ref={listRef}
         style={{
-          marginTop: 16,
+          marginTop: 12,
           background: "rgba(255,255,255,.06)",
           borderRadius: 12,
           padding: 12,
-          height: "55vh",
+          height: "calc(100svh - 260px)", // espaço visível considerando cabeçalho + input
           overflowY: "auto",
           boxShadow: "0 8px 18px rgba(0,0,0,.25)",
         }}
@@ -108,6 +121,7 @@ export default function Chat() {
         ))}
       </div>
 
+      {/* Input + botão enviar */}
       <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
         <input
           value={input}
