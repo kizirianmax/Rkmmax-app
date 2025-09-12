@@ -3,107 +3,90 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 import AGENTS from "../data/agents";
 
-const WHATSAPP_NUMBER = "";
-const waLink = (name) =>
-  WHATSAPP_NUMBER
-    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-        `Quero falar com o agente ${name}`
-      )}`
-    : `https://wa.me/?text=${encodeURIComponent(
-        `Quero falar com o agente ${name}`
-      )}`;
+const WHATSAPP_NUMBER = "55SEUNUMEROAQUI"; // coloque aqui seu número com DDI+DDD
 
-export default function AgentDetails() {
+function openWhatsApp(agentName) {
+  const text = `Quero falar com o agente ${agentName}`;
+  const appDeepLink = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(
+    text
+  )}`;
+  const webFallback = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    text
+  )}`;
+
+  window.location.href = appDeepLink;
+  setTimeout(() => {
+    window.open(webFallback, "_blank", "noopener,noreferrer");
+  }, 600);
+}
+
+export default function AgentDetail() {
   const { id } = useParams();
   const agent = AGENTS.find((a) => a.id === id);
 
   if (!agent) {
     return (
       <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
-        <h1 style={{ color: "#ff6b6b" }}>Agente não encontrado</h1>
-        <Link to="/agents" style={{ color: "#15d0d4" }}>← Voltar</Link>
+        <h1>Agente não encontrado</h1>
+        <Link to="/agents" style={{ color: "#15d0d4" }}>
+          ← Voltar
+        </Link>
       </div>
     );
   }
 
   return (
     <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
-      <Link to="/agents" style={{ color: "#15d0d4" }}>← Voltar</Link>
-
-      <div
-        style={{
-          marginTop: 16,
-          background: "rgba(255,255,255,.06)",
-          borderRadius: 12,
-          padding: 20,
-          boxShadow: "0 8px 18px rgba(0,0,0,.25)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <img
-            src={agent.avatar_url}
-            alt={agent.name}
-            width={72}
-            height={72}
-            style={{ borderRadius: "50%", objectFit: "cover" }}
-          />
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 20 }}>
-              {agent.name}{" "}
-              {agent.principal && (
-                <span
-                  style={{
-                    marginLeft: 8,
-                    fontSize: 12,
-                    padding: "2px 8px",
-                    borderRadius: 999,
-                    background: "rgba(21,208,212,.15)",
-                    color: "#15d0d4",
-                  }}
-                >
-                  Principal
-                </span>
-              )}
-            </div>
-            <div style={{ fontSize: 13, opacity: 0.8 }}>{agent.role}</div>
-          </div>
+      <Link to="/agents" style={{ color: "#15d0d4" }}>
+        ← Voltar
+      </Link>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
+        <img
+          src={agent.avatar_url}
+          alt={agent.name}
+          width={60}
+          height={60}
+          style={{ borderRadius: "50%", objectFit: "cover" }}
+        />
+        <div>
+          <h2 style={{ margin: 0 }}>{agent.name}</h2>
+          <p style={{ margin: 0, fontSize: 13, opacity: 0.8 }}>{agent.role}</p>
         </div>
+      </div>
+      <p style={{ marginTop: 12 }}>{agent.description}</p>
 
-        <p style={{ marginTop: 16, fontSize: 15, lineHeight: 1.6, color: "#ddd" }}>
-          {agent.description}
-        </p>
-
-        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-          <Link
-            to={`/chat/${agent.id}`}
-            style={{
-              textDecoration: "none",
-              color: "#e6eef5",
-              border: "1px solid #e6eef5",
-              padding: "10px 14px",
-              borderRadius: 10,
-              display: "inline-block",
-            }}
-          >
-            💬 Chat no app
-          </Link>
-
-          <a
-            href={waLink(agent.name)}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              textDecoration: "none",
-              color: "#e6eef5",
-              border: "1px solid #e6eef5",
-              padding: "10px 14px",
-              borderRadius: 10,
-              display: "inline-block",
-            }}
-          >
-            📲 WhatsApp
-          </a>
-        </div>
+      <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+        <Link
+          to={`/chat/${agent.id}`}
+          style={{
+            flex: 1,
+            textAlign: "center",
+            textDecoration: "none",
+            color: "#e6eef5",
+            border: "1px solid #15d0d4",
+            padding: "10px 14px",
+            borderRadius: 8,
+            background: "rgba(21,208,212,.15)",
+            fontWeight: 600,
+          }}
+        >
+          💬 Chat no app
+        </Link>
+        <button
+          onClick={() => openWhatsApp(agent.name)}
+          style={{
+            flex: 1,
+            color: "#e6eef5",
+            border: "1px solid #25d366",
+            padding: "10px 14px",
+            borderRadius: 8,
+            background: "rgba(37,211,102,.15)",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          📲 WhatsApp
+        </button>
       </div>
     </div>
   );
