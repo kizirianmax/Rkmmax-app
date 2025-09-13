@@ -1,3 +1,4 @@
+// netlify/functions/checkout.js
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -8,21 +9,35 @@ export async function handler(event) {
   }
 
   try {
-    const { priceId } = JSON.parse(event.body);
+    const { priceId } = JSON.parse(event.body || "{}");
+    if (!priceId) {
+      return { statusCode: 400, body: "Missing priceId" };
+    }
+
+    const appUrl = process.env.APP_URL || process.env.URL; // ex.: https://kizirianmax.site
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       mode: "subscription",
+      payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${process.env.URL}/success`,
-      cancel_url: `${process.env.URL}/cancel`,
+      allow_promotion_codes: true,
+      success_url: `${appUrl}/subscribe?status=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/subscribe?status=cancelled`,
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ id: session.id }),
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ url: session.url, id: session.id }),
     };
   } catch (err) {
-    return { statusCode: 500, body: err.message };
+    return {
+      statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: err.message }),
+    };
   }
 }
