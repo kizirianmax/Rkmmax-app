@@ -1,10 +1,12 @@
 // src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+
 import Agents from "./pages/Agents";
 import AgentDetail from "./pages/AgentDetail";
 import Chat from "./pages/Chat";
 import AppInfo from "./pages/AppInfo";
+import PricingTable from "./components/PricingTable";
 
 function Navbar() {
   return (
@@ -20,43 +22,35 @@ function Navbar() {
       <Link to="/" style={{ textDecoration: "none", color: "#e6eef5", fontWeight: 700 }}>
         RKMMAX
       </Link>
+
       <div style={{ flex: 1 }} />
+
       <Link to="/agents" style={{ textDecoration: "none", color: "#e6eef5" }}>
         Agentes
       </Link>
-      <Link to="/info" style={{ textDecoration: "none", color: "#e6eef5", opacity: 0.9 }}>
+
+      <Link to="/info" style={{ textDecoration: "none", color: "#e6eef5" }}>
         Info
       </Link>
-    </nav>
-  );
-}
 
-function NotFound() {
-  return (
-    <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
-      <h1 style={{ color: "#ff6b6b" }}>404</h1>
-      <p>Página não encontrada.</p>
-      <Link to="/agents" style={{ color: "#15d0d4" }}>Ver agentes</Link>
-    </div>
+      <Link to="/pricing" style={{ textDecoration: "none", color: "#e6eef5" }}>
+        Planos
+      </Link>
+    </nav>
   );
 }
 
 export default function App() {
   return (
     <Router>
-      <div style={{ minHeight: "100vh", background: "linear-gradient(180deg,#0f172a,#0b1220)" }}>
-        <Navbar />
-        <Routes>
-          {/* Home já abre em Agentes */}
-          <Route path="/" element={<Navigate to="/agents" replace />} />
-          <Route path="/agents" element={<Agents />} />
-          <Route path="/agent/:id" element={<AgentDetail />} />
-          <Route path="/chat/:id" element={<Chat />} />
-          <Route path="/info" element={<AppInfo />} />
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Chat />} />
+        <Route path="/agents" element={<Agents />} />
+        <Route path="/agent/:id" element={<AgentDetail />} />
+        <Route path="/info" element={<AppInfo />} />
+        <Route path="/pricing" element={<PricingTable />} />
+      </Routes>
     </Router>
   );
 }
