@@ -10,7 +10,6 @@ export async function handler(event) {
 
   try {
     const { priceId } = JSON.parse(event.body || "{}");
-
     if (!priceId) {
       return { statusCode: 400, body: "Missing priceId" };
     }
