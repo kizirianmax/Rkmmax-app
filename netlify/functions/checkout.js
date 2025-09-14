@@ -9,8 +9,13 @@ export async function handler(event) {
   }
 
   try {
-    const { priceId } = JSON.parse(event.body || "{}");
+    const body = JSON.parse(event.body || "{}");
+
+    // aceita tanto priceId quanto priceKey (compat com o frontend atual)
+    const priceId = body.priceId || body.priceKey;
+
     if (!priceId) {
+      console.error("Checkout error: missing priceId/priceKey", body);
       return { statusCode: 400, body: "Missing priceId" };
     }
 
@@ -34,6 +39,7 @@ export async function handler(event) {
       body: JSON.stringify({ url: session.url, id: session.id }),
     };
   } catch (err) {
+    console.error("Checkout fatal error:", err);
     return {
       statusCode: 500,
       headers: { "Access-Control-Allow-Origin": "*" },
