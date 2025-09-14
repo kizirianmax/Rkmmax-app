@@ -1,86 +1,64 @@
-// src/pages/Subscribe.jsx
-import React, { useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+// src/components/Subscribe.jsx
+import React, { useMemo } from "react";
+
+function detectRegion() {
+  try {
+    const lang = (navigator.language || "en").toLowerCase();
+    if (lang.startsWith("pt")) return "BR";
+  } catch {}
+  return "US";
+}
 
 export default function Subscribe() {
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
+  const region = useMemo(() => detectRegion(), []);
+  const priceMap = useMemo(() => {
+    if (region === "US") {
+      return {
+        basic:   "price_1S4XDMENxIkCT0yfyrplY90w",
+        pro:     "price_1S3RZGENxIkCT0yf1L0jV8Ns",
+        premium: "price_1S4XSRENxIkCT0yf17FK5R9Y",
+      };
+    }
+    return {
+      basic:   "price_1S3RNLEMXLkCOyfU3JL27gmM",
+      pro:     "price_1S3RPwENxIkCT0yfGUL2ae8N",
+      premium: "price_1S3RSCENxIkCT0yf1pE1yLIQ",
+    };
+  }, [region]);
 
-  async function handleSubscribe(planKey) {
-    setLoading(true);
-    setMsg("");
+  async function subscribe(planKey) {
+    const res = await fetch("/.netlify/functions/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priceId: priceMap[planKey] }),
+    });
+    const data = await res.json();
 
-    try {
-      const res = await fetch("/.netlify/functions/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceKey: planKey }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Erro desconhecido");
-
-      // Redireciona o usuário para o Stripe Checkout
+    // 1) Se a função já trouxe URL de sessão, redireciona direto
+    if (data?.url) {
       window.location.href = data.url;
-    } catch (err) {
-      setMsg(`Erro: ${err.message}`);
-    } finally {
-      setLoading(false);
+      return;
+    }
+
+    // 2) Fallback: usar Stripe.js (caso você queira/precise)
+    if (window.Stripe && import.meta?.env?.VITE_STRIPE_PUBLISHABLE_KEY) {
+      const stripe = window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+      await stripe.redirectToCheckout({ sessionId: data.id });
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-6">
-      <div className="max-w-2xl w-full bg-gray-800 border border-gray-700 rounded-2xl shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">Escolha seu plano</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-700 rounded-xl p-4 text-center">
-            <h2 className="font-semibold mb-2">Básico</h2>
-            <p className="mb-4">R$ 14,90 / mês</p>
-            <button
-              onClick={() =>
-                handleSubscribe("price_1S3RNLENxIkCT0yfu3UlZ7gM")
-              }
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 px-3 py-2 rounded-lg font-semibold"
-            >
-              Assinar
-            </button>
-          </div>
-
-          <div className="bg-gray-700 rounded-xl p-4 text-center">
-            <h2 className="font-semibold mb-2">Intermediário</h2>
-            <p className="mb-4">R$ 29,90 / mês</p>
-            <button
-              onClick={() =>
-                handleSubscribe("price_1S3RPwENxIkCT0yfGUL2ae8N")
-              }
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 px-3 py-2 rounded-lg font-semibold"
-            >
-              Assinar
-            </button>
-          </div>
-
-          <div className="bg-gray-700 rounded-xl p-4 text-center">
-            <h2 className="font-semibold mb-2">Premium</h2>
-            <p className="mb-4">R$ 49,00 / mês</p>
-            <button
-              onClick={() =>
-                handleSubscribe("price_1S3RSCENxIkCT0yf1pE1yLIQ")
-              }
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-70 px-3 py-2 rounded-lg font-semibold"
-            >
-              Assinar
-            </button>
-          </div>
-        </div>
-
-        {msg && <p className="mt-6 text-center text-yellow-400">{msg}</p>}
-      </div>
+    <div style={{ display: "grid", gap: 8 }}>
+      <small>Região detectada: {region}</small>
+      <button onClick={() => subscribe("basic")}>
+        {region === "US" ? "Assinar Basic (US$10)" : "Assinar Básico (R$14,90)"}
+      </button>
+      <button onClick={() => subscribe("pro")}>
+        {region === "US" ? "Assinar Intermediate (US$25)" : "Assinar Intermediário (R$29,90)"}
+      </button>
+      <button onClick={() => subscribe("premium")}>
+        {region === "US" ? "Assinar Premium (US$30)" : "Assinar Premium (R$49,00)"}
+      </button>
     </div>
   );
 }
