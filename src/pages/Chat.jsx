@@ -1,129 +1,223 @@
 // src/pages/Chat.jsx
-import React, { useState, useRef, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import AGENTS from "../data/agents";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+
+const PLAN_STORAGE_KEY = "rkm.plan"; // mantém o plano escolhido
+
+// Mapeia id -> nome do agente (ajuste livre)
+const AGENTS = {
+  serginho: "Serginho",
+  emo: "Emo",
+  didak: "Didak",
+};
+
+function usePlan() {
+  const [search] = useSearchParams();
+  const nav = useNavigate();
+  const [plan, setPlan] = useState(() => {
+    return search.get("plan") || localStorage.getItem(PLAN_STORAGE_KEY) || "free";
+  });
+
+  useEffect(() => {
+    const q = search.get("plan");
+    if (q) {
+      setPlan(q);
+      localStorage.setItem(PLAN_STORAGE_KEY, q);
+      // limpa o query param para a URL ficar bonita
+      nav(".", { replace: true });
+    }
+  }, [search, nav]);
+
+  const label = useMemo(() => {
+    const map = { free: "Gratuito", basic: "Básico", mid: "Intermediário", premium: "Premium" };
+    return map[plan] || "Gratuito";
+  }, [plan]);
+
+  return { plan, label, setPlan };
+}
 
 export default function Chat() {
-  const { id } = useParams();
-  const agent = AGENTS.find((a) => a.id === id);
+  const { id } = useParams(); // /chat/:id
+  const agentName = AGENTS[id] || "Assistente";
+  const { plan, label } = usePlan();
 
-  const [messages, setMessages] = useState([
-    { from: "agent", text: `Olá! Sou ${agent?.name}. Como posso ajudar?` }
+  // chat local (placeholder)
+  const [msgs, setMsgs] = useState([
+    { role: "assistant", text: `Olá! Sou ${agentName}. Como posso ajudar?` },
   ]);
   const [input, setInput] = useState("");
   const listRef = useRef(null);
 
   useEffect(() => {
-    listRef.current?.scrollTo({
-      top: listRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+  }, [msgs]);
 
-  if (!agent) {
-    return (
-      <div style={{ padding: "1.5rem", color: "#fff" }}>
-        <h1 style={{ color: "#ff6b6b" }}>Agente não encontrado</h1>
-        <Link to="/agents" style={{ color: "#15d0d4" }}>
-          ← Voltar para os agentes
-        </Link>
-      </div>
-    );
-  }
+  async function handleSend(e) {
+    e?.preventDefault?.();
+    const content = input.trim();
+    if (!content) return;
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    setMessages((prev) => [...prev, { from: "user", text: input }]);
+    // adiciona mensagem do usuário
+    setMsgs((m) => [...m, { role: "user", text: content }]);
     setInput("");
+
+    // resposta fake local (substitua depois pela sua API de chat)
     setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
+      setMsgs((m) => [
+        ...m,
         {
-          from: "agent",
-          text: `Recebi: “${input}”. Em breve este chat responderá com o suporte oficial (${agent.name}).`,
+          role: "assistant",
+          text:
+            "Recebi sua mensagem. (Demo de chat local) — " +
+            "integração real pode ser ligada ao seu backend/funções.",
         },
       ]);
-    }, 500);
-  };
+    }, 400);
+  }
 
   return (
-    <div style={{ padding: "1rem", maxWidth: 600, margin: "0 auto" }}>
-      <div style={{ marginBottom: "1rem" }}>
-        <Link to="/agents" style={{ color: "#15d0d4" }}>
-          ← Voltar
-        </Link>
-        <h2 style={{ marginTop: "0.5rem", color: "#fff" }}>
-          {agent.name}
-        </h2>
-        <p style={{ color: "#bbb", marginTop: 4 }}>{agent.title}</p>
+    <div style={styles.page}>
+      {/* Navbar mínima da página de chat */}
+      <header style={styles.header}>
+        <Link to="/agents" style={styles.linkBack}>← Voltar</Link>
+        <div style={{ flex: 1 }} />
+        <Link to="/pricing" style={styles.linkTop}>Planos</Link>
+      </header>
+
+      {/* Banner de plano/upgrade */}
+      <div style={styles.planBanner}>
+        <div style={{ fontWeight: 700 }}>Plano atual: {label}</div>
+        <div style={{ opacity: 0.85 }}>
+          Precisa de mais limite ou recursos?{" "}
+          <Link to="/pricing" style={styles.linkInline}>Ver planos</Link>
+        </div>
       </div>
 
-      {/* Área de mensagens */}
-      <div
-        ref={listRef}
-        style={{
-          background: "#111827",
-          padding: "1rem",
-          borderRadius: 12,
-          minHeight: 200,
-          maxHeight: "60vh",
-          overflowY: "auto",
-        }}
-      >
-        {messages.map((msg, i) => (
+      {/* Cabeçalho do agente */}
+      <div style={styles.agentHeader}>
+        <h1 style={styles.h1}>{agentName}</h1>
+        <p style={styles.subtitle}>Converse à vontade. Respeitamos seu plano atual.</p>
+      </div>
+
+      {/* Área do chat */}
+      <div ref={listRef} style={styles.chatArea}>
+        {msgs.map((m, i) => (
           <div
             key={i}
             style={{
-              textAlign: msg.from === "user" ? "right" : "left",
-              marginBottom: "0.5rem",
+              ...styles.bubble,
+              ...(m.role === "user" ? styles.bubbleUser : styles.bubbleAssistant),
             }}
           >
-            <span
-              style={{
-                display: "inline-block",
-                padding: "0.6rem 1rem",
-                borderRadius: 12,
-                background:
-                  msg.from === "user" ? "#0ea5e9" : "#374151",
-                color: "#fff",
-              }}
-            >
-              {msg.text}
-            </span>
+            {m.text}
           </div>
         ))}
       </div>
 
-      {/* Campo de entrada */}
-      <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem" }}>
+      {/* Input */}
+      <form onSubmit={handleSend} style={styles.form}>
         <input
-          type="text"
-          placeholder="Escreva sua mensagem..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          style={{
-            flex: 1,
-            padding: "0.75rem",
-            borderRadius: 8,
-            border: "1px solid #444",
-            background: "#1f2937",
-            color: "#fff",
-          }}
+          placeholder="Escreva sua mensagem..."
+          style={styles.input}
         />
-        <button
-          onClick={handleSend}
-          style={{
-            padding: "0.75rem 1.2rem",
-            borderRadius: 8,
-            background: "#0ea5e9",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Enviar
-        </button>
-      </div>
+        <button type="submit" style={styles.sendBtn}>Enviar</button>
+      </form>
     </div>
   );
 }
+
+/* ===== estilos inline (simples e responsivos) ===== */
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "linear-gradient(180deg,#0f172a,#0b1220)",
+    color: "#e6eef5",
+    display: "grid",
+    gridTemplateRows: "auto auto auto 1fr auto",
+    gap: 12,
+  },
+  header: {
+    display: "flex",
+    gap: 12,
+    padding: "12px 16px",
+    borderBottom: "1px solid rgba(255,255,255,.06)",
+    background: "rgba(255,255,255,.03)",
+  },
+  linkBack: { textDecoration: "none", color: "#e6eef5", fontWeight: 600 },
+  linkTop: {
+    textDecoration: "none",
+    color: "#a5d8ff",
+    border: "1px solid rgba(165,216,255,.35)",
+    padding: "6px 10px",
+    borderRadius: 8,
+    fontWeight: 600,
+  },
+  linkInline: { color: "#a5d8ff", textDecoration: "underline" },
+  planBanner: {
+    margin: "0 16px",
+    padding: "12px 14px",
+    borderRadius: 12,
+    background: "rgba(59,130,246,.08)",
+    border: "1px dashed rgba(59,130,246,.35)",
+    display: "flex",
+    gap: 12,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  agentHeader: { padding: "8px 16px 0" },
+  h1: { margin: "6px 0 0", fontSize: 24 },
+  subtitle: { margin: "4px 0 0", color: "#9aa4b2" },
+  chatArea: {
+    margin: "6px 16px 0",
+    padding: 12,
+    borderRadius: 12,
+    background: "rgba(255,255,255,.03)",
+    border: "1px solid rgba(255,255,255,.06)",
+    overflowY: "auto",
+  },
+  bubble: {
+    maxWidth: 680,
+    padding: "10px 12px",
+    borderRadius: 12,
+    margin: "6px 0",
+    lineHeight: 1.45,
+    wordBreak: "break-word",
+  },
+  bubbleUser: {
+    marginLeft: "auto",
+    background: "linear-gradient(180deg,#2563eb,#1d4ed8)",
+    border: "1px solid rgba(37,99,235,.5)",
+  },
+  bubbleAssistant: {
+    marginRight: "auto",
+    background: "rgba(255,255,255,.06)",
+    border: "1px solid rgba(255,255,255,.08)",
+  },
+  form: {
+    display: "flex",
+    gap: 8,
+    padding: 16,
+    borderTop: "1px solid rgba(255,255,255,.06)",
+    background: "rgba(255,255,255,.03)",
+  },
+  input: {
+    flex: 1,
+    padding: "12px 14px",
+    background: "rgba(255,255,255,.06)",
+    color: "#e6eef5",
+    border: "1px solid rgba(255,255,255,.1)",
+    borderRadius: 10,
+    outline: "none",
+  },
+  sendBtn: {
+    padding: "12px 16px",
+    background: "#3b82f6",
+    color: "white",
+    border: "none",
+    borderRadius: 10,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+};
