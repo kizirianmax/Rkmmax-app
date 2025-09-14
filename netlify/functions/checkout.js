@@ -1,7 +1,7 @@
 // netlify/functions/checkout.js
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_RKMMAX);
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
@@ -10,11 +10,12 @@ export async function handler(event) {
 
   try {
     const { priceId } = JSON.parse(event.body || "{}");
+
     if (!priceId) {
       return { statusCode: 400, body: "Missing priceId" };
     }
 
-    const appUrl = process.env.APP_URL || process.env.URL; // ex: https://seu-site.netlify.app
+    const appUrl = process.env.APP_URL || process.env.URL;
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
