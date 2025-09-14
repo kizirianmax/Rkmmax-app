@@ -14,7 +14,7 @@ export async function handler(event) {
       return { statusCode: 400, body: "Missing priceId" };
     }
 
-    const appUrl = process.env.APP_URL || process.env.URL; // ex.: https://kizirianmax.site
+    const appUrl = process.env.APP_URL || process.env.URL; // ex: https://seu-site.netlify.app
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
