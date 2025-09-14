@@ -1,136 +1,199 @@
-// src/components/PricingTable.jsx
-import React from "react";
+// src/pages/PricingTable.jsx
+import React, { useMemo, useState } from "react";
 
-function getRegion() {
-  const forced = import.meta.env.VITE_REGION?.toUpperCase();
-  if (forced === "BR" || forced === "US") return forced;
+const PRICES = {
+  BR: {
+    basic: import.meta.env.VITE_STRIPE_PRICE_BASIC_BR,
+    top: import.meta.env.VITE_STRIPE_PRICE_TOP_BR,
+  },
+  US: {
+    basic: import.meta.env.VITE_STRIPE_PRICE_BASIC_US,
+    mid: import.meta.env.VITE_STRIPE_PRICE_MID_US,
+    top: import.meta.env.VITE_STRIPE_PRICE_TOP_US,
+  },
+};
 
-  const lang = (navigator.language || "").toLowerCase();
-  return lang.startsWith("pt-") ? "BR" : "US";
-}
-
-async function startCheckout(priceKey) {
-  if (!priceKey) {
-    alert("Preço não configurado. Verifique as variáveis no Netlify.");
-    return;
-  }
-  try {
-    const res = await fetch("/.netlify/functions/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceKey }),
-    });
-    const data = await res.json();
-    if (data?.url) {
-      window.location.href = data.url;
-    } else {
-      alert("Não foi possível abrir o checkout. Veja os logs da Function.");
-    }
-  } catch (e) {
-    console.error(e);
-    alert("Falha ao iniciar o checkout.");
-  }
+function PlanCard({ title, priceLabel, features = [], cta, onClick, disabled }) {
+  return (
+    <div
+      style={{
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 12,
+        padding: 16,
+        background: "rgba(255,255,255,0.03)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+      }}
+    >
+      <h3 style={{ margin: 0 }}>{title}</h3>
+      {priceLabel && <div style={{ opacity: 0.8 }}>{priceLabel}</div>}
+      <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.5 }}>
+        {features.map((f, i) => (
+          <li key={i}>{f}</li>
+        ))}
+      </ul>
+      {cta && (
+        <button
+          onClick={onClick}
+          disabled={disabled}
+          style={{
+            marginTop: 8,
+            padding: "10px 14px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.14)",
+            background: disabled ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.2)",
+            color: "white",
+            cursor: disabled ? "not-allowed" : "pointer",
+          }}
+        >
+          {cta}
+        </button>
+      )}
+    </div>
+  );
 }
 
 export default function PricingTable() {
-  const region = getRegion();
+  // região padrão: se o navegador estiver em pt, BR; senão US
+  const defaultRegion = useMemo(
+    () => (navigator.language?.toLowerCase().startsWith("pt") ? "BR" : "US"),
+    []
+  );
+  const [region, setRegion] = useState(defaultRegion);
 
-  // Labels de preço (UI)
-  const priceLabel = {
-    BR: {
-      free: import.meta.env.VITE_PRICE_LABEL_BR_FREE ?? "R$0",
-      basic: import.meta.env.VITE_PRICE_LABEL_BR_BASIC ?? "R$14,90",
-      mid: import.meta.env.VITE_PRICE_LABEL_BR_MID ?? "R$24,90",
-      premium: import.meta.env.VITE_PRICE_LABEL_BR_PREMIUM ?? "R$39,90",
-    },
-    US: {
-      free: import.meta.env.VITE_PRICE_LABEL_US_FREE ?? "$0",
-      basic: import.meta.env.VITE_PRICE_LABEL_US_BASIC ?? "$10",
-      mid: import.meta.env.VITE_PRICE_LABEL_US_MID ?? "$15",
-      premium: import.meta.env.VITE_PRICE_LABEL_US_PREMIUM ?? "$25",
-    },
-  };
+  async function openCheckout(priceId) {
+    try {
+      if (!priceId) {
+        alert("Preço não configurado. Verifique as variáveis no Netlify.");
+        return;
+      }
+      const res = await fetch("/.netlify/functions/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Falha ao criar sessão");
 
-  // Limites (UI)
-  const limits = {
-    free: import.meta.env.VITE_LIMIT_FREE ?? "10 mensagens/dia (gpt-4o-mini) + extras por anúncios",
-    basic: import.meta.env.VITE_LIMIT_BASIC ?? "20.000 tokens/dia (~13k palavras) — gpt-4o-mini",
-    mid: import.meta.env.VITE_LIMIT_MID ?? "30.000 tokens/dia (~20k palavras) — gpt-4o-mini + gpt-4.1-mini",
-    premium: import.meta.env.VITE_LIMIT_PREMIUM ?? "40.000 tokens/dia (4o) + 10.000/dia (4.1) + GPT-5",
-  };
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("Resposta sem URL de checkout");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(`Não foi possível abrir o checkout. Veja os logs da Function.\n\n${err.message}`);
+    }
+  }
 
-  // Price IDs do Stripe (checkout)
-  const priceIds = {
-    BR: {
-      basic: import.meta.env.VITE_STRIPE_PRICE_BASIC_BR,
-      mid: import.meta.env.VITE_STRIPE_PRICE_MID_BR,
-      premium: import.meta.env.VITE_STRIPE_PRICE_PREMIUM_BR,
-    },
-    US: {
-      basic: import.meta.env.VITE_STRIPE_PRICE_BASIC_US,
-      mid: import.meta.env.VITE_STRIPE_PRICE_MID_US,
-      premium: import.meta.env.VITE_STRIPE_PRICE_PREMIUM_US,
-    },
-  };
-
-  const lbl = priceLabel[region];
+  const isBR = region === "BR";
 
   return (
-    <section className="rkm-pricing">
-      <style>{`
-        .rkm-pricing { --bg:#0b0f14; --card:#111827; --pill:#1f2937; font-family: Inter, system-ui, sans-serif; padding:40px; background:var(--bg); color:#e5e7eb; }
-        .rkm-wrap { max-width:1100px; margin:0 auto; }
-        .rkm-head { text-align:center; margin-bottom:32px; }
-        .rkm-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
-        .rkm-card { background:var(--card); padding:24px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.2); display:flex; flex-direction:column; justify-content:space-between; }
-        .rkm-title { font-size:20px; margin-bottom:8px; }
-        .rkm-desc { font-size:14px; color:#9ca3af; margin-bottom:12px; }
-        .rkm-pill { background:var(--pill); display:inline-block; padding:6px 12px; border-radius:20px; font-size:14px; margin-bottom:12px; }
-        .rkm-limit { font-size:13px; margin-bottom:16px; color:#d1d5db; }
-        .rkm-btn { background:#3b82f6; color:white; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; text-align:center; }
-        .rkm-btn:hover { filter:brightness(1.1); }
-      `}</style>
+    <div style={{ maxWidth: 1000, margin: "0 auto", padding: 16 }}>
+      <h1 style={{ textAlign: "center", marginBottom: 8 }}>Planos RKMMAX</h1>
+      <p style={{ textAlign: "center", opacity: 0.8, marginTop: 0 }}>
+        Valores e limites vindos das variáveis de ambiente ({isBR ? "BR" : "US"}).
+      </p>
 
-      <div className="rkm-wrap">
-        <div className="rkm-head">
-          <h2>Planos RKMMAX</h2>
-          <p>Valores e limites vindos das variáveis de ambiente ({region}).</p>
-        </div>
-
-        <div className="rkm-grid">
-          {/* Free */}
-          <article className="rkm-card">
-            <div className="rkm-title">Gratuito</div>
-            <div className="rkm-pill">{region === "BR" ? `Brasil: ${lbl.free}/mês` : `Exterior: ${lbl.free}/mês`}</div>
-            <p className="rkm-limit"><strong>Limite:</strong> {limits.free}</p>
-            <button className="rkm-btn" onClick={() => (window.location.href = "/app?plan=free")}>Começar grátis</button>
-          </article>
-
-          {/* Basic */}
-          <article className="rkm-card">
-            <div className="rkm-title">Básico</div>
-            <div className="rkm-pill">{region === "BR" ? `Brasil: ${lbl.basic}/mês` : `Exterior: ${lbl.basic}/mês`}</div>
-            <p className="rkm-limit"><strong>Limite:</strong> {limits.basic}</p>
-            <button className="rkm-btn" onClick={() => startCheckout(priceIds[region].basic)}>Assinar Básico</button>
-          </article>
-
-          {/* Mid */}
-          <article className="rkm-card">
-            <div className="rkm-title">Intermediário</div>
-            <div className="rkm-pill">{region === "BR" ? `Brasil: ${lbl.mid}/mês` : `Exterior: ${lbl.mid}/mês`}</div>
-            <p className="rkm-limit"><strong>Limite:</strong> {limits.mid}</p>
-            <button className="rkm-btn" onClick={() => startCheckout(priceIds[region].mid)}>Assinar Intermediário</button>
-          </article>
-
-          {/* Premium */}
-          <article className="rkm-card">
-            <div className="rkm-title">Premium</div>
-            <div className="rkm-pill">{region === "BR" ? `Brasil: ${lbl.premium}/mês` : `Exterior: ${lbl.premium}/mês`}</div>
-            <p className="rkm-limit"><strong>Limite:</strong> {limits.premium}</p>
-            <button className="rkm-btn" onClick={() => startCheckout(priceIds[region].premium)}>Assinar Premium</button>
-          </article>
-        </div>
+      {/* Toggle de região */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, margin: "16px 0 24px" }}>
+        <button
+          onClick={() => setRegion("BR")}
+          style={{
+            padding: "8px 12px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.14)",
+            background: isBR ? "rgba(124,58,237,0.25)" : "transparent",
+            color: "white",
+            cursor: "pointer",
+          }}
+        >
+          Brasil (BRL)
+        </button>
+        <button
+          onClick={() => setRegion("US")}
+          style={{
+            padding: "8px 12px",
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.14)",
+            background: !isBR ? "rgba(124,58,237,0.25)" : "transparent",
+            color: "white",
+            cursor: "pointer",
+          }}
+        >
+          International (USD)
+        </button>
       </div>
-    </section>
+
+      {/* Cards */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: 16,
+        }}
+      >
+        {/* Free */}
+        <PlanCard
+          title="Gratuito"
+          priceLabel={isBR ? "Brasil: R$0/mês" : "US: $0/month"}
+          features={[
+            "Escolha entre vídeo, banner e quiz para ganhar mensagens.",
+            isBR
+              ? "Limite: 10 mensagens/dia (gpt-4o-mini) + extras por anúncios"
+              : "Limit: 10 messages/day (gpt-4o-mini) + ads extras",
+          ]}
+          cta="Começar grátis"
+          onClick={() => alert("Plano gratuito já está ativo 🙂")}
+        />
+
+        {/* Basic */}
+        <PlanCard
+          title="Básico"
+          priceLabel={isBR ? "Brasil: R$14,90/mês" : "US: $2.99/month"}
+          features={[
+            "Assinatura mensal, cobrança automática",
+            "Códigos promocionais permitidos",
+          ]}
+          cta="Assinar Básico"
+          onClick={() => openCheckout(isBR ? PRICES.BR.basic : PRICES.US.basic)}
+        />
+
+        {/* Mid - só US */}
+        {!isBR && (
+          <PlanCard
+            title="Intermediário"
+            priceLabel="US: $4.99/month"
+            features={[
+              "Mais profundidade com modelos maiores quando necessário",
+              "Códigos promocionais permitidos",
+            ]}
+            cta="Assinar Intermediário"
+            onClick={() => openCheckout(PRICES.US.mid)}
+          />
+        )}
+
+        {/* Top */}
+        <PlanCard
+          title="Top"
+          priceLabel={isBR ? "Brasil: R$24,90/mês" : "US: $7.99/month"}
+          features={[
+            "Limites diários maiores",
+            "Códigos promocionais permitidos",
+          ]}
+          cta="Assinar Top"
+          onClick={() => openCheckout(isBR ? PRICES.BR.top : PRICES.US.top)}
+        />
+      </div>
+
+      {/* Aviso de publishable key só para conferência (não é requerida aqui, mas ajuda debug) */}
+      {!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY && (
+        <p style={{ marginTop: 20, color: "#fca5a5" }}>
+          Aviso: VITE_STRIPE_PUBLISHABLE_KEY não está definida. Para o Checkout redirecionado não é
+          obrigatório, mas recomendo manter configurada para futuros recursos no client.
+        </p>
+      )}
+    </div>
   );
 }
