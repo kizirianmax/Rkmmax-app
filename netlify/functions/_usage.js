@@ -3,15 +3,15 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // use a SERVICE ROLE no server
+  process.env.SUPABASE_SERVICE_ROLE_KEY // use sempre a chave SERVICE ROLE no server
 );
 
-// Retorna o uso do dia (todos os modelos) e o uso mensal só do GPT-5
+// Retorna o uso atual (diário + mensal GPT-5)
 export async function getUsage(userId) {
-  const today = new Date().toISOString().slice(0, 10);         // YYYY-MM-DD
-  const month = new Date().toISOString().slice(0, 7);           // YYYY-MM
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const month = new Date().toISOString().slice(0, 7);  // YYYY-MM
 
-  const [{ data: d1 }, { data: d2 }] = await Promise.all([
+  const [{ data: daily }, { data: monthly5 }] = await Promise.all([
     supabase
       .from("usage_daily")
       .select("tokens")
@@ -27,30 +27,33 @@ export async function getUsage(userId) {
   ]);
 
   return {
-    dailyTokens: d1?.tokens ?? 0,
-    monthly5Tokens: d2?.tokens ?? 0,
+    dailyTokens: daily?.tokens || 0,
+    monthly5Tokens: monthly5?.tokens || 0,
   };
 }
 
-export async function addUsage(userId, { addDailyTokens = 0, addMonthly5Tokens = 0 }) {
+// Atualiza uso após cada chamada
+export async function setUsage(userId, { dailyTokens, monthly5Tokens }) {
   const today = new Date().toISOString().slice(0, 10);
   const month = new Date().toISOString().slice(0, 7);
 
-  // upsert diário
-  await supabase
-    .from("usage_daily")
-    .upsert({ user_id: userId, date: today, tokens: addDailyTokens }, { onConflict: "user_id,date", ignoreDuplicates: false })
-    .select();
+  // UPSERT no uso diário
+  await supabase.from("usage_daily").upsert(
+    {
+      user_id: userId,
+      date: today,
+      tokens: dailyTokens,
+    },
+    { onConflict: ["user_id", "date"] }
+  );
 
-  // incrementa (atomicamente) os valores
-  await supabase.rpc("increment_daily_usage", { p_user_id: userId, p_date: today, p_add: addDailyTokens });
-
-  if (addMonthly5Tokens > 0) {
-    await supabase
-      .from("usage_monthly_5")
-      .upsert({ user_id: userId, month: month, tokens: addMonthly5Tokens }, { onConflict: "user_id,month", ignoreDuplicates: false })
-      .select();
-
-    await supabase.rpc("increment_monthly5_usage", { p_user_id: userId, p_month: month, p_add: addMonthly5Tokens });
-  }
+  // UPSERT no uso mensal do GPT-5
+  await supabase.from("usage_monthly_5").upsert(
+    {
+      user_id: userId,
+      month,
+      tokens: monthly5Tokens,
+    },
+    { onConflict: ["user_id", "month"] }
+  );
 }
