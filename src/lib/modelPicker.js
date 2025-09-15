@@ -1,22 +1,15 @@
 // src/lib/modelPicker.js
 import { PLAN, MODEL_BY_PLAN } from "./planCaps";
-import { needsFullModel } from "./complexity";
 
-// Decide qual modelo usar de acordo com o plano e a complexidade
-export function pickModel(plan, prompt, opts = {}) {
-  const base = MODEL_BY_PLAN[plan] ?? MODEL_BY_PLAN[PLAN.BASIC];
-
-  // Se for Premium, decide dinamicamente
-  if (plan === PLAN.PREMIUM) {
-    if (needsFullModel(prompt, opts)) {
-      return "gpt-4o";        // modelo mais completo
-    }
-    return "gpt-4o-mini";     // usa o mini na maioria
+/**
+ * pickModel(plan, context)
+ * - Premium: se ainda houver saldo de GPT-5 no mês E a tarefa for "avançada", use gpt-5.
+ * - Caso contrário, use o modelo principal do plano (mini).
+ * Obs: você pode plugar aqui seu detector de complexidade.
+ */
+export function pickModel(plan, { advanced = false, gpt5QuotaLeft = 0 } = {}) {
+  if (plan === PLAN.PREMIUM && advanced && gpt5QuotaLeft > 0) {
+    return "gpt-5"; // Standard
   }
-
-  // Para os outros planos, segue o modelo fixo
-  return base.model;
+  return (MODEL_BY_PLAN[plan]?.model) || MODEL_BY_PLAN[PLAN.BASIC].model;
 }
-
-// Compatibilidade: permitir import default
-export default pickModel;
