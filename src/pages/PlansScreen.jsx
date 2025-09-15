@@ -1,116 +1,76 @@
-import React, { useEffect, useState } from "react";
+// src/pages/Subscribe.jsx
+import React, { useCallback, useMemo, useState } from "react";
 
-const ORDER = ["basic", "mid", "premium"];
+/** IDs de preço por país (Stripe) */
+const PRICE_BR = {
+  basic:   "price_1S3RNLEMXLkCOyfuU3JL27gmM", // R$14,90
+  mid:     "price_1S3RPwENxIkCT0yfGUL2ae8N", // R$29,90
+  premium: "price_1S3RSCENxIkCT0yf1pE1yLIQ", // R$49,00
+};
 
-function normalizePlanKey(lookupKey = "", metadata = {}) {
-  // tenta pelo lookup_key: rkm_br_basic, rkm_br_mid, rkm_br_premium…
-  const lk = lookupKey.toLowerCase();
-  if (lk.includes("basic")) return "basic";
-  if (lk.includes("mid") || lk.includes("medium")) return "mid";
-  if (lk.includes("premium") || lk.includes("top")) return "premium";
-  // fallback: metadata.plan vindo do Stripe (se existir)
-  const metaPlan = (metadata.plan || "").toLowerCase();
-  if (["basic", "mid", "premium"].includes(metaPlan)) return metaPlan;
-  return null;
+const PRICE_US = {
+  basic:   "price_1S4XDMENxIkCT0yfyRplY9Ow", // US$10
+  mid:     "price_1S3RZGENxIkCT0yf1L0jV8Ns", // US$25
+  premium: "price_1S4XSRENxIkCT0yf17FK5R9Y", // US$30
+};
+
+/** Detecta região simples pelo idioma do navegador */
+function detectRegion() {
+  const lang = (navigator.language || "en-US").toLowerCase();
+  return lang.startsWith("pt") ? "BR" : "US";
 }
 
-export default function PlansScreen() {
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
+export default function Subscribe() {
+  const [region, setRegion] = useState(detectRegion());
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/.netlify/functions/prices?region=BR");
-        if (!res.ok) throw new Error("Falha ao buscar preços");
-        const data = await res.json(); // [{ id, unit_amount, currency, lookup_key, product:{name}, metadata }]
-        const mapped = data
-          .map((p) => {
-            const planKey = normalizePlanKey(p.lookup_key, p.metadata);
-            if (!planKey) return null;
-            return {
-              id: p.id,
-              planKey,
-              title: p.product?.name || planKey,
-              amount: p.unit_amount, // em centavos
-              currency: (p.currency || "brl").toUpperCase(),
-            };
-          })
-          .filter(Boolean)
-          // mantém sempre na ordem basic -> mid -> premium
-          .sort((a, b) => ORDER.indexOf(a.planKey) - ORDER.indexOf(b.planKey));
-        setPlans(mapped);
-      } catch (e) {
-        setErr(e.message || "Erro desconhecido");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+  const PRICE = useMemo(
+    () => (region === "BR" ? PRICE_BR : PRICE_US),
+    [region]
+  );
 
-  async function startCheckout(planKey) {
+  const subscribe = useCallback(async (planKey) => {
     try {
-      const res = await fetch(
-        `/.netlify/functions/create-checkout-session?plan=${encodeURIComponent(planKey)}`,
-        { method: "POST" }
-      );
-      if (!res.ok) throw new Error("Erro ao iniciar checkout");
-      const json = await res.json();
-      if (json?.url) {
-        window.location.href = json.url;
+      const res = await fetch("/.netlify/functions/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId: PRICE[planKey] }),
+      });
+      const data = await res.json();
+
+      // Se o backend já devolveu URL, redireciona
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      // Fallback: redirectToCheckout via sessionId
+      if (window.Stripe && data?.id) {
+        const stripe = window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        await stripe.redirectToCheckout({ sessionId: data.id });
       } else {
-        throw new Error("Resposta inválida do servidor");
+        alert("Não foi possível iniciar o checkout.");
       }
     } catch (e) {
-      alert(e.message || "Erro de conexão com o servidor.");
+      alert(e.message || "Erro ao iniciar o checkout.");
     }
-  }
-
-  if (loading) return <div style={{ padding: 16 }}>Carregando planos…</div>;
-  if (err) return <div style={{ padding: 16, color: "#f66" }}>Erro: {err}</div>;
+  }, [PRICE]);
 
   return (
-    <div style={{ maxWidth: 520, margin: "24px auto", padding: "0 16px" }}>
-      <h2 style={{ color: "#1ee3e8", marginBottom: 16 }}>Planos RKMMAX</h2>
-      {plans.map((p) => {
-        const priceBRL = p.amount != null ? (p.amount / 100).toLocaleString("pt-BR", {
-          style: "currency",
-          currency: p.currency || "BRL",
-        }) : "—";
-        const label =
-          p.planKey === "basic" ? "Básico" :
-          p.planKey === "mid" ? "Premium (intermediário)" :
-          "Premium (top)";
-        return (
-          <div
-            key={p.id}
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 12,
-            }}
-          >
-            <div style={{ fontWeight: 700 }}>{label}</div>
-            <div style={{ opacity: 0.9, fontSize: 13 }}>{p.title}</div>
-            <div style={{ marginTop: 8, fontSize: 18 }}>{priceBRL}/mês</div>
-            <button
-              onClick={() => startCheckout(p.planKey)}
-              style={{
-                marginTop: 10,
-                padding: "8px 14px",
-                borderRadius: 8,
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Assinar
-            </button>
-          </div>
-        );
-      })}
+    <div style={{ maxWidth: 560, margin: "40px auto", padding: 16 }}>
+      <h1>Assinar</h1>
+      <p>Região detectada: <b>{region}</b></p>
+
+      <div style={{ marginBottom: 12 }}>
+        {/* switch BR/US para teste */}
+        <button onClick={() => setRegion("BR")} style={{ marginRight: 8 }}>BR</button>
+        <button onClick={() => setRegion("US")}>US</button>
+      </div>
+
+      <div style={{ display: "grid", gap: 10 }}>
+        <button onClick={() => subscribe("basic")}>Assinar Básico</button>
+        <button onClick={() => subscribe("mid")}>Assinar Intermediário</button>
+        <button onClick={() => subscribe("premium")}>Assinar Premium</button>
+      </div>
     </div>
   );
 }
