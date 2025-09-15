@@ -1,89 +1,75 @@
- // netlify/functions/chat.js
-// Função Serverless no Netlify para conversar com a API da OpenAI
+// /netlify/functions/chat.js
 
-const OpenAI = require("openai");
+import { guardAndBill } from "./guardAndBill.js";
+import pickModel from "../../src/lib/modelPicker.js";
+import OpenAI from "openai";
 
+// --- CORS básico (se você já usa ./cors.js, pode remover esta parte e usar seu helper) ---
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // troque por seu domínio se quiser restringir
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-exports.handler = async (event) => {
-  // Preflight CORS
+export async function handler(event) {
+  // preflight
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 200, headers: corsHeaders, body: "OK" };
+    return { statusCode: 200, headers: corsHeaders, body: "" };
   }
 
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
       headers: corsHeaders,
-      body: JSON.stringify({ error: "Method not allowed" }),
+      body: JSON.stringify({ error: "Use POST" }),
     };
   }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        error: "OPENAI_API_KEY não configurada nas variáveis do Netlify",
-      }),
-    };
-  }
-
-  let payload = {};
-  try {
-    payload = JSON.parse(event.body || "{}");
-  } catch {
-    return {
-      statusCode: 400,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: "JSON inválido no corpo da requisição" }),
-    };
-  }
-
-  // Aceita { messages: [...] } ou { prompt: "texto" }
-  const messages =
-    payload.messages ||
-    (payload.prompt ? [{ role: "user", content: payload.prompt }] : null);
-
-  if (!messages || !Array.isArray(messages)) {
-    return {
-      statusCode: 400,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        error: "Envie 'messages' como array ou 'prompt' como string",
-      }),
-    };
-  }
-
-  const client = new OpenAI({ apiKey });
 
   try {
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages,
-      temperature: 0.7,
+    const { user, plan, prompt } = JSON.parse(event.body || "{}");
+
+    if (!user?.id || !plan || !prompt) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "Campos obrigatórios: user.id, plan, prompt" }),
+      };
+    }
+
+    // 1) Escolhe o modelo certo conforme seu picker
+    const model = pickModel(plan, prompt); // ex.: "gpt-5-nano", "gpt-4.1-mini", etc.
+
+    // 2) Aplica bloqueios/contabilização (diário + mensal premium) ANTES da chamada
+    await guardAndBill({
+      user,
+      plan,
+      model,
+      promptSize: prompt.length,
+      expectedOutputSize: 800, // pode ajustar depois
     });
 
-    const reply = completion?.choices?.[0]?.message?.content ?? "";
+    // 3) Chamada normal à OpenAI (Responses API)
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+    const res = await openai.responses.create({
+      model,
+      input: prompt,
+    });
+
+    // `output_text` é o texto já concatenado
+    const text = res.output_text ?? JSON.stringify(res);
 
     return {
       statusCode: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      body: JSON.stringify({ reply }),
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+      body: JSON.stringify({ model, text, raw: res }),
     };
   } catch (err) {
+    // Se o guardião bloquear, cai aqui com a mensagem de erro configurada
     return {
-      statusCode: 500,
+      statusCode: 400,
       headers: corsHeaders,
-      body: JSON.stringify({
-        error: "Falha ao chamar OpenAI",
-        details: err?.message || String(err),
-      }),
+      body: JSON.stringify({ error: err.message || "Erro inesperado" }),
     };
   }
-};
+}
