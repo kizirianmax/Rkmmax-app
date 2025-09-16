@@ -1,76 +1,95 @@
-// src/pages/Subscribe.jsx
-import React, { useCallback, useMemo, useState } from "react";
+import React from "react";
+import "../styles.css";
 
-/** IDs de preço por país (Stripe) */
-const PRICE_BR = {
-  basic:   "price_1S3RNLEMXLkCOyfuU3JL27gmM", // R$14,90
-  mid:     "price_1S3RPwENxIkCT0yfGUL2ae8N", // R$29,90
-  premium: "price_1S3RSCENxIkCT0yf1pE1yLIQ", // R$49,00
-};
-
-const PRICE_US = {
-  basic:   "price_1S4XDMENxIkCT0yfyRplY9Ow", // US$10
-  mid:     "price_1S3RZGENxIkCT0yf1L0jV8Ns", // US$25
-  premium: "price_1S4XSRENxIkCT0yf17FK5R9Y", // US$30
-};
-
-/** Detecta região simples pelo idioma do navegador */
-function detectRegion() {
-  const lang = (navigator.language || "en-US").toLowerCase();
-  return lang.startsWith("pt") ? "BR" : "US";
-}
-
-export default function Subscribe() {
-  const [region, setRegion] = useState(detectRegion());
-
-  const PRICE = useMemo(
-    () => (region === "BR" ? PRICE_BR : PRICE_US),
-    [region]
-  );
-
-  const subscribe = useCallback(async (planKey) => {
-    try {
-      const res = await fetch("/.netlify/functions/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId: PRICE[planKey] }),
-      });
-      const data = await res.json();
-
-      // Se o backend já devolveu URL, redireciona
-      if (data?.url) {
-        window.location.href = data.url;
-        return;
-      }
-
-      // Fallback: redirectToCheckout via sessionId
-      if (window.Stripe && data?.id) {
-        const stripe = window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-        await stripe.redirectToCheckout({ sessionId: data.id });
-      } else {
-        alert("Não foi possível iniciar o checkout.");
-      }
-    } catch (e) {
-      alert(e.message || "Erro ao iniciar o checkout.");
-    }
-  }, [PRICE]);
-
+const PlansScreen = () => {
   return (
-    <div style={{ maxWidth: 560, margin: "40px auto", padding: 16 }}>
-      <h1>Assinar</h1>
-      <p>Região detectada: <b>{region}</b></p>
+    <div className="plans-container">
+      <h1 className="plans-title">Escolha seu Plano RKMMax 🚀</h1>
+      <p className="plans-subtitle">Região detectada: BR</p>
 
-      <div style={{ marginBottom: 12 }}>
-        {/* switch BR/US para teste */}
-        <button onClick={() => setRegion("BR")} style={{ marginRight: 8 }}>BR</button>
-        <button onClick={() => setRegion("US")}>US</button>
+      {/* Plano Gratuito */}
+      <div className="plan-card free">
+        <h2>🌿 Gratuito</h2>
+        <p className="price">Brasil: R$0/mês</p>
+        <ul>
+          <li>✔ 10 mensagens/dia (GPT-4.0 mini)</li>
+          <li>✔ Ganhe mensagens extras assistindo anúncios</li>
+        </ul>
+        <button
+          className="plan-btn free-btn"
+          onClick={() => alert("Plano Gratuito ativado!")}
+        >
+          Começar grátis
+        </button>
       </div>
 
-      <div style={{ display: "grid", gap: 10 }}>
-        <button onClick={() => subscribe("basic")}>Assinar Básico</button>
-        <button onClick={() => subscribe("mid")}>Assinar Intermediário</button>
-        <button onClick={() => subscribe("premium")}>Assinar Premium</button>
+      {/* Plano Básico */}
+      <div className="plan-card basic">
+        <h2>🔹 Básico</h2>
+        <p className="price">Brasil: R$14,90/mês</p>
+        <ul>
+          <li>✔ GPT-5 Nano (~275k tokens/dia)</li>
+          <li>✔ Acesso a todos os agentes</li>
+          <li>✔ Suporte básico</li>
+        </ul>
+        <button
+          className="plan-btn basic-btn"
+          onClick={() => handleCheckout("price_basic_BR")}
+        >
+          Assinar Básico
+        </button>
+      </div>
+
+      {/* Plano Intermediário */}
+      <div className="plan-card intermediate">
+        <h2>⚡ Intermediário</h2>
+        <p className="price">Brasil: R$29,90/mês</p>
+        <ul>
+          <li>✔ GPT-4.1 Mini com voz (~410k tokens/dia)</li>
+          <li>✔ Todos os agentes liberados</li>
+          <li>✔ Bloqueio diário automático</li>
+        </ul>
+        <button
+          className="plan-btn intermediate-btn"
+          onClick={() => handleCheckout("price_inter_BR")}
+        >
+          Assinar Intermediário
+        </button>
+      </div>
+
+      {/* Plano Premium */}
+      <div className="plan-card premium">
+        <h2>💎 Premium</h2>
+        <p className="price">Brasil: R$90,00/mês</p>
+        <ul>
+          <li>✔ GPT-5 Standard + GPT-4.1 Mini</li>
+          <li>✔ ~710k tokens/mês + ~1.2M tokens/dia</li>
+          <li>✔ Todos os agentes liberados</li>
+          <li>✔ Suporte prioritário</li>
+        </ul>
+        <button
+          className="plan-btn premium-btn"
+          onClick={() => handleCheckout("price_premium_BR")}
+        >
+          Assinar Premium
+        </button>
       </div>
     </div>
   );
-}
+};
+
+// ⚠️ Ajuste os IDs dos planos conforme configurados no Stripe
+const handleCheckout = async (priceId) => {
+  try {
+    const res = await fetch("/.netlify/functions/checkout", {
+      method: "POST",
+      body: JSON.stringify({ priceId }),
+    });
+    const { url } = await res.json();
+    window.location.href = url;
+  } catch (err) {
+    alert("Erro ao iniciar checkout. Verifique sua configuração.");
+  }
+};
+
+export default PlansScreen;
