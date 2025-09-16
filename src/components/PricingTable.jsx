@@ -1,9 +1,11 @@
+// src/components/PricingTable.jsx
 import React, { useState } from "react";
 import plansJson from "../../config/plans.json";
 
 export default function PricingTable() {
-  const [tab, setTab] = useState("BR"); // BR | US
+  const [tab, setTab] = useState("BR"); // "BR" | "US"
 
+  // monta listas a partir do plans.json
   const br = [
     plansJson.plans.basic_br,
     plansJson.plans.intermediario_br,
@@ -15,59 +17,64 @@ export default function PricingTable() {
     plansJson.plans.premium_us,
   ];
 
-  const plans = tab === "BR" ? br : us;
+  const list = tab === "BR" ? br : us;
+
+  const handleCheckout = async (lookupKey) => {
+    try {
+      const res = await fetch("/.netlify/functions/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lookupKey }),
+      });
+      if (!res.ok) throw new Error("Checkout request failed");
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+    } catch (e) {
+      alert("Preço não configurado. Verifique as variáveis no Netlify.");
+      console.error(e);
+    }
+  };
 
   return (
-    <section className="pricing">
-      <h2>Planos RKMMAX</h2>
-      <div className="tabs">
-        <button onClick={() => setTab("BR")}>Brasil (BRL)</button>
-        <button onClick={() => setTab("US")}>International (USD)</button>
+    <div className="container" style={{ maxWidth: 980, margin: "0 auto" }}>
+      <h2 className="title">Planos RKMMAX</h2>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <button
+          className={tab === "BR" ? "tab tab--active" : "tab"}
+          onClick={() => setTab("BR")}
+        >
+          Brasil (BRL)
+        </button>
+        <button
+          className={tab === "US" ? "tab tab--active" : "tab"}
+          onClick={() => setTab("US")}
+        >
+          International (USD)
+        </button>
       </div>
 
-      <div className="card">
-        <h3>Gratuito</h3>
-        <p>{tab === "BR" ? "Brasil: R$0/mês" : "US: $0/month"}</p>
-        <ul>
-          <li>Escolha entre vídeo, banner e quiz para ganhar mensagens</li>
-          <li>Limite: 10 mensagens/dia (gpt-4o-mini) + extras por anúncios</li>
-        </ul>
-        <button>{tab === "BR" ? "Começar grátis" : "Start Free"}</button>
-      </div>
+      {list.map((p) => (
+        <div key={p.lookup_key} className="card">
+          <h3>{tab === "BR" ? p.name.replace("RKM", "RKMMAX") : p.name.replace("RKM", "RKMMAX")}</h3>
+          <p>
+            {tab === "BR" ? "Brasil" : "US"}: {p.price}/{p.billing === "monthly" ? "mês" : p.billing}
+          </p>
 
-      <div className="cards">
-        {plans.map((p) => (
-          <div key={p.lookup_key} className="card">
-            <h3>{p.name.split("–")[0].trim()}</h3>
-            <p>
-              {p.currency === "BRL"
-                ? `Brasil: R$${p.price}/mês`
-                : `US: $${p.price}/month`}
-            </p>
-            <ul>
-              {p.model === "gpt-5-nano" && (
-                <>
-                  <li>Assinatura mensal, cobrança automática</li>
-                  <li>Códigos promocionais permitidos</li>
-                </>
-              )}
-              {p.model === "gpt-4.1-mini" && (
-                <>
-                  <li>Mais profundidade com modelos maiores quando necessário</li>
-                  <li>Códigos promocionais permitidos</li>
-                </>
-              )}
-              {p.model === "gpt-5-standard" && (
-                <>
-                  <li>Limites diários maiores</li>
-                  <li>Códigos promocionais permitidos</li>
-                </>
-              )}
-            </ul>
-            <button>Assinar {p.name.split("–")[0].trim()}</button>
-          </div>
-        ))}
-      </div>
-    </section>
+          <ul>
+            <li>Assinatura mensal, cobrança automática</li>
+            <li>Códigos promocionais permitidos</li>
+          </ul>
+
+          <button
+            className="btn"
+            onClick={() => handleCheckout(p.lookup_key)}
+            aria-label={`Assinar ${p.name}`}
+          >
+            Assinar RKMMAX
+          </button>
+        </div>
+      ))}
+    </div>
   );
 }
