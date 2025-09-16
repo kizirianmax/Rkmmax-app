@@ -1,82 +1,168 @@
-.plans-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+/* ====== NAV / HEADER PRO ====== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: saturate(140%) blur(8px);
+  background: linear-gradient(
+    180deg,
+    rgba(10, 16, 28, 0.85) 0%,
+    rgba(10, 16, 28, 0.55) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.plans-title {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: #5b3df5;
+.shell {
+  width: min(1120px, 92vw);
+  margin-inline: auto;
 }
 
-.plans-subtitle {
-  margin-bottom: 30px;
-  color: #a9b5cc;
+.header__inner {
+  height: 72px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
 }
 
-.plan-card {
-  background: #111a;
-  border: 2px solid #24304d;
-  border-radius: 16px;
-  padding: 20px;
-  margin: 20px 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+.brand {
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text, #e7edf7);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand:hover { color: var(--primary-500, #5b3df5); }
+
+/* NAV */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
 }
 
-.plan-card h2 {
-  font-size: 1.6rem;
-  margin-bottom: 10px;
+/* Link-base: já com “cara de botão” */
+.navlink {
+  --bg: rgba(255,255,255,0.06);
+  --fg: #e7edf7;
+  --bd: rgba(255,255,255,0.10);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--bd);
+  color: var(--fg);
+  background: var(--bg);
+  text-decoration: none;
+  font-weight: 600;
+  line-height: 1;
+  transition: transform .04s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
-.plan-card .price {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-  font-weight: bold;
+/* Hover claro e evidente */
+.navlink:hover {
+  background: rgba(93, 173, 255, 0.18);
+  color: #59a5ff;
+  border-color: rgba(93, 173, 255, 0.45);
+  box-shadow: 0 0 0 3px rgba(93, 173, 255, 0.18) inset;
 }
 
-.plan-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 20px 0;
+/* Ativo: destaque firme */
+.navlink.navlink--active {
+  background: #24304d;
+  color: #00ffd0;
+  border-color: rgba(0, 255, 208, 0.45);
+  box-shadow: 0 0 0 3px rgba(0, 255, 208, 0.20) inset;
 }
 
-.plan-card li {
-  margin: 6px 0;
+/* Acessibilidade: foco visível no teclado */
+.navlink:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,0.10) inset,
+    0 0 0 3px rgba(0, 255, 208, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Ações à direita */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botões do header (Entrar / Criar conta) */
+.ghost-btn,
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: transform .05s ease, background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.ghost-btn {
+  background: rgba(255,255,255,0.04);
   color: #e7edf7;
 }
+.ghost-btn:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.25);
+}
 
-/* Botões grandes e chamativos */
-.plan-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  border: none;
+.cta-btn {
+  background: linear-gradient(135deg, #4cc7ff 0%, #5b3df5 100%);
   color: white;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(91, 61, 245, 0.35);
+}
+.cta-btn:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
-.plan-btn:hover {
-  transform: scale(1.03);
-  opacity: 0.9;
+/* ====== RESPONSIVO ====== */
+@media (max-width: 860px) {
+  .header__inner {
+    grid-template-columns: auto auto auto;
+    gap: 8px;
+  }
+  .nav {
+    gap: 6px;
+  }
+  .navlink {
+    padding: 8px 12px;
+    border-radius: 9px;
+  }
+  .ghost-btn, .cta-btn {
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+  }
 }
 
-/* Cores específicas */
-.free-btn {
-  background: #28a745; /* verde */
-}
-
-.basic-btn {
-  background: #007bff; /* azul */
-}
-
-.intermediate-btn {
-  background: #ff9800; /* laranja */
-}
-
-.premium-btn {
-  background: #9c27b0; /* roxo */
+@media (max-width: 560px) {
+  .shell { width: min(100%, 94vw); }
+  .brand { font-size: 15px; }
+  .nav { gap: 6px; }
+  .navlink {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  .ghost-btn, .cta-btn {
+    height: 38px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
 }
