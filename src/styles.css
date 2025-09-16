@@ -1,134 +1,82 @@
-/* ===== Design tokens (fácil de ajustar depois) ===== */
-:root{
-  --bg: #0e1220;
-  --card: #12182a;
-  --card-border: #24304d;
-  --text: #e7edf7;
-  --muted: #a9b5cc;
-
-  --primary: #5b3df5;         /* roxo */
-  --primary-600: #4c32cf;
-  --primary-700: #3e29ab;
-  --primary-800: #2f2187;
-
-  --accent: #2dd4bf;          /* ciano p/ realces */
-  --danger: #ef4444;
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-
-  --shadow-1: 0 6px 18px rgba(0,0,0,.25);
-  --shadow-2: 0 10px 28px rgba(0,0,0,.35);
-}
-
-/* Reseta pequenos detalhes para consistência */
-* { box-sizing: border-box; }
-button { font: inherit; }
-
-/* ===== Tabs (BR / USD) ===== */
-.tab{
-  display:inline-block;
-  padding:10px 14px;
-  border-radius: var(--radius-sm);
-  background: #1a2338;
-  color: var(--muted);
-  border:1px solid var(--card-border);
-  cursor:pointer;
-  transition: transform .08s ease, background .15s ease, color .15s ease;
-  user-select:none;
-}
-.tab:hover{ color:#fff; background:#1f2a45; }
-.tab:active{ transform: translateY(1px) scale(.99); }
-.tab:focus-visible{
-  outline:2px solid var(--accent);
-  outline-offset:2px;
-}
-.tab--active{
-  background:#223055;
-  color:#fff;
-  border-color:#2d3e6a;
-}
-
-/* ===== Cards de plano ===== */
-.card{
-  background: var(--card);
-  border:1px solid var(--card-border);
-  border-radius: var(--radius-lg);
+.plans-container {
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
-  margin: 18px 0;
-  box-shadow: var(--shadow-1);
-}
-.card:hover{ box-shadow: var(--shadow-2); }
-
-/* Títulos/linhas dentro do card */
-.card h3{ margin: 0 0 8px; color:#cfe1ff; }
-.card small{ color: var(--muted); }
-
-/* ===== Botão padrão ===== */
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:44px;                 /* alvos de toque acessíveis */
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  background: var(--primary);
-  color:#fff;
-  border:none;
-  cursor:pointer;
-  text-decoration:none;
-  transition: transform .08s ease, opacity .15s ease, background .15s ease;
-  will-change: transform;
-}
-.btn:hover{ background: var(--primary-600); }
-.btn:active{ transform: translateY(1px) scale(.985); }
-.btn:focus-visible{
-  outline:2px solid var(--accent);
-  outline-offset:2px;
-}
-.btn[aria-busy="true"]{
-  opacity:.8;
-  pointer-events:none;
-  position:relative;
-}
-.btn[aria-busy="true"]::after{
-  content:"";
-  width:16px; height:16px;
-  margin-left:8px;
-  border:2px solid rgba(255,255,255,.6);
-  border-top-color: transparent;
-  border-radius:50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin{ to { transform: rotate(360deg); } }
-
-.btn--ghost{                      /* alternativa para “Começar grátis” */
-  background: transparent;
-  color:#fff;
-  border:1px solid #334166;
-}
-.btn--ghost:hover{
-  background:#1f2a45;
+  text-align: center;
 }
 
-/* Estados desabilitado */
-.btn:disabled,
-.btn[disabled]{
-  opacity:.55;
-  cursor:not-allowed;
-  background: var(--primary-800);
+.plans-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #5b3df5;
 }
 
-/* ===== Pequenos ajustes responsivos ===== */
-@media (max-width: 520px){
-  .card{ padding:16px; margin:14px 0; }
-  .btn{ width:100%; }            /* botões full-width no mobile */
-  .tab{ padding:8px 12px; }
+.plans-subtitle {
+  margin-bottom: 30px;
+  color: #a9b5cc;
 }
 
-/* Respeita usuários com movimento reduzido */
-@media (prefers-reduced-motion: reduce){
-  .btn, .tab{ transition:none; }
-  .btn[aria-busy="true"]::after{ animation:none; }
+.plan-card {
+  background: #111a;
+  border: 2px solid #24304d;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.plan-card h2 {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+}
+
+.plan-card .price {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.plan-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.plan-card li {
+  margin: 6px 0;
+  color: #e7edf7;
+}
+
+/* Botões grandes e chamativos */
+.plan-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border: none;
+  color: white;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.plan-btn:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+/* Cores específicas */
+.free-btn {
+  background: #28a745; /* verde */
+}
+
+.basic-btn {
+  background: #007bff; /* azul */
+}
+
+.intermediate-btn {
+  background: #ff9800; /* laranja */
+}
+
+.premium-btn {
+  background: #9c27b0; /* roxo */
 }
