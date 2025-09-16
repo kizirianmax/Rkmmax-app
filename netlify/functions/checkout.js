@@ -1,62 +1,62 @@
-{
-  "plans": {
-    "basic_br": {
-      "name": "RKMMAX – Básico – BR",
-      "price": "R$14.90",
-      "currency": "BRL",
-      "model": "gpt-5-nano",
-      "limit_tokens_per_day": 275000,
-      "billing": "monthly",
-      "lookup_key": "rkmmax_basic_br"
-    },
-    "intermediario_br": {
-      "name": "RKMMAX – Intermediário – BR",
-      "price": "R$29.90",
-      "currency": "BRL",
-      "model": "gpt-4.1-mini + voice (Whisper + TTS)",
-      "limit_tokens_per_day": 410000,
-      "billing": "monthly",
-      "lookup_key": "rkmmax_intermediario_br"
-    },
-    "premium_br": {
-      "name": "RKMMAX – Premium – BR",
-      "price": "R$90.00",
-      "currency": "BRL",
-      "models": {
-        "daily": { "model": "gpt-4.1-mini", "limit_tokens_per_day": 1200000 },
-        "advanced": { "model": "gpt-5-standard", "limit_tokens_per_month": 710000 }
-      },
-      "billing": "monthly",
-      "lookup_key": "rkmmax_premium_br"
-    },
-    "basic_us": {
-      "name": "RKMMAX – Basic – US",
-      "price": "$10.00",
-      "currency": "USD",
-      "model": "gpt-5-nano",
-      "limit_tokens_per_day": 275000,
-      "billing": "monthly",
-      "lookup_key": "rkmmax_basic_us"
-    },
-    "intermediate_us": {
-      "name": "RKMMAX – Intermediate – US",
-      "price": "$20.00",
-      "currency": "USD",
-      "model": "gpt-4.1-mini + voice (Whisper + TTS)",
-      "limit_tokens_per_day": 410000,
-      "billing": "monthly",
-      "lookup_key": "rkmmax_intermediate_us"
-    },
-    "premium_us": {
-      "name": "RKMMAX – Premium – US",
-      "price": "$30.00",
-      "currency": "USD",
-      "models": {
-        "daily": { "model": "gpt-4.1-mini", "limit_tokens_per_day": 1200000 },
-        "advanced": { "model": "gpt-5-standard", "limit_tokens_per_month": 710000 }
-      },
-      "billing": "monthly",
-      "lookup_key": "rkmmax_premium_us"
+// netlify/functions/checkout.js
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-06-20",
+});
+
+/**
+ * Espera corpo JSON: { lookupKey: "rkmmax_basic_br" }
+ * Cria uma sessão de checkout de assinatura e retorna { url }
+ */
+export async function handler(event) {
+  try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
     }
+
+    const { lookupKey } = JSON.parse(event.body || "{}");
+    if (!lookupKey) {
+      return { statusCode: 400, body: "Missing lookupKey" };
+    }
+
+    // Busca o preço pelo lookup_key (ativo)
+    const prices = await stripe.prices.list({
+      lookup_keys: [lookupKey],
+      active: true,
+      limit: 1,
+      expand: ["data.product"],
+    });
+
+    const price = prices.data?.[0];
+    if (!price) {
+      return { statusCode: 404, body: "Price not found for lookupKey" };
+    }
+
+    const successUrl =
+      process.env.SUCCESS_URL ||
+      `${process.env.SITE_URL || "https://rkmmmax.netlify.app"}/success`;
+    const cancelUrl =
+      process.env.CANCEL_URL ||
+      `${process.env.SITE_URL || "https://rkmmmax.netlify.app"}/plans`;
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      billing_address_collection: "auto",
+      line_items: [{ price: price.id, quantity: 1 }],
+      success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl,
+      allow_promotion_codes: true,
+      metadata: { lookup_key: lookupKey },
+    });
+
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: session.url }),
+    };
+  } catch (err) {
+    console.error(err);
+    return { statusCode: 500, body: "Checkout error" };
   }
 }
