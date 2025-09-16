@@ -2,113 +2,79 @@ import React from "react";
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import "./styles.css";
 
-// Páginas (ajuste os caminhos se seu projeto for diferente)
+/* Páginas (ajuste caminhos se necessário) */
 import Home from "./pages/Home.jsx";
 import Agents from "./pages/Agents.jsx";
 import AppInfo from "./pages/AppInfo.jsx";
 import PlansScreen from "./pages/PlansScreen.jsx";
-import Pricing from "./pages/Pricing.jsx";
 import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import Logout from "./pages/Logout.jsx";
 import Subscribe from "./pages/Subscribe.jsx";
 import ErrorBoundary from "./ErrorBoundary.jsx";
 
-function NavBar() {
-  const active = ({ isActive }) => (isActive ? "tab tab--active" : "tab");
+/* Componente utilitário para link com classe ativa */
+const LinkItem = ({ to, children }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      "navlink" + (isActive ? " navlink--active" : "")
+    }
+    aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+  >
+    {children}
+  </NavLink>
+);
+
+/* Header fixo com nav responsiva */
+const Header = () => {
   return (
-    <header
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backdropFilter: "saturate(120%) blur(6px)",
-        background: "rgba(14,18,32,.7)",
-        borderBottom: "1px solid var(--card-border)",
-      }}
-    >
-      <nav
-        style={{
-          maxWidth: 1120,
-          margin: "0 auto",
-          display: "flex",
-          gap: 8,
-          padding: "12px 16px",
-          alignItems: "center",
-          justifyContent: "flex-start",
-        }}
-      >
-        <NavLink to="/" className={active} end>
+    <header className="shell header">
+      <div className="header__inner">
+        <NavLink to="/" className="brand" aria-label="Ir para RKMMAX (início)">
           RKMMAX
         </NavLink>
-        <NavLink to="/agents" className={active}>
-          Agentes
-        </NavLink>
-        <NavLink to="/info" className={active}>
-          Info
-        </NavLink>
-        <NavLink to="/plans" className={active}>
-          Planos
-        </NavLink>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <NavLink to="/login" className={active}>
+
+        <nav className="nav" aria-label="Navegação principal">
+          <LinkItem to="/agents">Agentes</LinkItem>
+          <LinkItem to="/info">Info</LinkItem>
+          <LinkItem to="/planos">Planos</LinkItem>
+        </nav>
+
+        <div className="header__actions">
+          <NavLink to="/login" className="ghost-btn">
             Entrar
           </NavLink>
-          <NavLink to="/signup" className="btn">
+          <NavLink to="/signup" className="cta-btn">
             Criar conta
           </NavLink>
         </div>
-      </nav>
+      </div>
     </header>
   );
-}
-
-function Footer() {
-  return (
-    <footer
-      style={{
-        maxWidth: 1120,
-        margin: "32px auto",
-        padding: "24px 16px",
-        color: "var(--muted)",
-        borderTop: "1px solid var(--card-border)",
-      }}
-    >
-      <small>
-        © {new Date().getFullYear()} RKMMAX — todos os direitos reservados.
-      </small>
-    </footer>
-  );
-}
+};
 
 export default function App() {
   return (
-    <React.StrictMode>
+    <BrowserRouter>
       <ErrorBoundary>
-        <BrowserRouter>
-          <NavBar />
-          <main style={{ maxWidth: 1120, margin: "24px auto", padding: "0 16px" }}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/agents" element={<Agents />} />
-              <Route path="/info" element={<AppInfo />} />
-
-              {/* Duas rotas para a página de planos (use a que preferir) */}
-              <Route path="/plans" element={<PlansScreen />} />
-              <Route path="/pricing" element={<Pricing />} />
-
-              {/* Fluxo de autenticação/assinatura */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/logout" element={<Logout />} />
-              <Route path="/subscribe" element={<Subscribe />} />
-
-              {/* Fallback opcional: você pode adicionar uma 404 page aqui */}
-            </Routes>
-          </main>
-          <Footer />
-        </BrowserRouter>
+        <Header />
+        {/* Espaço para não ficar oculto atrás do header fixo */}
+        <div style={{ height: "72px" }} aria-hidden="true" />
+        <main className="shell">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/agents" element={<Agents />} />
+            <Route path="/info" element={<AppInfo />} />
+            <Route path="/planos" element={<PlansScreen />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/subscribe" element={<Subscribe />} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </main>
       </ErrorBoundary>
-    </React.StrictMode>
+    </BrowserRouter>
   );
 }
