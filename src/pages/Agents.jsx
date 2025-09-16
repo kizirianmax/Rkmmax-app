@@ -1,126 +1,93 @@
-// src/pages/Agents.jsx
 import React from "react";
-import { Link } from "react-router-dom";
-import AGENTS from "../data/agents";
 
-// ===== Configurações =====
-const SHOW_HUMAN_SUPPORT = true;                 // torne false para ocultar
-const WHATSAPP_NUMBER = "55SEUNUMEROAQUI";       // DDI+DDD+número, ex: 5511999999999
+/**
+ * Página de Agentes — visual premium com destaque em dourado.
+ * Toques de glassmorphism, cartões elegantes e botões grandes.
+ */
 
-function openWhatsAppEmergency(agent) {
-  const text = agent?.id === "serginho"
-    ? "Suporte crítico: preciso de ajuda com meu projeto (Serginho)."
-    : `Suporte crítico sobre o especialista ${agent?.name} (orquestrado pelo Serginho).`;
-
-  const appDeepLink = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`;
-  const webFallback = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-
-  // Tenta abrir o app primeiro
-  window.location.href = appDeepLink;
-  // Fallback web
-  setTimeout(() => {
-    window.open(webFallback, "_blank", "noopener,noreferrer");
-  }, 600);
-}
+const AGENTS = [
+  {
+    id: "serginho",
+    nome: "Serginho",
+    papel: "Orquestrador",
+    badge: "Principal",
+    desc:
+      "Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula todas as interações.",
+    emoji: "🧭",
+  },
+  {
+    id: "emo",
+    nome: "Emo",
+    papel: "Mentor emocional",
+    desc:
+      "Apoio psicológico, empatia e motivação para fortalecer sua jornada.",
+    emoji: "💙",
+  },
+  {
+    id: "didak",
+    nome: "Didak",
+    papel: "Instrutor",
+    desc:
+      "Explica conceitos, ensina conteúdos e facilita o aprendizado em qualquer nível.",
+    emoji: "📚",
+  },
+];
 
 export default function Agents() {
+  const goChat = (agentId) => {
+    // Se você tiver uma rota de chat, mantenha:
+    window.location.href = `/chat?agent=${encodeURIComponent(agentId)}`;
+    // Se preferir abrir modal/app nativo depois, é só trocar aqui.
+  };
+
   return (
-    <div style={{ padding: "1.5rem", color: "#e6eef5" }}>
-      <h1 style={{ marginBottom: 24, textAlign: "center" }}>Lista de Agentes</h1>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-          gap: 16,
-        }}
-      >
+    <main className="container">
+      <header className="page-hero">
+        <h1 className="page-title">
+          <span className="title-accent">Lista de Agentes</span>
+        </h1>
+        <p className="page-sub">
+          Escolha um especialista e comece a conversar no app.
+        </p>
+      </header>
+
+      <section className="agents-grid">
         {AGENTS.map((a) => (
-          <div
-            key={a.id}
-            style={{
-              background: "rgba(255,255,255,.05)",
-              borderRadius: 12,
-              padding: 16,
-              boxShadow: "0 8px 18px rgba(0,0,0,.25)",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <img
-                src={a.avatar_url}
-                alt={a.name}
-                width={50}
-                height={50}
-                style={{ borderRadius: "50%", objectFit: "cover" }}
-              />
-              <div>
-                <div style={{ fontWeight: 700 }}>
-                  {a.name}{" "}
-                  {a.principal && (
-                    <span
-                      style={{
-                        marginLeft: 8,
-                        fontSize: 12,
-                        padding: "2px 8px",
-                        borderRadius: 999,
-                        background: "rgba(21,208,212,.15)",
-                        color: "#15d0d4",
-                      }}
-                    >
-                      Principal
-                    </span>
-                  )}
+          <article key={a.id} className="agent-card">
+            <div className="agent-head">
+              <div className="agent-avatar" aria-hidden>
+                <span className="agent-emoji">{a.emoji}</span>
+              </div>
+              <div className="agent-meta">
+                <div className="agent-line">
+                  <h2 className="agent-name">{a.nome}</h2>
+                  {a.badge && <span className="agent-badge">{a.badge}</span>}
                 </div>
-                <div style={{ margin: 0, fontSize: 13, opacity: 0.8 }}>{a.role}</div>
+                <div className="agent-role">{a.papel}</div>
               </div>
             </div>
 
-            <p style={{ marginTop: 12, fontSize: 14, color: "#ddd" }}>{a.description}</p>
+            <p className="agent-desc">{a.desc}</p>
 
-            {/* Ação principal */}
-            <div style={{ marginTop: "auto", display: "flex", gap: 8 }}>
-              <Link
-                to={`/chat/${a.id}`}
-                style={{
-                  flex: 1,
-                  textAlign: "center",
-                  textDecoration: "none",
-                  color: "#e6eef5",
-                  border: "1px solid #15d0d4",
-                  padding: "10px 14px",
-                  borderRadius: 8,
-                  background: "rgba(21,208,212,.15)",
-                  fontWeight: 600,
-                }}
-              >
-                💬 Chat no app
-              </Link>
+            <button
+              className="gold-btn chat-btn"
+              onClick={() => goChat(a.id)}
+              aria-label={`Abrir chat com ${a.nome}`}
+            >
+              💬 Chat no app
+            </button>
+
+            {/* Link de suporte humano removido do destaque.
+                Se você quiser manter (bem discreto), reative o bloco abaixo:
+            <div className="support-minor">
+              <a href="https://wa.me/55XXXXXXXXXX" target="_blank" rel="noreferrer">
+                ⚠ Suporte humano (WhatsApp)
+              </a>
             </div>
-
-            {/* Suporte humano discreto */}
-            {SHOW_HUMAN_SUPPORT && (
-              <div style={{ marginTop: 8, textAlign: "right" }}>
-                <button
-                  onClick={() => openWhatsAppEmergency(a)}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "#9fe5b5",
-                    fontSize: 12,
-                    opacity: 0.8,
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                  title="Use apenas se o chat falhar ou for crítico"
-                >
-                  ⚠ Suporte humano (WhatsApp)
-                </button>
-              </div>
-            )}
-          </div>
+            */}
+          </article>
         ))}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
