@@ -1,0 +1,23 @@
+import React from "react";
+import "./../styles.css"; // garante que pega o CSS global
+
+export default function Navbar() {
+  return (
+    <nav className="navbar">
+      <div className="nav-left">
+        <a href="/">RKMMAX</a>
+      </div>
+
+      <div className="nav-links">
+        <a href="/agentes">Agentes</a>
+        <a href="/info">Info</a>
+        <a href="/planos">Planos</a>
+      </div>
+
+      <div className="nav-cta">
+        <a href="/login" className="btn ghost">Entrar</a>
+        <a href="/signup" className="btn primary">Criar conta</a>
+      </div>
+    </nav>
+  );
+}
