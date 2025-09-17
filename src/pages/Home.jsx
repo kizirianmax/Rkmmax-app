@@ -1,35 +1,46 @@
-// src/pages/Home.jsx
 import React from "react";
-import { Link } from "react-router-dom";
-import "../App.css";
 
 export default function Home() {
   return (
-    <div className="container">
-      <h1 className="title">Bem-vindo ao RKMMAX 🚀</h1>
-      <p className="subtitle">
-        Escolha sua opção abaixo e comece a usar nossa IA com assinatura segura via Stripe.
+    <>
+      <h1 className="title-hero">Bem-vindo ao RKMMAX 🚀</h1>
+      <p className="page-sub">
+        Escolha sua opção e comece a usar nossa IA com assinatura segura via Stripe.
       </p>
 
-      <div className="grid">
-        <div className="card">
-          <h2>🔑 Login</h2>
-          <p>Já tem conta? Entre agora.</p>
-          <Link to="/login" className="btn">Entrar</Link>
-        </div>
+      <div className="agents-grid" style={{ marginTop: 16 }}>
+        <section className="agent-card">
+          <div className="agent-top">
+            <img className="agent-avatar" src="/avatars/serginho.png" alt="Serginho" />
+            <div>
+              <h3 className="agent-name">Serginho</h3>
+              <p className="agent-role">Orquestrador</p>
+            </div>
+          </div>
+          <p className="agent-desc">
+            Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula todas as interações.
+          </p>
+          <a href="/agentes" className="btn-chat" style={{ display:"inline-block", textAlign:"center" }}>
+            Ver todos os agentes
+          </a>
+        </section>
 
-        <div className="card">
-          <h2>📝 Criar Conta</h2>
-          <p>Novo aqui? Crie sua conta gratuita.</p>
-          <Link to="/signup" className="btn">Cadastrar</Link>
-        </div>
-
-        <div className="card">
-          <h2>💳 Planos</h2>
-          <p>Veja os planos disponíveis e escolha o ideal.</p>
-          <Link to="/plans" className="btn">Ver Planos</Link>
-        </div>
+        <section className="agent-card">
+          <div className="agent-top">
+            <img className="agent-avatar" src="/avatars/emo.png" alt="Emo" />
+            <div>
+              <h3 className="agent-name">Planos</h3>
+              <p className="agent-role">Assine com segurança</p>
+            </div>
+          </div>
+          <p className="agent-desc">
+            Planos claros, pagamento via Stripe e acesso imediato no app.
+          </p>
+          <a href="/planos" className="btn-chat" style={{ display:"inline-block", textAlign:"center" }}>
+            Ver planos
+          </a>
+        </section>
       </div>
-    </div>
+    </>
   );
 }
