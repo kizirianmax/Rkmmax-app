@@ -1,130 +1,152 @@
-/* ===== Topnav premium (pílulas com espaço) ===== */
-.topnav{
-  position: sticky; top: 0; z-index: 50;
-  background: linear-gradient(180deg, rgba(8,12,22,.85), rgba(8,12,22,.65));
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255,255,255,.06);
-}
-.topnav__inner{
-  max-width: 1100px; margin: 0 auto;
-  display: grid; grid-template-columns: 1fr auto auto;
-  align-items: center; gap: 14px;
-  padding: 10px 16px;
-}
-.brand{
-  font-weight: 900; letter-spacing: .3px; text-decoration: none;
-  color: #eaf2ff; font-size: 18px;
-}
-.brand span{ color:#7cc4ff; }
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --bg: #0e1220;
+  --card: #12182a;
+  --card-border: #24304d;
+  --text: #e7edf7;
+  --muted: #a9b5cc;
 
-.nav-list{
-  display: flex; gap: 10px; align-items: center;
-  list-style: none; margin: 0; padding: 0;
-}
-.nav-link{
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 10px 14px; border-radius: 12px; text-decoration: none;
-  color: #cfe2ff; font-weight: 700; font-size: 14px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, color .2s ease;
-}
-.nav-link:hover{
-  transform: translateY(-1px);
-  border-color: rgba(255,215,0,.25);
-  box-shadow: 0 6px 16px rgba(255,215,0,.12);
-  color: #ffffff;
-}
-.nav-link.active{
-  color:#0b0b0b;
-  background: linear-gradient(92deg, #FFD700, #FFA000);
-  border-color: rgba(255,215,0,.6);
-  box-shadow: 0 8px 20px rgba(255,193,7,.28);
+  --primary: #6d28d9;       /* Roxo Premium */
+  --accent: #0ea5e9;        /* Azul Neon */
+  --success: #22c55e;       /* Verde destaque */
+  --warning: #eab308;       /* Ouro forte */
+  --danger: #ef4444;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow: 0 6px 16px rgba(0,0,0,0.45);
 }
 
-.nav-cta{
-  display: flex; gap: 10px; align-items: center;
-}
-.nav-link.ghost{
-  color:#cfe2ff; background: transparent;
-  border: 1px solid rgba(255,255,255,.12);
-}
-.gold-pill{
-  display:inline-flex; align-items:center; justify-content:center;
-  padding:10px 16px; border-radius: 999px; border:0; text-decoration:none;
-  font-weight: 900; color:#0c0c0c; font-size:14px;
-  background: linear-gradient(92deg, #FFD700, #FFA000 60%, #FFD54D);
-  box-shadow: 0 10px 24px rgba(255,193,7,.28);
-  transition: transform .15s ease, box-shadow .2s ease;
-}
-.gold-pill:hover{ transform: translateY(-1px); box-shadow: 0 14px 30px rgba(255,193,7,.36); }
-
-/* ===== Escopo exclusivo para a página de Agentes ===== */
-/* Adicione a classe 'agents-page' no container da página de Agentes */
-.agents-page .page-hero{
-  text-align:center; margin: 18px 0 24px;
-}
-.agents-page .page-title{
-  font-size: clamp(26px, 4.2vw, 38px); margin:0 0 6px;
-  font-weight: 900;
-  background: linear-gradient(90deg, #FFD700, #FFA000);
-  -webkit-background-clip: text; background-clip:text; color: transparent;
-  text-shadow: 0 0 12px rgba(255,215,0,.18);
-}
-.agents-page .page-sub{
-  color:#a8bed7; font-size:15px;
+/* ===== BASE ===== */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
 }
 
-/* GRID e Cards dos Agentes — sem interferir em Planos */
-.agents-page .agents-grid{
-  display:grid; grid-template-columns: 1fr; gap: 16px;
-}
-@media (min-width: 720px){ .agents-page .agents-grid{ grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1040px){ .agents-page .agents-grid{ grid-template-columns: 1fr 1fr 1fr; } }
-
-.agents-page .agent-card{
-  background: linear-gradient(180deg, rgba(16,24,39,.78), rgba(10,15,26,.78));
-  border:1px solid rgba(255,255,255,.06); border-radius:18px; padding:18px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.02);
-  backdrop-filter: blur(6px);
-  transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
-}
-.agents-page .agent-card:hover{
-  transform: translateY(-2px);
-  border-color: rgba(255,215,0,.25);
-  box-shadow: 0 16px 34px rgba(0,0,0,.45), 0 0 18px rgba(255,215,0,.12);
+/* ===== NAVBAR ===== */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111827;
+  padding: 14px 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow);
 }
 
-.agents-page .agent-head{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
-.agents-page .agent-avatar{
-  width:48px; height:48px; border-radius:14px; display:grid; place-items:center;
-  background: radial-gradient(120% 120% at 10% 10%, rgba(255,215,0,.22), rgba(255,255,255,.04));
-  border:1px solid rgba(255,255,255,.08);
+nav .tabs {
+  display: flex;
+  gap: 14px;
 }
-.agents-page .agent-emoji{ font-size:24px; }
-.agents-page .agent-name{ font-weight: 900; color:#eef4ff; margin:0; }
-.agents-page .agent-badge{
-  font-size:12px; font-weight:800; color:#0b0b0b; padding:4px 8px; border-radius:999px;
-  background: linear-gradient(92deg,#FFD700,#FFA000);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.25) inset, 0 0 10px rgba(255,215,0,.35);
-}
-.agents-page .agent-role{ color:#b8c9dc; font-size:13px; margin-top:2px; }
-.agents-page .agent-desc{ color:#d6e3f3; font-size:14px; line-height:1.5; margin:10px 0 14px; }
 
-.agents-page .gold-btn{
-  width:100%; border:0; border-radius:14px; padding:14px 18px;
-  font-weight:900; font-size:16px; letter-spacing:.2px; color:#0c0c0c; cursor:pointer;
-  background: linear-gradient(92deg,#FFD700,#FFA000 60%,#FFD54D);
-  background-size:200% 100%;
-  box-shadow: 0 10px 24px rgba(255,193,7,.28), 0 0 0 1px rgba(0,0,0,.25) inset;
-  transition: transform .15s ease, box-shadow .2s ease, background-position .4s ease;
+nav .tab {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
-.agents-page .gold-btn:hover{
-  transform: translateY(-1px);
-  background-position: 100% 0;
-  box-shadow: 0 14px 32px rgba(255,193,7,.4), 0 0 0 1px rgba(0,0,0,.28) inset;
+
+nav .tab:hover {
+  color: var(--text);
+  border-color: var(--accent);
 }
-.agents-page .gold-btn:focus-visible{
-  outline:none;
-  box-shadow: 0 0 0 3px rgba(255,215,0,.45), 0 8px 22px rgba(255,193,7,.36);
+
+nav .tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 0 15px rgba(14,165,233,0.6);
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 22px;
+  margin: 20px auto;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.6);
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-block;
+  padding: 14px 26px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  color: white;
+}
+
+/* Botão por plano */
+.btn-free {
+  background: var(--success);
+  box-shadow: 0 0 15px rgba(34,197,94,0.6);
+}
+
+.btn-basic {
+  background: var(--warning);
+  box-shadow: 0 0 15px rgba(234,179,8,0.6);
+  color: #1f1f1f;
+}
+
+.btn-intermediate {
+  background: var(--accent);
+  box-shadow: 0 0 15px rgba(14,165,233,0.6);
+}
+
+.btn-premium {
+  background: var(--primary);
+  box-shadow: 0 0 15px rgba(109,40,217,0.6);
+}
+
+.btn:hover {
+  transform: scale(1.07);
+  opacity: 0.95;
+}
+
+/* ===== TITLES ===== */
+h1, h2, h3 {
+  font-weight: 800;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+
+h3 {
+  font-size: 1.3rem;
+  color: var(--muted);
 }
