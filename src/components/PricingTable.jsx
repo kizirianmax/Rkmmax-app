@@ -1,6 +1,6 @@
 // src/components/PricingTable.jsx
 import React, { useState } from "react";
-import plansJson from "../../plans.json"; // corrigido: agora puxa da raiz
+import plansJson from "../config/plans.json"; // corrigido: agora dentro de src/config
 
 export default function PricingTable() {
   const [tab, setTab] = useState("BR"); // "BR" ou "US"
@@ -8,9 +8,10 @@ export default function PricingTable() {
   // monta listas a partir do plans.json
   const br = [
     plansJson.basic_br,
-    plansJson.intermediate_br, // corrigido
+    plansJson.intermediate_br,
     plansJson.premium_br,
   ];
+
   const us = [
     plansJson.basic_us,
     plansJson.intermediate_us,
@@ -24,7 +25,7 @@ export default function PricingTable() {
       const res = await fetch("/.netlify/functions/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lookupKey }), // corrigido
+        body: JSON.stringify({ lookupKey }),
       });
 
       if (!res.ok) throw new Error("Checkout request failed");
