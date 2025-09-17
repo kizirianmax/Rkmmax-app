@@ -1,152 +1,142 @@
-/* ===== DESIGN TOKENS ===== */
-:root {
-  --bg: #0e1220;
-  --card: #12182a;
-  --card-border: #24304d;
-  --text: #e7edf7;
-  --muted: #a9b5cc;
-
-  --primary: #6d28d9;       /* Roxo Premium */
-  --accent: #0ea5e9;        /* Azul Neon */
-  --success: #22c55e;       /* Verde destaque */
-  --warning: #eab308;       /* Ouro forte */
-  --danger: #ef4444;
-
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --shadow: 0 6px 16px rgba(0,0,0,0.45);
+/* container base grande */
+.card-xl {
+  background: radial-gradient(140% 140% at 0% 0%, #0c1624 0%, #0b1420 48%, #09121c 100%);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 10px 30px rgba(0,0,0,.35);
 }
 
-/* ===== BASE ===== */
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', system-ui, sans-serif;
+.card-xl__header { margin-bottom: 18px; }
+.title-hero {
   margin: 0;
-  padding: 0;
-  line-height: 1.6;
+  font-size: clamp(28px, 3.6vw, 40px);
+  line-height: 1.1;
+  color: #63c3ff;
+  text-shadow: 0 2px 20px rgba(99,195,255,0.18);
+}
+.subtitle {
+  margin: 8px 0 0;
+  opacity: .82;
 }
 
-/* ===== NAVBAR ===== */
-nav {
+/* grid responsivo dos cards */
+.agents-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+@media (min-width: 700px) {
+  .agents-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1100px) {
+  .agents-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* card de agente */
+.agent-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 18px;
+  padding: 18px;
+  backdrop-filter: blur(6px);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.agent-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,.12);
+  box-shadow: 0 10px 24px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.03) inset;
+}
+
+.agent-card__top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background: #111827;
-  padding: 14px 28px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: var(--shadow);
-}
-
-nav .tabs {
-  display: flex;
   gap: 14px;
+  margin-bottom: 10px;
 }
-
-nav .tab {
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  color: var(--muted);
-  font-weight: 600;
-  background: transparent;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
-  cursor: pointer;
+.agent-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: #0f1b2a;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
 }
-
-nav .tab:hover {
-  color: var(--text);
-  border-color: var(--accent);
-}
-
-nav .tab.active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-  box-shadow: 0 0 15px rgba(14,165,233,0.6);
-}
-
-/* ===== CARDS ===== */
-.card {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  padding: 28px 22px;
-  margin: 20px auto;
-  max-width: 400px;
-  text-align: center;
-  box-shadow: var(--shadow);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 22px rgba(0,0,0,0.6);
-}
-
-/* ===== BUTTONS ===== */
-.btn {
-  display: inline-block;
-  padding: 14px 26px;
-  border-radius: var(--radius-md);
+.agent-id { min-width: 0; }
+.agent-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
   font-weight: 700;
-  font-size: 1rem;
-  margin-top: 16px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  color: white;
+}
+.agent-role {
+  opacity: .85;
+  font-size: 14px;
+}
+.badge-primary {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0ea5e9 100%);
+  color: #04101c;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  box-shadow: 0 2px 10px rgba(20,184,166,.35);
 }
 
-/* Botão por plano */
-.btn-free {
-  background: var(--success);
-  box-shadow: 0 0 15px rgba(34,197,94,0.6);
+.agent-desc {
+  margin: 10px 0 16px;
+  line-height: 1.55;
+  opacity: .92;
 }
 
-.btn-basic {
-  background: var(--warning);
-  box-shadow: 0 0 15px rgba(234,179,8,0.6);
-  color: #1f1f1f;
-}
+/* ações */
+.agent-actions { display: flex; flex-direction: column; gap: 10px; }
 
-.btn-intermediate {
-  background: var(--accent);
-  box-shadow: 0 0 15px rgba(14,165,233,0.6);
-}
-
-.btn-premium {
-  background: var(--primary);
-  box-shadow: 0 0 15px rgba(109,40,217,0.6);
-}
-
-.btn:hover {
-  transform: scale(1.07);
-  opacity: 0.95;
-}
-
-/* ===== TITLES ===== */
-h1, h2, h3 {
+/* botão ouro – grande e “tap-friendly” */
+.btn-gold {
+  --gold1: #f8d14a;
+  --gold2: #f2a93c;
+  --gold3: #f7e27a;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 16px;
   font-weight: 800;
-  color: var(--text);
+  letter-spacing: .2px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 14px;
+  color: #1b1203;
+  background: linear-gradient(180deg, var(--gold3), var(--gold1) 48%, var(--gold2));
+  box-shadow:
+    0 12px 24px rgba(248,209,74,.22),
+    inset 0 1px 0 rgba(255,255,255,.65);
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+  touch-action: manipulation;
+}
+.btn-gold:hover { filter: saturate(1.08) brightness(1.03); }
+.btn-gold:active { transform: translateY(1px) scale(.995); }
+
+/* link secundário (se usar) */
+.link-ghost {
   text-align: center;
-  margin-bottom: 18px;
+  opacity: .8;
+  text-decoration: underline;
 }
 
-h1 {
-  font-size: 2rem;
-}
-
-h2 {
-  font-size: 1.6rem;
-  color: var(--accent);
-}
-
-h3 {
-  font-size: 1.3rem;
-  color: var(--muted);
+/* acessibilidade em foco por teclado */
+.btn-gold:focus-visible,
+.agent-card:focus-within {
+  outline: 2px solid #f8d14a;
+  outline-offset: 2px;
 }
