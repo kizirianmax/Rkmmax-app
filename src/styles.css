@@ -1,142 +1,108 @@
-/* container base grande */
-.card-xl {
-  background: radial-gradient(140% 140% at 0% 0%, #0c1624 0%, #0b1420 48%, #09121c 100%);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.06),
-    0 10px 30px rgba(0,0,0,.35);
+:root{
+  --bg-900:#0e1623;   /* navy escuro do fundo */
+  --bg-800:#132033;   /* cartões */
+  --bg-700:#182740;   /* hover do cartão */
+  --text-100:#eaf2ff; /* texto principal */
+  --text-200:#c7d7ee; /* texto secundário */
+  --primary-400:#47b5ff; /* azul-ciano para títulos/links */
+  --primary-300:#79caff;
+  --accent-400:#00d0b8;  /* botões CTA */
+  --accent-500:#00b39e;  /* hover CTA */
+  --ring:#2a3d5d;        /* foco acessível */
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
 }
 
-.card-xl__header { margin-bottom: 18px; }
-.title-hero {
-  margin: 0;
-  font-size: clamp(28px, 3.6vw, 40px);
-  line-height: 1.1;
-  color: #63c3ff;
-  text-shadow: 0 2px 20px rgba(99,195,255,0.18);
-}
-.subtitle {
-  margin: 8px 0 0;
-  opacity: .82;
+html,body{
+  background: radial-gradient(1200px 600px at 10% -10%, #16233a, transparent 60%),
+              radial-gradient(1200px 600px at 90% -10%, #0b2436, transparent 60%),
+              var(--bg-900);
+  color: var(--text-100);
 }
 
-/* grid responsivo dos cards */
-.agents-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
+/* Nav */
+.navbar{
+  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, rgba(12,20,34,.8), rgba(12,20,34,.35));
+  border:1px solid rgba(93,122,171,.15);
+  border-radius:16px;
+  padding:10px 14px;
 }
-@media (min-width: 700px) {
-  .agents-grid { grid-template-columns: 1fr 1fr; }
+.navbar a{
+  color: var(--text-200);
+  text-decoration:none;
+  font-weight:600;
+  padding:10px 14px;
+  border-radius:12px;
 }
-@media (min-width: 1100px) {
-  .agents-grid { grid-template-columns: 1fr 1fr 1fr; }
+.navbar a:hover{ color: var(--text-100); background: rgba(255,255,255,.04); }
+.navbar .cta{
+  color:#001b17; background: var(--accent-400); border-radius:14px; padding:10px 16px;
+}
+.navbar .cta:hover{ background: var(--accent-500); }
+
+/* Título da página */
+.page-title{
+  color: var(--primary-400);
+  font-size: clamp(28px, 4vw, 40px);
+  margin: 0 0 8px 0;
+}
+.page-sub{ color: var(--text-200); opacity:.9; margin:0 0 24px 0; }
+
+/* Grid de agentes */
+.agents-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap:18px;
 }
 
-/* card de agente */
-.agent-card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: 18px;
-  padding: 18px;
-  backdrop-filter: blur(6px);
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+/* Cartão do agente */
+.agent-card{
+  background: linear-gradient(180deg, var(--bg-800), var(--bg-800));
+  border:1px solid rgba(118,161,220,.12);
+  border-radius:18px;
+  padding:18px;
+  box-shadow: var(--shadow);
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
 }
-.agent-card:hover {
+.agent-card:hover{
   transform: translateY(-2px);
-  border-color: rgba(255,255,255,.12);
-  box-shadow: 0 10px 24px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.03) inset;
+  background: var(--bg-700);
+  border-color: rgba(118,161,220,.22);
 }
 
-.agent-card__top {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 10px;
+/* Topo do cartão */
+.agent-top{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.agent-avatar{
+  width:56px; height:56px; border-radius:14px; flex:0 0 56px; object-fit:cover;
+  background:#0b1626; border:1px solid rgba(118,161,220,.15);
 }
-.agent-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 16px;
-  object-fit: cover;
-  background: #0f1b2a;
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 6px 16px rgba(0,0,0,.35);
-}
-.agent-id { min-width: 0; }
-.agent-name {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 700;
-}
-.agent-role {
-  opacity: .85;
-  font-size: 14px;
-}
-.badge-primary {
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0ea5e9 100%);
-  color: #04101c;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .3px;
-  box-shadow: 0 2px 10px rgba(20,184,166,.35);
-}
+.agent-name{ font-weight:800; font-size:18px; color: var(--text-100); margin:0; }
+.agent-role{ margin:2px 0 0 0; color:var(--text-200); font-size:14px; }
 
-.agent-desc {
-  margin: 10px 0 16px;
-  line-height: 1.55;
-  opacity: .92;
+/* descrição */
+.agent-desc{ color: var(--text-200); line-height:1.55; margin:8px 0 14px 0; }
+
+/* Botão grande */
+.btn-chat{
+  width:100%;
+  font-weight:800;
+  font-size:16px;
+  border:0;
+  padding:14px 18px;
+  border-radius:14px;
+  color:#001b17;
+  background: var(--accent-400);
+  cursor:pointer;
+  box-shadow: 0 8px 24px rgba(0,208,184,.25);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
+.btn-chat:hover{ background: var(--accent-500); transform: translateY(-1px); }
+.btn-chat:focus{ outline:2px solid var(--ring); outline-offset:2px; }
 
-/* ações */
-.agent-actions { display: flex; flex-direction: column; gap: 10px; }
-
-/* botão ouro – grande e “tap-friendly” */
-.btn-gold {
-  --gold1: #f8d14a;
-  --gold2: #f2a93c;
-  --gold3: #f7e27a;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: .2px;
-  padding: 14px 18px;
-  border: 0;
-  border-radius: 14px;
-  color: #1b1203;
-  background: linear-gradient(180deg, var(--gold3), var(--gold1) 48%, var(--gold2));
-  box-shadow:
-    0 12px 24px rgba(248,209,74,.22),
-    inset 0 1px 0 rgba(255,255,255,.65);
-  cursor: pointer;
-  transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
-  touch-action: manipulation;
-}
-.btn-gold:hover { filter: saturate(1.08) brightness(1.03); }
-.btn-gold:active { transform: translateY(1px) scale(.995); }
-
-/* link secundário (se usar) */
-.link-ghost {
-  text-align: center;
-  opacity: .8;
-  text-decoration: underline;
-}
-
-/* acessibilidade em foco por teclado */
-.btn-gold:focus-visible,
-.agent-card:focus-within {
-  outline: 2px solid #f8d14a;
-  outline-offset: 2px;
+/* Badge “Principal” opcional */
+.badge{
+  font-size:12px; font-weight:800; letter-spacing:.3px;
+  background: rgba(71,181,255,.15); color: var(--primary-300);
+  border:1px solid rgba(71,181,255,.35);
+  padding:4px 8px; border-radius:999px;
 }
