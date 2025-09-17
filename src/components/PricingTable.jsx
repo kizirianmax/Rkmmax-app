@@ -1,20 +1,20 @@
 // src/components/PricingTable.jsx
 import React, { useState } from "react";
-import plansJson from "../../config/plans.json";
+import plansJson from "../../plans.json"; // corrigido: agora puxa da raiz
 
 export default function PricingTable() {
-  const [tab, setTab] = useState("BR"); // "BR" | "US"
+  const [tab, setTab] = useState("BR"); // "BR" ou "US"
 
   // monta listas a partir do plans.json
   const br = [
-    plansJson.plans.basic_br,
-    plansJson.plans.intermediario_br,
-    plansJson.plans.premium_br,
+    plansJson.basic_br,
+    plansJson.intermediate_br, // corrigido
+    plansJson.premium_br,
   ];
   const us = [
-    plansJson.plans.basic_us,
-    plansJson.plans.intermediate_us,
-    plansJson.plans.premium_us,
+    plansJson.basic_us,
+    plansJson.intermediate_us,
+    plansJson.premium_us,
   ];
 
   const list = tab === "BR" ? br : us;
@@ -24,9 +24,11 @@ export default function PricingTable() {
       const res = await fetch("/.netlify/functions/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lookupKey }),
+        body: JSON.stringify({ lookupKey }), // corrigido
       });
+
       if (!res.ok) throw new Error("Checkout request failed");
+
       const { url } = await res.json();
       if (url) window.location.href = url;
     } catch (e) {
@@ -56,16 +58,15 @@ export default function PricingTable() {
 
       {list.map((p) => (
         <div key={p.lookup_key} className="card">
-          <h3>{tab === "BR" ? p.name.replace("RKM", "RKMMAX") : p.name.replace("RKM", "RKMMAX")}</h3>
+          <h3>{p.name}</h3>
           <p>
-            {tab === "BR" ? "Brasil" : "US"}: {p.price}/{p.billing === "monthly" ? "mês" : p.billing}
+            {tab === "BR" ? "Brasil" : "US"}: {p.price}/
+            {p.billing === "monthly" ? "mês" : p.billing}
           </p>
-
           <ul>
             <li>Assinatura mensal, cobrança automática</li>
             <li>Códigos promocionais permitidos</li>
           </ul>
-
           <button
             className="btn"
             onClick={() => handleCheckout(p.lookup_key)}
