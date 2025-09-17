@@ -1,108 +1,71 @@
-:root{
-  --bg-900:#0e1623;   /* navy escuro do fundo */
-  --bg-800:#132033;   /* cartões */
-  --bg-700:#182740;   /* hover do cartão */
-  --text-100:#eaf2ff; /* texto principal */
-  --text-200:#c7d7ee; /* texto secundário */
-  --primary-400:#47b5ff; /* azul-ciano para títulos/links */
-  --primary-300:#79caff;
-  --accent-400:#00d0b8;  /* botões CTA */
-  --accent-500:#00b39e;  /* hover CTA */
-  --ring:#2a3d5d;        /* foco acessível */
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
-}
-
-html,body{
-  background: radial-gradient(1200px 600px at 10% -10%, #16233a, transparent 60%),
-              radial-gradient(1200px 600px at 90% -10%, #0b2436, transparent 60%),
-              var(--bg-900);
-  color: var(--text-100);
-}
-
 /* Nav */
 .navbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
   backdrop-filter: blur(8px);
   background: linear-gradient(180deg, rgba(12,20,34,.8), rgba(12,20,34,.35));
   border:1px solid rgba(93,122,171,.15);
   border-radius:16px;
-  padding:10px 14px;
+  padding:12px 18px;
 }
+
+/* Links do meio */
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:18px; /* espaço visível entre os nomes */
+}
+
 .navbar a{
   color: var(--text-200);
   text-decoration:none;
   font-weight:600;
   padding:10px 14px;
   border-radius:12px;
-}
-.navbar a:hover{ color: var(--text-100); background: rgba(255,255,255,.04); }
-.navbar .cta{
-  color:#001b17; background: var(--accent-400); border-radius:14px; padding:10px 16px;
-}
-.navbar .cta:hover{ background: var(--accent-500); }
-
-/* Título da página */
-.page-title{
-  color: var(--primary-400);
-  font-size: clamp(28px, 4vw, 40px);
-  margin: 0 0 8px 0;
-}
-.page-sub{ color: var(--text-200); opacity:.9; margin:0 0 24px 0; }
-
-/* Grid de agentes */
-.agents-grid{
-  display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap:18px;
+  transition: background .15s ease, color .15s ease;
 }
 
-/* Cartão do agente */
-.agent-card{
-  background: linear-gradient(180deg, var(--bg-800), var(--bg-800));
-  border:1px solid rgba(118,161,220,.12);
-  border-radius:18px;
-  padding:18px;
-  box-shadow: var(--shadow);
-  transition: transform .18s ease, background .18s ease, border-color .18s ease;
-}
-.agent-card:hover{
-  transform: translateY(-2px);
-  background: var(--bg-700);
-  border-color: rgba(118,161,220,.22);
+.navbar a:hover{ 
+  color: var(--text-100); 
+  background: rgba(255,255,255,.04); 
 }
 
-/* Topo do cartão */
-.agent-top{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-.agent-avatar{
-  width:56px; height:56px; border-radius:14px; flex:0 0 56px; object-fit:cover;
-  background:#0b1626; border:1px solid rgba(118,161,220,.15);
+/* Botões de ação (lado direito) */
+.nav-cta{
+  display:flex;
+  gap:12px;
 }
-.agent-name{ font-weight:800; font-size:18px; color: var(--text-100); margin:0; }
-.agent-role{ margin:2px 0 0 0; color:var(--text-200); font-size:14px; }
 
-/* descrição */
-.agent-desc{ color: var(--text-200); line-height:1.55; margin:8px 0 14px 0; }
-
-/* Botão grande */
-.btn-chat{
-  width:100%;
-  font-weight:800;
-  font-size:16px;
-  border:0;
-  padding:14px 18px;
+.navbar .btn{
+  font-weight:700;
+  text-decoration:none;
+  padding:10px 16px;
   border-radius:14px;
+  line-height:1;
+  transition: transform .1s ease, background .15s ease, box-shadow .15s ease;
+}
+
+/* Botão secundário (ghost) */
+.navbar .btn.ghost{
+  color: var(--text-200);
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+}
+.navbar .btn.ghost:hover{
+  background: rgba(255,255,255,.1);
+  color: var(--text-100);
+  transform: translateY(-1px);
+}
+
+/* Botão principal (CTA) */
+.navbar .btn.primary{
   color:#001b17;
   background: var(--accent-400);
-  cursor:pointer;
-  box-shadow: 0 8px 24px rgba(0,208,184,.25);
-  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  box-shadow: 0 6px 20px rgba(0,208,184,.25);
 }
-.btn-chat:hover{ background: var(--accent-500); transform: translateY(-1px); }
-.btn-chat:focus{ outline:2px solid var(--ring); outline-offset:2px; }
-
-/* Badge “Principal” opcional */
-.badge{
-  font-size:12px; font-weight:800; letter-spacing:.3px;
-  background: rgba(71,181,255,.15); color: var(--primary-300);
-  border:1px solid rgba(71,181,255,.35);
-  padding:4px 8px; border-radius:999px;
+.navbar .btn.primary:hover{
+  background: var(--accent-500);
+  transform: translateY(-1px);
 }
