@@ -94,5 +94,6 @@ const AGENTS = [
     avatar_url: "/avatars/orac.png",
   },
 ];
+export default AGENTS;
 
 export default AGENTS;
