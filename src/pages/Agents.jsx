@@ -1,92 +1,69 @@
 import React from "react";
+import { AGENTS } from "../data/agents";
 
-/**
- * Página de Agentes — visual premium com destaque em dourado.
- * Toques de glassmorphism, cartões elegantes e botões grandes.
- */
-
-const AGENTS = [
-  {
-    id: "serginho",
-    nome: "Serginho",
-    papel: "Orquestrador",
-    badge: "Principal",
-    desc:
-      "Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula todas as interações.",
-    emoji: "🧭",
-  },
-  {
-    id: "emo",
-    nome: "Emo",
-    papel: "Mentor emocional",
-    desc:
-      "Apoio psicológico, empatia e motivação para fortalecer sua jornada.",
-    emoji: "💙",
-  },
-  {
-    id: "didak",
-    nome: "Didak",
-    papel: "Instrutor",
-    desc:
-      "Explica conceitos, ensina conteúdos e facilita o aprendizado em qualquer nível.",
-    emoji: "📚",
-  },
-];
-
-export default function Agents() {
-  const goChat = (agentId) => {
-    // Se você tiver uma rota de chat, mantenha:
-    window.location.href = `/chat?agent=${encodeURIComponent(agentId)}`;
-    // Se preferir abrir modal/app nativo depois, é só trocar aqui.
-  };
-
+export default function AgentsPage() {
   return (
-    <main className="container">
-      <header className="page-hero">
-        <h1 className="page-title">
-          <span className="title-accent">Lista de Agentes</span>
+    <main style={{ padding: "24px 16px 56px" }}>
+      <section className="card" style={{ borderRadius: 16, padding: 24 }}>
+        <h1 style={{ fontSize: 32, margin: 0, color: "var(--primary-400,#47b5ff)" }}>
+          Lista de Agentes
         </h1>
-        <p className="page-sub">
+        <p style={{ opacity: .85, marginTop: 8 }}>
           Escolha um especialista e comece a conversar no app.
         </p>
-      </header>
 
-      <section className="agents-grid">
-        {AGENTS.map((a) => (
-          <article key={a.id} className="agent-card">
-            <div className="agent-head">
-              <div className="agent-avatar" aria-hidden>
-                <span className="agent-emoji">{a.emoji}</span>
-              </div>
-              <div className="agent-meta">
-                <div className="agent-line">
-                  <h2 className="agent-name">{a.nome}</h2>
-                  {a.badge && <span className="agent-badge">{a.badge}</span>}
-                </div>
-                <div className="agent-role">{a.papel}</div>
-              </div>
-            </div>
-
-            <p className="agent-desc">{a.desc}</p>
-
-            <button
-              className="gold-btn chat-btn"
-              onClick={() => goChat(a.id)}
-              aria-label={`Abrir chat com ${a.nome}`}
+        <div
+          style={{
+            display: "grid",
+            gap: 16,
+            marginTop: 24,
+            gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))"
+          }}
+        >
+          {AGENTS.map((a) => (
+            <article
+              key={a.id}
+              style={{
+                padding: 16,
+                borderRadius: 14,
+                background: "rgba(255,255,255,.03)",
+                border: "1px solid rgba(255,255,255,.08)"
+              }}
             >
-              💬 Chat no app
-            </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <img
+                  src={a.avatar_url}
+                  alt={a.name}
+                  onError={(e)=> (e.currentTarget.style.display = "none")}
+                  style={{
+                    width: 56, height: 56, borderRadius: "50%",
+                    objectFit: "cover", border: "2px solid #f5d061"
+                  }}
+                />
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 18 }}>{a.name}</div>
+                  <div style={{ opacity: .8, fontSize: 14 }}>{a.role}</div>
+                </div>
+              </div>
 
-            {/* Link de suporte humano removido do destaque.
-                Se você quiser manter (bem discreto), reative o bloco abaixo:
-            <div className="support-minor">
-              <a href="https://wa.me/55XXXXXXXXXX" target="_blank" rel="noreferrer">
-                ⚠ Suporte humano (WhatsApp)
-              </a>
-            </div>
-            */}
-          </article>
-        ))}
+              <p style={{ marginTop: 12, fontSize: 14, lineHeight: 1.5, opacity: .9 }}>
+                {a.description}
+              </p>
+
+              <button
+                style={{
+                  width: "100%", marginTop: 12, padding: "12px 16px",
+                  borderRadius: 12, border: "none", fontWeight: 700,
+                  background: "linear-gradient(90deg,#FFD166,#C08400)",
+                  color: "#0b1020", cursor: "pointer"
+                }}
+                onClick={() => alert(`Abrir chat com ${a.name}`)}
+              >
+                💬 Chat no app
+              </button>
+            </article>
+          ))}
+        </div>
       </section>
     </main>
   );
