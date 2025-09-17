@@ -1,66 +1,54 @@
 import React from "react";
-import { AGENTS } from "../data/agents";
+import AGENTS from "../data/agents"; // <- default export (sem chaves)
 
 export default function AgentsPage() {
   return (
-    <main style={{ padding: "24px 16px 56px" }}>
-      <section className="card" style={{ borderRadius: 16, padding: 24 }}>
-        <h1 style={{ fontSize: 32, margin: 0, color: "var(--primary-400,#47b5ff)" }}>
-          Lista de Agentes
-        </h1>
-        <p style={{ opacity: .85, marginTop: 8 }}>
-          Escolha um especialista e comece a conversar no app.
-        </p>
+    <main style={{ padding: "28px 16px 56px" }}>
+      <section className="card-xl">
+        <header className="card-xl__header">
+          <h1 className="title-hero">Lista de Agentes</h1>
+          <p className="subtitle">
+            Escolha um especialista e comece a conversar no app.
+          </p>
+        </header>
 
-        <div
-          style={{
-            display: "grid",
-            gap: 16,
-            marginTop: 24,
-            gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))"
-          }}
-        >
+        <div className="agents-grid">
           {AGENTS.map((a) => (
-            <article
-              key={a.id}
-              style={{
-                padding: 16,
-                borderRadius: 14,
-                background: "rgba(255,255,255,.03)",
-                border: "1px solid rgba(255,255,255,.08)"
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <article className="agent-card" key={a.id}>
+              <div className="agent-card__top">
                 <img
-                  src={a.avatar_url}
-                  alt={a.name}
-                  onError={(e)=> (e.currentTarget.style.display = "none")}
-                  style={{
-                    width: 56, height: 56, borderRadius: "50%",
-                    objectFit: "cover", border: "2px solid #f5d061"
-                  }}
+                  className="agent-avatar"
+                  src={a.avatar_url || "/avatars/default.png"}
+                  alt={`Avatar de ${a.name}`}
+                  loading="lazy"
+                  width={72}
+                  height={72}
                 />
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 18 }}>{a.name}</div>
-                  <div style={{ opacity: .8, fontSize: 14 }}>{a.role}</div>
+                <div className="agent-id">
+                  <div className="agent-name">
+                    {a.name}
+                    {a.principal && <span className="badge-primary">Principal</span>}
+                  </div>
+                  <div className="agent-role">{a.role}</div>
                 </div>
               </div>
 
-              <p style={{ marginTop: 12, fontSize: 14, lineHeight: 1.5, opacity: .9 }}>
-                {a.description}
-              </p>
+              <p className="agent-desc">{a.description}</p>
 
-              <button
-                style={{
-                  width: "100%", marginTop: 12, padding: "12px 16px",
-                  borderRadius: 12, border: "none", fontWeight: 700,
-                  background: "linear-gradient(90deg,#FFD166,#C08400)",
-                  color: "#0b1020", cursor: "pointer"
-                }}
-                onClick={() => alert(`Abrir chat com ${a.name}`)}
-              >
-                💬 Chat no app
-              </button>
+              <div className="agent-actions">
+                {/* se você já tem rota/ação, troque o onClick abaixo */}
+                <button
+                  className="btn-gold"
+                  onClick={() => window.alert(`Abrir chat com ${a.name} (em breve)`)}
+                >
+                  💬 Chat no app
+                </button>
+                {/* opcional: link secundário (ex.: WhatsApp de emergência) 
+                <a className="link-ghost" href="https://wa.me/..." target="_blank" rel="noreferrer">
+                  Suporte humano
+                </a> 
+                */}
+              </div>
             </article>
           ))}
         </div>
