@@ -1,57 +1,44 @@
-// src/App.jsx
-import React from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import "./index.css"; // CSS global
+import React, { useEffect, useState } from "react";
 
-function Home() {
-  return (
-    <div className="page">
-      <h1>RKMMAX</h1>
-      <p>Bem-vindo! Escolha uma seção no topo.</p>
-    </div>
-  );
-}
+// Se seus arquivos estiverem em /pages, ajuste os caminhos:
+import Home from "./pages/Home.jsx";
+import Agents from "./pages/Agents.jsx";
+import Plans from "./pages/Plans.jsx";
 
-function Agents() {
-  return (
-    <div className="page">
-      <h2>Agentes</h2>
-      <p>Lista de especialistas em breve.</p>
-    </div>
-  );
-}
-
-function Plans() {
-  return (
-    <div className="page">
-      <h2>Planos</h2>
-      <p>Valores e recursos em breve.</p>
-    </div>
-  );
-}
+const routes = {
+  "/": <Home />,
+  "/agents": <Agents />,
+  "/plans": <Plans />
+};
 
 export default function App() {
+  const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const onPop = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const navigate = (to) => {
+    window.history.pushState({}, "", to);
+    setPath(to);
+    window.scrollTo(0, 0);
+  };
+
   return (
-    <BrowserRouter>
-      <header className="topbar">
-        <nav className="nav">
-          <Link to="/">Início</Link>
-          <Link to="/agents">Agentes</Link>
-          <Link to="/plans">Planos</Link>
-        </nav>
-      </header>
+    <>
+      <nav className="topbar">
+        <a onClick={() => navigate("/")}>Início</a>
+        <a onClick={() => navigate("/agents")}>Agentes</a>
+        <a onClick={() => navigate("/plans")}>Planos</a>
+      </nav>
 
       <main className="container">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/agents" element={<Agents />} />
-          <Route path="/plans" element={<Plans />} />
-        </Routes>
+        {routes[path] ?? <Home />}
       </main>
 
-      <footer className="footer">
-        <small>© {new Date().getFullYear()} RKMMAX</small>
-      </footer>
-    </BrowserRouter>
+      <footer className="footer">© 2025 RKMMAX</footer>
+    </>
   );
 }
