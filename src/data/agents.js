@@ -1,12 +1,12 @@
 // src/data/agents.js
 
-const AGENTS = [
+export const AGENTS = [
   {
     id: "serginho",
     name: "Serginho",
     role: "Orquestrador",
     description:
-      "Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula estratégias globais. Aprende qualquer assunto e evolui continuamente.",
+      "Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula tudo.",
     avatar_url: "/avatars/serginho.png",
     principal: true,
   },
@@ -107,5 +107,3 @@ const AGENTS = [
     avatar_url: "/avatars/orac.png",
   },
 ];
-
-export default AGENTS;
