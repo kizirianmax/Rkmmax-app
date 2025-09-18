@@ -1,187 +1,55 @@
-/* ================================
-   R K M M A X – Global UI (Light)
-   File: src/index.css
-   ================================ */
+/* src/index.css */
 
-/* -------- Reset + Base -------- */
-*, *::before, *::after {
-  box-sizing: border-box;
+/* Reset básico */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-html, body, #root {
-  height: 100%;
+body {
+  background-color: #f9f9f9; /* fundo claro */
+  color: #333;
+  line-height: 1.6;
 }
 
-/* -------- Paleta de cores -------- */
-:root {
-  /* Base clara */
-  --bg: #ffffff;          /* fundo principal */
-  --bg-soft: #f7f7f7;     /* cinza claro, cartões/barras */
-  --surface: #ffffff;     /* superfícies (cards, boxes) */
-  --text: #111111;        /* texto principal */
-  --muted: #555555;       /* texto secundário */
-
-  /* Acentos */
-  --brand: #0077ff;       /* azul destaque */
-  --brand-strong: #0055cc;
-  --brand-glow: 0 0 8px rgba(0, 119, 255, 0.35);
-
-  --success: #22c55e;     /* verde */
-  --warning: #f59e0b;     /* amarelo */
-  --danger: #ef4444;      /* vermelho */
-
-  /* Shadows & Radius */
-  --r: 12px;
-  --r-lg: 20px;
-  --shadow-1: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-2: 0 8px 24px rgba(0,0,0,0.12);
-
-  /* Fontes */
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --mono: "SFMono-Regular", Menlo, Consolas, monospace;
+/* Barra superior */
+.topbar {
+  background: #00ffd0; /* verde neon da sua marca */
+  padding: 1rem;
+  text-align: center;
 }
 
-/* -------- Global -------- */
-html, body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: var(--brand);
+/* Links da barra */
+.nav a {
+  margin: 0 15px;
   text-decoration: none;
-}
-a:hover {
-  color: var(--brand-strong);
-  text-decoration: underline;
+  font-weight: bold;
+  color: #003366;
 }
 
-/* -------- Navbar -------- */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: #ffffffcc;
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid #e5e7eb;
+.nav a:hover {
+  color: #ff6600;
 }
 
-.navbar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-}
-
-.nav-brand {
-  font-weight: 800;
-  letter-spacing: .6px;
-  color: var(--brand);
-  text-shadow: var(--brand-glow);
-}
-
-.nav-link {
-  padding: 8px 12px;
-  border-radius: 6px;
-  color: var(--muted);
-  transition: .2s ease;
-}
-.nav-link:hover {
-  color: #000;
-  background: #f0f0f0;
-}
-
-/* -------- Hero -------- */
-.hero {
-  padding: 64px 16px;
-  text-align: center;
-  background: var(--bg-soft);
-}
-.title-hero {
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 800;
-  margin-bottom: 12px;
-}
-.page-sub {
-  color: var(--muted);
-  font-size: clamp(16px, 2vw, 18px);
-}
-
-/* -------- Cards -------- */
-.card {
-  background: var(--surface);
-  border: 1px solid #e5e7eb;
-  border-radius: var(--r);
-  box-shadow: var(--shadow-1);
-  padding: 24px;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-2);
-}
-
-/* -------- Botões -------- */
-.btn {
-  display: inline-block;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s ease;
-}
-.btn-primary {
-  background: var(--brand);
-  color: #fff;
-  border: none;
-}
-.btn-primary:hover {
-  background: var(--brand-strong);
-}
-.btn-outline {
-  background: transparent;
-  color: var(--brand);
-  border: 1px solid var(--brand);
-}
-.btn-outline:hover {
-  background: var(--brand);
-  color: #fff;
-}
-
-/* -------- Pricing -------- */
-.pricing {
-  display: grid;
-  gap: 24px;
-  margin: 48px auto;
-  max-width: 900px;
-}
-.pricing .plan {
-  composes: card;
+/* Container principal */
+.container {
+  padding: 2rem;
   text-align: center;
 }
-.plan .price {
-  font-size: clamp(28px, 5vw, 40px);
-  font-weight: 800;
-  color: var(--brand-strong);
-  margin-top: 16px;
+
+/* Títulos */
+.page h1, .page h2 {
+  margin-bottom: 1rem;
+  color: #222;
 }
 
-/* -------- Utilities -------- */
-.text-center { text-align: center; }
-.m-0 { margin: 0!important; }
-.mt-2 { margin-top: 12px!important; }
-.mb-2 { margin-bottom: 12px!important; }
-
-/* -------- Footer -------- */
+/* Rodapé */
 .footer {
-  color: var(--muted);
-  border-top: 1px solid #e5e7eb;
-  padding: 24px;
+  margin-top: 3rem;
   text-align: center;
-  font-size: 14px;
+  padding: 1rem;
+  background: #eee;
+  font-size: 0.9rem;
 }
