@@ -1,44 +1,26 @@
 // src/App.jsx
 import React from "react";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import "./styles.css";
+import PricingTable from "./components/PricingTable";
+import AgentsList from "./components/AgentsList"; // ✅ Importamos a lista de agentes
 
-// Páginas
-import Home from "./pages/Home";
-import Agents from "./pages/Agents";
-import Info from "./pages/Info";
-import Plans from "./pages/Plans";
-
-// Autenticação
-import Login from "./auth/Login";
-import Signup from "./auth/Signup";
-
-// Layout com Navbar fixa
-function Layout() {
+function App() {
   return (
-    <>
+    <div>
+      {/* Barra de navegação */}
       <Navbar />
-      <main className="app-main" style={{ padding: "20px" }}>
-        <Outlet />
+
+      {/* Seção de agentes */}
+      <main>
+        <AgentsList />
       </main>
-    </>
+
+      {/* Seção de planos */}
+      <section style={{ marginTop: "3rem" }}>
+        <PricingTable />
+      </section>
+    </div>
   );
 }
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="/agentes" element={<Agents />} />
-          <Route path="/info" element={<Info />} />
-          <Route path="/planos" element={<Plans />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
-}
+export default App;
