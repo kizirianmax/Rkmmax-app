@@ -1,26 +1,36 @@
 // src/ErrorBoundary.jsx
 import React from "react";
 
-class ErrorBoundary extends React.Component {
+export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { error: null };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    return { error };
   }
 
-  componentDidCatch(error, errorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  componentDidCatch(error, info) {
+    console.error("ErrorBoundary capturou um erro:", error, info);
   }
 
   render() {
-    if (this.state.hasError) {
+    if (this.state.error) {
       return (
-        <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
-          <h2>⚠️ Ocorreu um erro inesperado.</h2>
-          <p>Tente recarregar a página ou voltar mais tarde.</p>
+        <div
+          style={{
+            padding: 24,
+            background: "#ffe6e6",
+            border: "2px solid #ff4d4f",
+            borderRadius: 12,
+            margin: 24,
+            fontFamily: "Arial, sans-serif",
+            color: "#a8071a",
+          }}
+        >
+          <h2>⚠️ Algo deu errado</h2>
+          <p>Tente atualizar a página ou voltar mais tarde.</p>
         </div>
       );
     }
@@ -28,5 +38,3 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;
