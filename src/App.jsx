@@ -1,44 +1,34 @@
-import React, { useEffect, useState } from "react";
-
-// Se seus arquivos estiverem em /pages, ajuste os caminhos:
-import Home from "./pages/Home.jsx";
-import Agents from "./pages/Agents.jsx";
-import Plans from "./pages/Plans.jsx";
-
-const routes = {
-  "/": <Home />,
-  "/agents": <Agents />,
-  "/plans": <Plans />
-};
+import React from "react";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Agents from "./pages/Agents";
+import Plans from "./pages/Plans";
+import "./index.css";
 
 export default function App() {
-  const [path, setPath] = useState(window.location.pathname);
-
-  useEffect(() => {
-    const onPop = () => setPath(window.location.pathname);
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, []);
-
-  const navigate = (to) => {
-    window.history.pushState({}, "", to);
-    setPath(to);
-    window.scrollTo(0, 0);
-  };
-
   return (
-    <>
-      <nav className="topbar">
-        <a onClick={() => navigate("/")}>Início</a>
-        <a onClick={() => navigate("/agents")}>Agentes</a>
-        <a onClick={() => navigate("/plans")}>Planos</a>
-      </nav>
+    <BrowserRouter>
+      <header className="topbar">
+        <nav className="nav container">
+          <Link to="/" className="brand">RKMMAX</Link>
+          <div className="nav-links">
+            <Link to="/">Início</Link>
+            <Link to="/agentes">Agentes</Link>
+            <Link to="/planos">Planos</Link>
+          </div>
+        </nav>
+      </header>
 
-      <main className="container">
-        {routes[path] ?? <Home />}
+      <main className="container page">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/agentes" element={<Agents />} />
+          <Route path="/planos" element={<Plans />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       <footer className="footer">© 2025 RKMMAX</footer>
-    </>
+    </BrowserRouter>
   );
 }
