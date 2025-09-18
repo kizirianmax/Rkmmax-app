@@ -6,7 +6,7 @@ const AGENTS = [
     name: "Serginho",
     role: "Orquestrador",
     description:
-      "Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula todas as interações.",
+      "Agente especial e generalista. Coordena os 12 especialistas, supervisiona e articula estratégias globais. Aprende qualquer assunto e evolui continuamente.",
     avatar_url: "/avatars/serginho.png",
     principal: true,
   },
@@ -23,7 +23,7 @@ const AGENTS = [
     name: "Didak",
     role: "Instrutor",
     description:
-      "Explica conceitos, ensina conteúdos e facilita o aprendizado em qualquer nível.",
+      "Explica conceitos, ensina conteúdos e facilita o aprendizado em qualquer área.",
     avatar_url: "/avatars/didak.png",
   },
   {
