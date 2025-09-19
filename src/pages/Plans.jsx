@@ -1,3 +1,16 @@
+
+const LINKS = {
+  BR: {
+    basic: "https://buy.stripe.com/fZucN51oH2nZdANfLD3oA0f",   // Básico BR
+    inter: "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a",   // Intermediário BR
+    premium: "" // ainda sem link válido
+  },
+  US: {
+    basic: "https://buy.stripe.com/00w14naZh0fR1S51UN3oA09",   // Basic US
+    inter: "https://buy.stripe.com/3c14gZebt8MmgMZ2XR3oAg",    // Intermediate US
+    premium: "" // ainda sem link válido
+  }
+};
 // src/pages/Plans.jsx
 import React, { useState } from "react";
 
