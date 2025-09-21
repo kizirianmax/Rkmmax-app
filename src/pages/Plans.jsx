@@ -1,7 +1,4 @@
-const LINKS = {
-  BR: {
-    basic: "https://buy.stripe.com/fZucN51oH2nZdANfLD3oA0f",   // Básico BR
-    inter: "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a", // Intermediário BR
+inter: "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a", // Intermediário BR
     premium: "" // ainda sem link
   },
   US: {
@@ -34,8 +31,7 @@ const features = {
     "Suporte inicial por e-mail",
   ],
   inter: [
-    "Todos os agentes liberados",
-    "Suporte a voz (Whisper + TTS)",
+    "Todos os agentes libeservidor   "Suporte a voz (Whisper + TTS)",
     "Prioridade no atendimento",
     "Limite maior (~410k tokens/dia)",
   ],
@@ -150,9 +146,7 @@ export default function Plans() {
         </div>
       )}
 
-      <p className="page-sub" style={{marginTop:18}}>
-        Após o pagamento, o acesso é liberado imediatamente no app.
-      </p>
+      <p clpapppppp    </p>
     </section>
   );
 }
