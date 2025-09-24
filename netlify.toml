@@ -3,19 +3,19 @@
   publish   = "build"
   functions = "netlify/functions"
 
-# 1) Proxy das Netlify Functions (fica ANTES do fallback da SPA)
+# Proxy para as functions
 [[redirects]]
   from = "/api/*"
   to   = "/.netlify/functions/:splat"
   status = 200
 
-# 2) Fallback da SPA (React Router)
+# SPA fallback (React Router)
 [[redirects]]
   from = "/*"
   to   = "/index.html"
   status = 200
 
-[dev]
-  command   = "npm start"
-  port      = 3000
-  targetPort = 3000
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["stripe"]
+  included_files = ["netlify/functions/**"]
