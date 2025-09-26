@@ -1,3 +1,4 @@
+// src/pages/Pricing.jsx
 import React from "react";
 
 const PLANS = [
@@ -39,55 +40,43 @@ const PLANS = [
   }
 ];
 
-export default function PricingPage() {
+export default function Pricing() {
   return (
-    <main style={{ maxWidth: 980, margin: "40px auto", padding: 16 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16, color: "#0891b2" }}>
-        Planos RKMMAX
-      </h1>
-
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: 16
-        }}
-      >
-        {PLANS.map((plan) => (
-          <article
-            key={plan.name}
-            style={{
-              background: "white",
-              border: "1px solid #e5e7eb",
-              borderRadius: 16,
-              padding: 16,
-              boxShadow: "0 1px 2px rgba(0,0,0,.04)",
-            }}
-          >
-            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>{plan.name}</h2>
-            <p style={{ color: "#06b6d4", fontWeight: 700, marginBottom: 8 }}>{plan.price}</p>
-            <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.45, marginBottom: 12 }}>
-              {plan.description}
-            </p>
-            <a
-              href={plan.link}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                display: "inline-block",
-                padding: "10px 16px",
-                background: "#06b6d4",
-                color: "#000",
-                borderRadius: 12,
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center p-8">
+      <h1 className="text-4xl font-bold mb-8 text-cyan-400">Planos RKMMAX</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+        {PLANS.map((plan, index) => {
+          const enabled = Boolean(plan.link && plan.link.startsWith("http"));
+          return (
+            <div
+              key={index}
+              className="bg-gray-900 border border-cyan-500 rounded-2xl shadow-lg p-6 flex flex-col items-center"
             >
-              Assinar
-            </a>
-          </article>
-        ))}
-      </section>
-    </main>
+              <h2 className="text-2xl font-semibold mb-2">{plan.name}</h2>
+              <p className="text-lg text-cyan-300 mb-4">{plan.price}</p>
+              <p className="text-sm text-gray-300 text-center mb-6">{plan.description}</p>
+              {enabled ? (
+                <a
+                  href={plan.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 bg-cyan-500 text-black font-bold rounded-xl hover:bg-cyan-400 transition"
+                >
+                  Assinar
+                </a>
+              ) : (
+                <button
+                  disabled
+                  className="px-6 py-2 bg-gray-600 text-gray-300 font-bold rounded-xl cursor-not-allowed"
+                  onClick={() => alert("Link de pagamento ainda não configurado.")}
+                >
+                  Indisponível
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
