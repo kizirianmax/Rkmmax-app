@@ -60,4 +60,7 @@ Lista dos arquivos **já conferidos** até agora.
   Usava `priceId` fixo, exigia redeploy a cada mudança de preço.  
   Substituído por `checkout.js` (lookupKey), mais flexível e eficaz.
 
----
+---- **netlify/functions/contact.js**  
+  Endpoint de contato.  
+  Suporta POST/OPTIONS com CORS liberado.  
+  Retorna confirmação de recebimento e ecoa os dados enviados.
