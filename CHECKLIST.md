@@ -1,66 +1,88 @@
-# ✅ Checklist do Projeto RKMMAX
-
-Status: acompanhamento dos arquivos já conferidos/ajustados e dos próximos passos.
-
----
+# ✅ Checklist Projeto RKMMAX
 
 ## 1) Infra / Deploy
-- [x] `netlify.toml` — presente e OK (funções em `/netlify/functions`).
-- [x] `.gitignore` — ignora `node_modules/`, `.env`, e `src/config/plans.json`.
+- [x] `netlify.toml` — presente e OK.
+- [x] `.gitignore` — ignora `node_modules/`, `.env`, `src/config/plans.json`.
 - [x] `.env.local` — 6 variáveis (BR/US) confirmadas.
-- [x] `README.md` — existe (revisar depois com instruções finais).
+- [x] `README.md` — existe (pendente revisão final).
 - [x] `public/index.html` — SEO + OG/Twitter + PWA + SW register.
-- [x] `public/manifest.json` — PWA (Android/iOS) com tema `#0f172a`.
-- [x] `public/service-worker.js` — cache estático e runtime (v1.1).
+- [x] `public/manifest.json` — PWA (Android/iOS).
+- [x] `public/service-worker.js` — cache estático/runtime.
 
 ---
 
 ## 2) Stripe / Planos
-- [x] `src/config/plans.json` — **6 planos** (BR: básico/intermediário/premium • US: basic/intermediate/premium).
-- [x] `netlify/functions/prices.js` — lista preços ativos por região/tier (com `expand: ["data.product"]`).
-- [x] `netlify/functions/plans.js` — helpers (`getPlanByKey`, `getPlanById`, `ALLOWED_LOOKUP_KEYS`).
-- [x] `netlify/functions/checkout.js` — **único** endpoint de checkout (via `lookup_key`).
-- [x] `netlify/functions/stripe-webhook.js` — valida assinatura e faz upsert na Supabase (status/período).
+- [x] `src/config/plans.json` — 6 planos (BR/US: básico, intermediário, premium).
+- [x] `netlify/functions/prices.js` — lista preços ativos por região/tier.
+- [x] `netlify/functions/checkout.js` — único endpoint de checkout.
+- [x] `netlify/functions/stripe-webhook.js` — valida assinatura e atualiza Supabase.
 
 ---
 
 ## 3) Controle de uso / Billing interno
-- [x] `netlify/functions/_usage.js` — `getUsage` / `setUsage` (tabelas `usage_daily` e `usage_monthly_5`).
+- [x] `netlify/functions/_usage.js` — `getUsage` / `setUsage`.
 - [x] `netlify/functions/guardAndBill.js` — aplica limites por plano/modelo (diário + mensal GPT-5).
-- [x] `netlify/functions/chat.js` — escolhe modelo (`src/lib/modelPicker.js`), chama `guardAndBill` e OpenAI Responses API.
+- [x] `netlify/functions/chat.js` — escolhe modelo, chama `guardAndBill` e OpenAI API.
 
 ---
 
 ## 4) Utilidades / Outros
-- [x] `netlify/functions/cors.js` — CORS básico (usa `ORIGIN` se definido).
-- [x] `netlify/functions/contact.js` — endpoint simples de contato (CORS habilitado).
-- [x] `netlify/functions/status.js` — healthcheck (uptime/timestamp).
+- [x] `netlify/functions/cors.js` — CORS básico.
+- [x] `netlify/functions/contact.js` — endpoint simples de contato.
+- [x] `netlify/functions/status.js` — healthcheck.
+- [ ] `src/README` arquitetura (pendente).
 - [x] `src/components/Logout.jsx` — corrigido.
-- [ ] `src/README` de arquitetura — (pendente) explicar fluxo Stripe → Webhook → Supabase → Guard/Billing.
-- [x] `src/pages/Home.jsx` — corrigido (cards: Serginho + Planos → links `/agents` e `/pricing`).
-- [x] `src/App.jsx` — rotas configuradas (Home, Agents, Pricing).
+- [x] `src/pages/Home.jsx` — corrigido (cards Serginho + Planos).
 - [x] `src/pages/Pricing.jsx` — atualizado com links reais do Stripe.
 - [x] `src/pages/Agents.jsx` — criado e funcional.
+- [x] `src/App.jsx` — rotas configuradas (Home, Agents, Pricing).
 
 ---
 
-## 5) Avatares / Branding (próximos)
-- [ ] `public/avatars/` — **13 SVGs** (Serginho + 12 agentes) dentro do repo.
+## 5) Avatares / UI
+- [ ] `public/avatars/` — 13 arquivos (SVG já ok, avaliar PNG futuro).
 - [ ] `src/data/avatars.json` — mapeamento `{ agente: "/avatars/arquivo.svg" }`.
-- [ ] Integração no UI — usar `avatars[agent]` onde exibe cada agente.
+- [ ] Integração no UI — usar `avatars[agent]`.
 
 ---
 
-## 6) Testes / Qualidade (próximos)
-- [ ] Testar PWA (Android/iOS) — splash, ícones, offline básico.
-- [ ] Testar Checkout (BR/US) com `lookup_key` real e cupons.
-- [ ] Testar Webhook em produção (Netlify) com `endpoint secret`.
-- [ ] Revisar políticas de CORS (produção) e headers de segurança.
+## 6) Testes / Qualidade
+- [ ] Testar PWA (Android/iOS).
+- [ ] Testar Checkout BR/US com `lookup_key` real e cupons.
+- [ ] Testar Webhook em produção (Netlify).
+- [ ] Revisar políticas de CORS e headers de segurança.
 - [ ] Documentar variáveis `.env` no `README`.
 
 ---
 
-## Observações rápidas
-- O endpoint de **checkout oficial** é `netlify/functions/checkout.js`.
-- O **webhook Stripe** requer `STRIPE_WEBHOOK_SECRET` e **raw body** (já tratado no handler).
-- **Supabase no backend** deve usar **SERVICE ROLE KEY** (nunca no frontend).
+## 7) Agentes Visíveis
+- [x] 13 agentes conectados → Serginho + 12 especialistas.
+- [x] Avatares carregados.
+- [x] Descrições configuradas.
+
+---
+
+## 8) Agentes Ocultos (Novo diferencial)
+- [ ] Criar **especialistas invisíveis** para reforço de áreas críticas (base de conhecimento, otimização, validação de fontes).
+- [ ] Todos ficam acessíveis **apenas via Serginho** (usuário não vê).
+- [ ] Usados para reduzir custo (menos GPT-5, mais GPT-4 mini + especialistas ocultos).
+
+---
+
+## 9) Serginho – Núcleo Inteligente
+- [ ] Configurar **aprendizado ilimitado** (sempre de fontes confiáveis).
+- [ ] Balanceamento automático para evitar viés/excesso.
+- [ ] Sempre que possível, delegar tarefas a especialistas ocultos → reduzir dependência do GPT-5.
+- [ ] Evolução contínua: quanto mais agentes ocultos, mais forte o Serginho.
+
+---
+
+## 10) Fluxo Premium / UX
+- [ ] Tela padrão → botão único **“Falar com Serginho”**.
+- [ ] Se plano = Básico/Intermediário → só Serginho responde.
+- [ ] Se plano = Premium → liberar botão **“Explorar Especialistas”** com acesso direto aos 12 agentes.
+- [ ] Diferencial claro: **exclusividade Premium**.
+
+---
+
+📌 **Observação:** Esse fluxo (Serginho central, agentes ocultos e painel Premium) cria **simplicidade para iniciantes** + **exclusividade para avançados** + **otimização de custos no back-end**.
