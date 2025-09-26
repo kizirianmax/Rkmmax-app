@@ -1,81 +1,58 @@
-# 📋 Checklist do Projeto RKMMax-app
+# ✅ Checklist do Projeto RKMMAX
 
-Lista dos arquivos **já conferidos** até agora.
-
----
-
-## ✅ Arquivos Conferidos
-
-- **netlify.toml**  
-  Configuração do build/deploy no Netlify (funções e diretório de saída).
-
-- **.gitignore**  
-  Ignora `node_modules/`, arquivos de build e configs locais.
-
-- **README.md**  
-  Instruções e documentação inicial do projeto.
-
-- **src/components/Logout.jsx**  
-  Corrigido para limpar sessão e redirecionar corretamente.
-
-- **.env.local**  
-  Contém as 6 variáveis dos planos BR e US.
-
-- **config/plans.json**  
-  Atualizado com os 6 planos e limites corretos (3 BR + 3 US).
-
-- **netlify/functions/prices.js**  
-  Função que lista preços ativos no Stripe e organiza por região/tier.
-
-- **netlify/functions/plans.js**  
-  Função auxiliar que resolve os planos pelo `lookup_key` e valida chaves.
-
-- **netlify/functions/guardAndBill.js**  
-  Controle de limites diários/mensais de tokens por plano.  
-  Inclui regras para GPT-5 (mensal) e limites diários (Nano, Mini etc.).
-
-- **netlify/functions/checkout.js**  
-  Cria sessão de checkout no Stripe usando `lookupKey`.  
-  Busca preços ativos (`prices.list`) com `lookup_keys`, expande produto, gera `session.url`.  
-  Usa `SITE_URL` / `URL` do Netlify ou `localhost` para `success_url` e `cancel_url`.  
-  Requer `STRIPE_SECRET_KEY_RKMMAX` no ambiente.
-
-- **netlify/functions/cors.js**  
-  Middleware simples para CORS.  
-  Lê `ORIGIN` do `.env.local` (se definido) ou usa origem da requisição.  
-  Trata preflight (`OPTIONS`) e libera métodos/headers padrão.  
-  🔎 Observação: se quiser restringir acesso, defina `ORIGIN=https://seusite.com` no `.env.local`.
-
-- **netlify/functions/status.js**  
-  Endpoint simples de status (`ok: true`, uptime, timestamp).
-
-- **netlify/functions/stripe-webhook.js**  
-  Webhook do Stripe → recebe eventos, valida assinatura e atualiza tabela `subscriptions` no Supabase.
-
-- **netlify/functions/chat.js**  
-  Função central de chat: recebe `user`, `plan`, `prompt`.  
-  Escolhe modelo com `modelPicker`, aplica bloqueios via `guardAndBill`, e chama a API da OpenAI.  
-  Retorna resposta estruturada (`model`, `text`, `raw`).  
-  Inclui CORS básico (pode ser substituído por `cors.js`).
-
-- **netlify/functions/contact.js**  
-  Endpoint de contato.  
-  Suporta POST/OPTIONS com CORS liberado.  
-  Retorna confirmação de recebimento e ecoa os dados enviados.
-
-- **netlify/functions/_usage.js**  
-  Módulo auxiliar para controlar consumo de tokens.  
-  - `getUsage(userId)`: retorna uso diário e mensal (GPT-5).  
-  - `setUsage(userId, { dailyTokens, monthly5Tokens })`: atualiza consumo no Supabase.  
-  Usa tabelas `usage_daily` e `usage_monthly_5`.  
-  Requer `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`.
+Status: acompanhamento dos arquivos já conferidos/ajustados e dos próximos passos.
 
 ---
 
-## 🗑️ Arquivos Removidos
+## 1) Infra / Deploy
+- [x] `netlify.toml` — presente e OK (funções em `/netlify/functions`).
+- [x] `.gitignore` — ignora `node_modules/`, `.env`, e `src/config/plans.json`.
+- [x] `.env.local` — 6 variáveis (BR/US) confirmadas.
+- [x] `README.md` — existe (revisar depois com instruções finais).  
+- [x] `public/index.html` — SEO + OG/Twitter + PWA + SW register.
+- [x] `public/manifest.json` — PWA (Android/iOS) com tema `#0f172a`.
+- [x] `public/service-worker.js` — cache estático e runtime (v1.1).
 
-- **netlify/functions/create-checkout-session.js**  
-  Usava `priceId` fixo, exigia redeploy a cada mudança de preço.  
-  Substituído por `checkout.js` (lookupKey), mais flexível e eficaz.
+## 2) Stripe / Planos
+- [x] `src/config/plans.json` — **6 planos** (BR: basic/intermediario/premium • US: basic/intermediate/premium).
+- [x] `netlify/functions/prices.js` — lista preços ativos por região/tier (com `expand: ["data.product"]`).
+- [x] `netlify/functions/plans.js` — helpers `getPlanByKey`, `getPlanById`, `ALLOWED_LOOKUP_KEYS`.
+- [x] `netlify/functions/checkout.js` — **único** endpoint de checkout (via `lookup_key`).
+- [x] ~~`netlify/functions/create-checkout-session.js`~~ — **REMOVIDO** para evitar duplicidade.
+- [x] `netlify/functions/stripe-webhook.js` — valida assinatura e faz upsert na Supabase (status/período).
+
+## 3) Controle de uso / Billing interno
+- [x] `netlify/functions/_usage.js` — `getUsage` / `setUsage` (tabelas `usage_daily` e `usage_monthly_5`).
+- [x] `netlify/functions/guardAndBill.js` — aplica limites por plano/modelo (diário + mensal GPT-5).
+- [x] `netlify/functions/chat.js` — escolhe modelo (`src/lib/modelPicker.js`), chama `guardAndBill` e OpenAI Responses API.
+
+## 4) Utilidades / Outros
+- [x] `netlify/functions/cors.js` — CORS básico (usa `ORIGIN` se definido).
+- [x] `netlify/functions/contact.js` — endpoint simples de contato (CORS habilitado).
+- [x] `netlify/functions/status.js` — healthcheck (uptime/timestamp).
+- [x] `src/components/Logout.jsx` — corrigido.
+- [ ] `src/README de arquitetura` — (pendente) explicar fluxo Stripe → Webhook → Supabase → Guard/Billing.
+
+## 5) Avatares / Branding (próximos)
+- [ ] `public/avatars/` — **13 PNGs** (Serginho + 12 agentes) dentro do repo.
+- [ ] `src/data/avatars.json` — mapeamento `{ agente: "/avatars/arquivo.png" }`.
+- [ ] Integração no UI — usar `avatars[agent]` onde exibe cada agente.
+
+## 6) Testes / Qualidade (próximos)
+- [ ] Testar PWA (Android/iOS) — splash, ícones, offline básico.
+- [ ] Testar Checkout (BR/US) com `lookup_key` real e cupons.
+- [ ] Testar Webhook em produção (Netlify) com `endpoint secret`.
+- [ ] Revisar políticas de CORS (produção) e headers de segurança.
+- [ ] Documentar variáveis `.env` no `README`.
 
 ---
+
+### Observações rápidas
+- O endpoint de **checkout oficial** é `netlify/functions/checkout.js`.  
+- O **webhook Stripe** requer `STRIPE_WEBHOOK_SECRET` e **raw body** (já tratado no handler).  
+- **Supabase no backend** deve usar **SERVICE ROLE KEY** (nunca no frontend).
+
+---
+
+### Próximo commit sugerido
+**Mensagem:** `docs: adiciona CHECKLIST.md com status atual do projeto e próximos passos`
