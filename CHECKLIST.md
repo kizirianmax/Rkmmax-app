@@ -52,6 +52,24 @@ Lista dos arquivos **já conferidos** até agora.
 - **netlify/functions/stripe-webhook.js**  
   Webhook do Stripe → recebe eventos, valida assinatura e atualiza tabela `subscriptions` no Supabase.
 
+- **netlify/functions/chat.js**  
+  Função central de chat: recebe `user`, `plan`, `prompt`.  
+  Escolhe modelo com `modelPicker`, aplica bloqueios via `guardAndBill`, e chama a API da OpenAI.  
+  Retorna resposta estruturada (`model`, `text`, `raw`).  
+  Inclui CORS básico (pode ser substituído por `cors.js`).
+
+- **netlify/functions/contact.js**  
+  Endpoint de contato.  
+  Suporta POST/OPTIONS com CORS liberado.  
+  Retorna confirmação de recebimento e ecoa os dados enviados.
+
+- **netlify/functions/_usage.js**  
+  Módulo auxiliar para controlar consumo de tokens.  
+  - `getUsage(userId)`: retorna uso diário e mensal (GPT-5).  
+  - `setUsage(userId, { dailyTokens, monthly5Tokens })`: atualiza consumo no Supabase.  
+  Usa tabelas `usage_daily` e `usage_monthly_5`.  
+  Requer `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`.
+
 ---
 
 ## 🗑️ Arquivos Removidos
@@ -60,7 +78,4 @@ Lista dos arquivos **já conferidos** até agora.
   Usava `priceId` fixo, exigia redeploy a cada mudança de preço.  
   Substituído por `checkout.js` (lookupKey), mais flexível e eficaz.
 
----- **netlify/functions/contact.js**  
-  Endpoint de contato.  
-  Suporta POST/OPTIONS com CORS liberado.  
-  Retorna confirmação de recebimento e ecoa os dados enviados.
+---
