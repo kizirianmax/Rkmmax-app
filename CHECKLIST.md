@@ -1,37 +1,63 @@
 # 📋 Checklist do Projeto RKMMax-app
 
-Lista dos arquivos **já conferidos** até agora. Cada item tem uma breve descrição para referência e continuidade do projeto.
+Lista dos arquivos **já conferidos** até agora.
 
 ---
 
 ## ✅ Arquivos Conferidos
 
 - **netlify.toml**  
-  Configuração do build/deploy no Netlify (funções e redirecionamentos).
+  Configuração do build/deploy no Netlify (funções e diretório de saída).
 
 - **.gitignore**  
-  Ignora `node_modules/`, `.env` e `plans.json` para manter o repositório limpo.
+  Ignora `node_modules/`, arquivos de build e configs locais.
+
+- **README.md**  
+  Instruções e documentação inicial do projeto.
+
+- **src/components/Logout.jsx**  
+  Corrigido para limpar sessão e redirecionar corretamente.
 
 - **.env.local**  
-  Variáveis de ambiente com 6 planos Stripe (BR e US):  
-  - BR: R$14,90 | R$50,00 | R$90,00  
-  - US: $10 | $20 | $30  
+  Contém as 6 variáveis dos planos BR e US.
 
-- **src/config/plans.json**  
-  Estrutura dos 6 planos (BR e US) com preços e limites de tokens.
+- **config/plans.json**  
+  Atualizado com os 6 planos e limites corretos (3 BR + 3 US).
+
+- **netlify/functions/prices.js**  
+  Função que lista preços ativos no Stripe e organiza por região/tier.
+
+- **netlify/functions/plans.js**  
+  Função auxiliar que resolve os planos pelo `lookup_key` e valida chaves.
+
+- **netlify/functions/guardAndBill.js**  
+  Controle de limites diários/mensais de tokens por plano.  
+  Inclui regras para GPT-5 (mensal) e limites diários (Nano, Mini etc.).
+
+- **netlify/functions/checkout.js**  
+  Cria sessão de checkout no Stripe usando `lookupKey`.  
+  Busca preços ativos (`prices.list`) com `lookup_keys`, expande produto, gera `session.url`.  
+  Usa `SITE_URL` / `URL` do Netlify ou `localhost` para `success_url` e `cancel_url`.  
+  Requer `STRIPE_SECRET_KEY_RKMMAX` no ambiente.
+
+- **netlify/functions/cors.js**  
+  Middleware simples para CORS.  
+  Lê `ORIGIN` do `.env.local` (se definido) ou usa origem da requisição.  
+  Trata preflight (`OPTIONS`) e libera métodos/headers padrão.  
+  🔎 Observação: se quiser restringir acesso, defina `ORIGIN=https://seusite.com` no `.env.local`.
+
+- **netlify/functions/status.js**  
+  Endpoint simples de status (`ok: true`, uptime, timestamp).
 
 - **netlify/functions/stripe-webhook.js**  
   Webhook do Stripe → recebe eventos, valida assinatura e atualiza tabela `subscriptions` no Supabase.
 
-- **netlify/functions/status.js**  
-  Healthcheck → retorna `ok`, `uptime` e `timestamp`.
-
 ---
 
-## ⚠️ Pendentes de Conferência
+## 🗑️ Arquivos Removidos
 
-- `README.md`  
-- `src/components/Logout.jsx`  
-- Outros arquivos/pastas do `src/` (componentes, páginas, etc.)
+- **netlify/functions/create-checkout-session.js**  
+  Usava `priceId` fixo, exigia redeploy a cada mudança de preço.  
+  Substituído por `checkout.js` (lookupKey), mais flexível e eficaz.
 
 ---
