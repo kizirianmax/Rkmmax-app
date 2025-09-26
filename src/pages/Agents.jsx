@@ -1,34 +1,30 @@
-import React from "react";
 import { AGENTS } from "../data/agents";
+import AgentCard from "../components/AgentCard";
 
-export default function Agents() {
+export default function AgentsPage() {
+  const handleOpen = (agent) => {
+    // aqui você decide o que acontece ao clicar (abrir chat, etc.)
+    console.log("Abrir agente:", agent.id);
+  };
+
   return (
-    <>
-      <h1 className="title-hero">Lista de Agentes</h1>
-      <p className="page-sub">Escolha um especialista e comece a conversar no app.</p>
+    <main style={{ maxWidth: 980, margin: "40px auto", padding: "0 16px" }}>
+      <h1 style={{ fontSize: 28, marginBottom: 16 }}>Agentes RKMMAX</h1>
+      <p style={{ color: "#475569", marginBottom: 24 }}>
+        13 agentes conectados — clique para começar.
+      </p>
 
-      <div className="agents-grid">
-        {AGENTS.map(a => (
-          <article key={a.id} className="agent-card">
-            <div className="agent-top">
-              <img className="agent-avatar" src={a.avatar_url} alt={`Avatar de ${a.name}`} />
-              <div>
-                <h3 className="agent-name">
-                  {a.name}{" "}
-                  {a.principal && <span className="badge">PRINCIPAL</span>}
-                </h3>
-                <p className="agent-role">{a.role}</p>
-              </div>
-            </div>
-
-            <p className="agent-desc">{a.description}</p>
-
-            <button className="btn-chat" onClick={() => alert(`Abrir chat com ${a.name} (em breve)`)} >
-              💬 Chat no app
-            </button>
-          </article>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: 16
+        }}
+      >
+        {AGENTS.map((a) => (
+          <AgentCard key={a.id} agent={a} onClick={handleOpen} />
         ))}
       </div>
-    </>
+    </main>
   );
 }
