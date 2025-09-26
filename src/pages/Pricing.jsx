@@ -1,173 +1,93 @@
-// src/pages/Pricing.jsx
 import React from "react";
 
-// 🔗 Cole seus links do Stripe aqui.
-// Se deixar "", o botão fica desabilitado e mostra alerta.
-const LINKS = {
-  // BRL
-  BASIC_BR: "",          // ex: "https://buy.stripe.com/xxxx"
-  INTER_BR: "",          // ex: R$ 29,90
-  PREMIUM_BR: "",        // ex: R$ 90,00
+const PLANS = [
+  {
+    name: "RKMMAX Básico – BR",
+    price: "R$ 14,90/mês",
+    link: "https://buy.stripe.com/14A00jd7pe6h681Bvn3oA08",
+    description: "Funções essenciais, limite inteligente de conversas e suporte inicial."
+  },
+  {
+    name: "RKMMAX Básico – US",
+    price: "US$ 10/mês",
+    link: "https://buy.stripe.com/00w14naZh0fR1S51UN3oA09",
+    description: "Essential functions, smart conversation limits, and starter support."
+  },
+  {
+    name: "RKMMAX Intermediário – BR",
+    price: "R$ 50,00/mês",
+    link: "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a",
+    description: "Funções avançadas, voz (Whisper + TTS) e maior limite diário de tokens."
+  },
+  {
+    name: "RKMMAX Intermediate – US",
+    price: "US$ 20/mês",
+    link: "https://buy.stripe.com/5kQ7sL4AtauV9kx2YR3oA0d",
+    description: "Advanced features, voice (Whisper + TTS), higher daily token usage."
+  },
+  {
+    name: "RKMMAX Premium – BR",
+    price: "R$ 90,00/mês",
+    link: "https://buy.stripe.com/00w6oHazhfalcwJcZT30A0c",
+    description: "Acesso total: GPT-5 Standard + GPT-4.1 Mini, limites ampliados e prioridade máxima."
+  },
+  {
+    name: "RKMMAX Premium – US",
+    price: "US$ 30/mês",
+    link: "https://buy.stripe.com/5kQaEXfFx4w71559nf30Ae",
+    description: "Full access: GPT-5 Standard + GPT-4.1 Mini, expanded limits and top priority."
+  }
+];
 
-  // USD
-  BASIC_US: "",          // ex: US$ 10
-  INTER_US: "",          // ex: US$ 20
-  PREMIUM_US: "",        // ex: US$ 30
-};
-
-function PlanCard({ title, price, period = "/mês", features = [], link }) {
-  const enabled = Boolean(link && link.startsWith("http"));
-  const handleClick = (e) => {
-    if (!enabled) {
-      e.preventDefault();
-      alert("Link de pagamento ainda não configurado.");
-    }
-  };
-
+export default function PricingPage() {
   return (
-    <div className="plan-card" style={styles.card}>
-      <h3 style={styles.title}>{title}</h3>
-      <p style={styles.price}>
-        <strong>{price}</strong> <span style={{ opacity: 0.75 }}>{period}</span>
-      </p>
-      <ul style={styles.list}>
-        {features.map((f, i) => (
-          <li key={i}>{f}</li>
-        ))}
-      </ul>
+    <main style={{ maxWidth: 980, margin: "40px auto", padding: 16 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 16, color: "#0891b2" }}>
+        Planos RKMMAX
+      </h1>
 
-      <a
-        href={enabled ? link : "#"}
-        target="_blank"
-        rel="noreferrer noopener"
-        onClick={handleClick}
+      <section
         style={{
-          ...styles.btn,
-          ...(enabled ? {} : styles.btnDisabled),
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: 16
         }}
       >
-        Assinar
-      </a>
-    </div>
+        {PLANS.map((plan) => (
+          <article
+            key={plan.name}
+            style={{
+              background: "white",
+              border: "1px solid #e5e7eb",
+              borderRadius: 16,
+              padding: 16,
+              boxShadow: "0 1px 2px rgba(0,0,0,.04)",
+            }}
+          >
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>{plan.name}</h2>
+            <p style={{ color: "#06b6d4", fontWeight: 700, marginBottom: 8 }}>{plan.price}</p>
+            <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.45, marginBottom: 12 }}>
+              {plan.description}
+            </p>
+            <a
+              href={plan.link}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-block",
+                padding: "10px 16px",
+                background: "#06b6d4",
+                color: "#000",
+                borderRadius: 12,
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              Assinar
+            </a>
+          </article>
+        ))}
+      </section>
+    </main>
   );
 }
-
-export default function Pricing() {
-  return (
-    <section style={styles.page}>
-      <h1 style={styles.h1}>Planos RKMMAX</h1>
-
-      {/* 🇧🇷 BRL */}
-      <h2 style={styles.h2}>Brasil (BRL)</h2>
-      <div style={styles.grid}>
-        <PlanCard
-          title="Básico"
-          price="R$ 14,90"
-          features={[
-            "Funções essenciais",
-            "Limite inteligente de conversas",
-            "Suporte inicial",
-          ]}
-          link={LINKS.BASIC_BR}
-        />
-        <PlanCard
-          title="Intermediário"
-          price="R$ 29,90"
-          features={[
-            "Todos os agentes liberados",
-            "Suporte a voz (Whisper + TTS)",
-            "Prioridade no atendimento",
-          ]}
-          link={LINKS.INTER_BR}
-        />
-        <PlanCard
-          title="Premium"
-          price="R$ 90,00"
-          features={[
-            "GPT-5 Standard + GPT-4.1 Mini",
-            "Limites expandidos",
-            "Suporte prioritário",
-          ]}
-          link={LINKS.PREMIUM_BR}
-        />
-      </div>
-
-      {/* 🇺🇸 USD */}
-      <h2 style={styles.h2}>Estados Unidos (USD)</h2>
-      <div style={styles.grid}>
-        <PlanCard
-          title="Basic"
-          price="US$ 10,00"
-          period="/month"
-          features={["Essential features", "Smart chat limit", "Starter support"]}
-          link={LINKS.BASIC_US}
-        />
-        <PlanCard
-          title="Intermediate"
-          price="US$ 20,00"
-          period="/month"
-          features={[
-            "All agents unlocked",
-            "Voice support",
-            "Priority responses",
-          ]}
-          link={LINKS.INTER_US}
-        />
-        <PlanCard
-          title="Premium"
-          price="US$ 30,00"
-          period="/month"
-          features={[
-            "Max precision & power",
-            "Higher limits",
-            "Top server priority",
-          ]}
-          link={LINKS.PREMIUM_US}
-        />
-      </div>
-
-      <p style={{ marginTop: 18, opacity: 0.8 }}>
-        Após o pagamento, o acesso é liberado imediatamente no app.
-      </p>
-    </section>
-  );
-}
-
-const styles = {
-  page: { maxWidth: 980, margin: "0 auto", padding: "24px 16px" },
-  h1: { fontSize: 28, textAlign: "center", margin: "8px 0 24px" },
-  h2: { fontSize: 20, margin: "24px 0 12px" },
-  grid: {
-    display: "grid",
-    gap: 16,
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-    marginBottom: 8,
-  },
-  card: {
-    background: "white",
-    borderRadius: 12,
-    padding: 16,
-    boxShadow: "0 4px 14px rgba(0,0,0,.08)",
-    border: "1px solid rgba(0,0,0,.06)",
-  },
-  title: { margin: "4px 0 8px", fontSize: 18 },
-  price: { margin: "0 0 10px", fontSize: 18 },
-  list: { margin: "0 0 14px 18px" },
-  btn: {
-    display: "inline-block",
-    textAlign: "center",
-    textDecoration: "none",
-    padding: "10px 14px",
-    borderRadius: 10,
-    border: "1px solid #00ffdb",
-    background: "#00ffdb",
-    color: "#003366",
-    fontWeight: "bold",
-  },
-  btnDisabled: {
-    background: "#e9ecef",
-    borderColor: "#e9ecef",
-    color: "#666",
-    cursor: "not-allowed",
-  },
-};
