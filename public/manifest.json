@@ -1,0 +1,14 @@
+{
+  "name": "RKMMAX",
+  "short_name": "RKMMAX",
+  "description": "Sistema de Inteligência Artificial Modular com 13 agentes (incluindo o Serginho).",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "/avatars/serginho-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/avatars/serginho-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
