@@ -10,26 +10,27 @@ export default function AgentsPage() {
   const navigate = useNavigate();
   const { plan, loading } = usePlan();
 
-  if (loading) {
-    return <p style={{ padding: 16 }}>Carregando…</p>;
-  }
+  if (loading) return <p style={{ padding: 16 }}>Carregando…</p>;
 
-  const goChat = (agent) => {
-    // se estiver bloqueado, manda para planos
-    const locked = plan !== "premium" && agent.id !== "serginho";
-    if (locked) {
-      navigate("/pricing");
-      return;
-    }
-    // ajuste aqui se sua rota de chat for outra
-    navigate(`/chat?agent=${agent.id}`);
-  };
+  const goChat = (agent) => navigate(`/chat?agent=${agent.id}`);
+  const goPricing = () => navigate("/pricing");
 
   return (
     <main style={{ maxWidth: 980, margin: "40px auto", padding: "0 16px" }}>
-      <h1 style={{ fontSize: 28, marginBottom: 12 }}>Agentes RKMMAX</h1>
-      <p style={{ color: "#475569", marginBottom: 24 }}>
-        Veja os especialistas disponíveis. Para conversar com eles, assine o plano Premium.
+      <h1 style={{ fontSize: 28, marginBottom: 8 }}>Agentes RKMMAX</h1>
+
+      {/* Aviso suave no topo, sem “gritar” premium */}
+      <p
+        style={{
+          color: "#475569",
+          marginBottom: 20,
+          background: "#f1f5f9",
+          padding: "10px 12px",
+          borderRadius: 12,
+        }}
+      >
+        Serginho está disponível para todos. Os demais são liberados no plano
+        <strong> Premium</strong>.
       </p>
 
       <div
@@ -40,31 +41,53 @@ export default function AgentsPage() {
         }}
       >
         {AGENTS.map((agent) => {
-          // regra: somente Serginho fica liberado no plano básico
           const locked = plan !== "premium" && agent.id !== "serginho";
 
           return (
             <div key={agent.id} style={{ position: "relative" }}>
-              <AgentCard agent={agent} onClick={() => goChat(agent)} />
+              {/* Card inteiro continua igual, só muda o clique conforme regra */}
+              <AgentCard
+                agent={agent}
+                onClick={() => (locked ? goPricing() : goChat(agent))}
+              />
 
+              {/* Selo discreto no canto direito quando bloqueado */}
               {locked && (
-                <button
-                  onClick={() => navigate("/pricing")}
+                <div
+                  onClick={goPricing}
                   style={{
                     position: "absolute",
                     right: 16,
-                    top: 36,
-                    padding: "10px 16px",
-                    background: "#06b6d4",
-                    color: "#000",
-                    fontWeight: 700,
-                    borderRadius: 20,
-                    border: "none",
+                    top: 14,
+                    padding: "6px 10px",
+                    borderRadius: 999,
+                    border: "1px solid #94a3b8",
+                    background: "rgba(255,255,255,.8)",
+                    backdropFilter: "blur(2px)",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#0f172a",
                     cursor: "pointer",
                   }}
+                  aria-label="Requer plano Premium"
                 >
-                  Liberar (Premium)
-                </button>
+                  Premium
+                </div>
+              )}
+
+              {/* feedback visual suave em cards bloqueados */}
+              {locked && (
+                <div
+                  onClick={goPricing}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: 16,
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(241,245,249,.65) 100%)",
+                    pointerEvents: "none", // mantém clique no card
+                  }}
+                />
               )}
             </div>
           );
