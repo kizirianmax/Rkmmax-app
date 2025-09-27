@@ -1,88 +1,95 @@
+Crie um checklist em Markdown com o título:
+
 # ✅ Checklist Projeto RKMMAX
 
+Organize em seções numeradas, com status de cada item:  
+- ✅ feito  
+- ⚠️ pendente  
+- ➡️ próximo  
+
+---
+
 ## 1) Infra / Deploy
-- [x] `netlify.toml` — presente e OK.
-- [x] `.gitignore` — ignora `node_modules/`, `.env`, `src/config/plans.json`.
-- [x] `.env.local` — 6 variáveis (BR/US) confirmadas.
-- [x] `README.md` — existe (pendente revisão final).
-- [x] `public/index.html` — SEO + OG/Twitter + PWA + SW register.
-- [x] `public/manifest.json` — PWA (Android/iOS).
-- [x] `public/service-worker.js` — cache estático/runtime.
+- ✅ netlify.toml — presente e OK
+- ✅ .gitignore — ignora node_modules/, .env, src/config/plans.json
+- ✅ .env.local — 6 variáveis (BR/US) confirmadas
+- ✅ README.md — existe (pendente revisão final)
+- ✅ public/index.html — SEO + OG/Twitter + PWA + SW register
+- ✅ public/manifest.json — PWA Android/iOS
+- ✅ public/service-worker.js — cache estático/runtime
+- ⚠️ DNS/GoDaddy — registros A e CNAME configurados (aguardando propagação)
+- ➡️ SSL/HTTPS (Let’s Encrypt) — ativar no Netlify quando domínio responder
 
 ---
 
 ## 2) Stripe / Planos
-- [x] `src/config/plans.json` — 6 planos (BR/US: básico, intermediário, premium).
-- [x] `netlify/functions/prices.js` — lista preços ativos por região/tier.
-- [x] `netlify/functions/checkout.js` — único endpoint de checkout.
-- [x] `netlify/functions/stripe-webhook.js` — valida assinatura e atualiza Supabase.
+- ✅ src/config/plans.json — 6 planos (BR/US: básico, intermediário, premium)
+- ✅ netlify/functions/prices.js — lista preços ativos por região/tier
+- ✅ netlify/functions/checkout.js — endpoint único de checkout
+- ✅ netlify/functions/stripe-webhook.js — valida assinatura + atualiza Supabase
 
 ---
 
 ## 3) Controle de uso / Billing interno
-- [x] `netlify/functions/_usage.js` — `getUsage` / `setUsage`.
-- [x] `netlify/functions/guardAndBill.js` — aplica limites por plano/modelo (diário + mensal GPT-5).
-- [x] `netlify/functions/chat.js` — escolhe modelo, chama `guardAndBill` e OpenAI API.
+- ✅ netlify/functions/_usage.js — getUsage / setUsage
+- ✅ netlify/functions/guardAndBill.js — limites por plano/modelo (diário + mensal GPT-5)
+- ✅ netlify/functions/chat.js — escolhe modelo, chama guardAndBill + OpenAI API
 
 ---
 
 ## 4) Utilidades / Outros
-- [x] `netlify/functions/cors.js` — CORS básico.
-- [x] `netlify/functions/contact.js` — endpoint simples de contato.
-- [x] `netlify/functions/status.js` — healthcheck.
-- [ ] `src/README` arquitetura (pendente).
-- [x] `src/components/Logout.jsx` — corrigido.
-- [x] `src/pages/Home.jsx` — corrigido (cards Serginho + Planos).
-- [x] `src/pages/Pricing.jsx` — atualizado com links reais do Stripe.
-- [x] `src/pages/Agents.jsx` — criado e funcional.
-- [x] `src/App.jsx` — rotas configuradas (Home, Agents, Pricing).
+- ✅ netlify/functions/cors.js — CORS básico
+- ✅ netlify/functions/contact.js — endpoint simples de contato
+- ✅ netlify/functions/status.js — healthcheck
+- ⚠️ src/README arquitetura (pendente)
 
 ---
 
 ## 5) Avatares / UI
-- [ ] `public/avatars/` — 13 arquivos (SVG já ok, avaliar PNG futuro).
-- [ ] `src/data/avatars.json` — mapeamento `{ agente: "/avatars/arquivo.svg" }`.
-- [ ] Integração no UI — usar `avatars[agent]`.
+- ⚠️ public/avatars/ — 13 arquivos SVG/PNG organizados
+- ⚠️ src/data/avatars.json — mapeamento { agente: "/avatars/arquivo.svg" }
+- ⚠️ Integração no UI — usar avatars[agent]
 
 ---
 
 ## 6) Testes / Qualidade
-- [ ] Testar PWA (Android/iOS).
-- [ ] Testar Checkout BR/US com `lookup_key` real e cupons.
-- [ ] Testar Webhook em produção (Netlify).
-- [ ] Revisar políticas de CORS e headers de segurança.
-- [ ] Documentar variáveis `.env` no `README`.
+- ⚠️ Testar PWA (Android/iOS)
+- ⚠️ Testar Checkout BR/US com lookup_key real e cupons
+- ⚠️ Testar Webhook Stripe em produção (Netlify)
+- ⚠️ Revisar CORS e headers de segurança
+- ⚠️ Documentar variáveis .env no README
 
 ---
 
 ## 7) Agentes Visíveis
-- [x] 13 agentes conectados → Serginho + 12 especialistas.
-- [x] Avatares carregados.
-- [x] Descrições configuradas.
+- ✅ 13 agentes conectados (Serginho + 12 especialistas)
+- ✅ Avatares carregados (parcial, revisão final pendente)
+- ✅ Descrições configuradas
 
 ---
 
 ## 8) Agentes Ocultos (Novo diferencial)
-- [ ] Criar **especialistas invisíveis** para reforço de áreas críticas (base de conhecimento, otimização, validação de fontes).
-- [ ] Todos ficam acessíveis **apenas via Serginho** (usuário não vê).
-- [ ] Usados para reduzir custo (menos GPT-5, mais GPT-4 mini + especialistas ocultos).
+- ⚠️ Criar especialistas invisíveis (base de conhecimento, otimização, validação de fontes)
+- ⚠️ Configurar acesso apenas via Serginho
+- ⚠️ Usar ocultos p/ reduzir custo (menos GPT-5, mais GPT-4 mini + ocultos)
 
 ---
 
-## 9) Serginho – Núcleo Inteligente
-- [ ] Configurar **aprendizado ilimitado** (sempre de fontes confiáveis).
-- [ ] Balanceamento automático para evitar viés/excesso.
-- [ ] Sempre que possível, delegar tarefas a especialistas ocultos → reduzir dependência do GPT-5.
-- [ ] Evolução contínua: quanto mais agentes ocultos, mais forte o Serginho.
+## 9) Serginho — Núcleo Inteligente
+- ⚠️ Configurar aprendizado ilimitado (fontes confiáveis)
+- ⚠️ Balanceamento automático p/ evitar viés/excesso
+- ⚠️ Delegar tarefas a ocultos p/ reduzir GPT-5
+- ⚠️ Evolução contínua: + agentes ocultos = Serginho mais forte
 
 ---
 
 ## 10) Fluxo Premium / UX
-- [ ] Tela padrão → botão único **“Falar com Serginho”**.
-- [ ] Se plano = Básico/Intermediário → só Serginho responde.
-- [ ] Se plano = Premium → liberar botão **“Explorar Especialistas”** com acesso direto aos 12 agentes.
-- [ ] Diferencial claro: **exclusividade Premium**.
+- ⚠️ Tela padrão → botão único “Falar com Serginho”
+- ⚠️ Plano Básico/Intermediário → só Serginho responde
+- ⚠️ Plano Premium → botão “Explorar Especialistas”
+- ⚠️ Diferencial claro: exclusividade Premium
 
 ---
 
-📌 **Observação:** Esse fluxo (Serginho central, agentes ocultos e painel Premium) cria **simplicidade para iniciantes** + **exclusividade para avançados** + **otimização de custos no back-end**.
+📌 Observação final:  
+Esse fluxo (Serginho central, agentes ocultos, Premium) garante **simplicidade p/ iniciantes + exclusividade p/ avançados + otimização de custos no back-end**.
