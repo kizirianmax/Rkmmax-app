@@ -5,26 +5,26 @@ export default function Home() {
     {
       id: "emo",
       name: "Emo",
-      icon: <img loading="lazy" src="/icons/emo.svg" alt="Emo" className="w-6 h-6" />,
+      icon: <img src="/icons/emo.svg" alt="Emo" className="w-6 h-6" />,
     },
     {
       id: "didak",
       name: "Didak",
-      icon: <img loading="lazy" src="/icons/didak.svg" alt="Didak" className="w-6 h-6" />,
+      icon: <img src="/icons/didak.svg" alt="Didak" className="w-6 h-6" />,
     },
   ];
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-3">🚀 Bem-vindo ao RKMMAX</h1>
-      <p className="text-gray-700 mb-6">
+    <div className="max-w-3xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold mb-4">🚀 Bem-vindo ao RKMMAX</h1>
+      <p className="text-gray-700 mb-8">
         Use nossa IA com assinatura segura via Stripe. <br />
         Comece pelo <strong>Serginho (grátis)</strong> ou destrave os{" "}
         <strong>12 especialistas</strong> no plano Premium.
       </p>
 
       {/* Serginho */}
-      <div className="bg-white shadow rounded-2xl p-4 mb-6">
+      <div className="bg-white shadow rounded-2xl p-5 mb-6">
         <div className="flex items-center">
           <img
             src="/serginho.svg"
@@ -50,8 +50,8 @@ export default function Home() {
       </div>
 
       {/* Especialistas Preview */}
-      <div className="bg-white shadow rounded-2xl p-4 mb-6">
-        <div className="flex justify-between items-center mb-3">
+      <div className="bg-white shadow rounded-2xl p-5 mb-6">
+        <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Especialistas (preview)</h3>
           <a href="/agentes" className="text-blue-600 text-sm font-medium">
             Ver todos os 12
@@ -77,16 +77,16 @@ export default function Home() {
       </div>
 
       {/* Planos */}
-      <div className="bg-white shadow rounded-2xl p-4">
+      <div className="bg-white shadow rounded-2xl p-5">
         <h3 className="text-lg font-semibold mb-2">Planos</h3>
-        <p className="text-gray-700 mb-3">
+        <p className="text-gray-700 mb-4">
           Planos claros, pagamento via Stripe e acesso imediato no app. <br />
           Suporte e upgrades simples para crescer junto com você.
         </p>
         <button className="w-full bg-gray-900 text-white font-semibold py-2 px-4 rounded-lg">
           Ver planos
         </button>
-        <ul className="text-gray-600 text-sm mt-3 list-disc list-inside">
+        <ul className="text-gray-600 text-sm mt-4 list-disc list-inside">
           <li>SSL/TLS automático</li>
           <li>Checkout Stripe</li>
           <li>PWA Android/iOS</li>
