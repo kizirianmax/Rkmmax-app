@@ -9,7 +9,7 @@ const PRICE_BR = {
 };
 const PRICE_US = {
   basic: "price_1S4XDM...y9Ow",        // US$ 10,00
-  intermediate: "price_1S3RZG...V8Ns", // US$ 25,00
+  intermediate: "price_1S3RZG...V8Ns", // US$ 20,00
   premium: "price_1S4XSRE...5R9Y",     // US$ 30,00
 };
 
