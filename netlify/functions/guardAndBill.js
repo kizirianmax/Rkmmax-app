@@ -1,111 +1,102 @@
 // netlify/functions/guardAndBill.js
-import { getStore } from "@netlify/blobs";
-import { PLAN_CAPS } from "../../src/lib/planCaps.js";
+import capsByPlan from "../../src/lib/planCaps.js";
 
-/** Normaliza nomes vindos do app/Stripe/etc. */
-function normalizePlan(plan = "") {
-  const p = String(plan).toLowerCase();
-  if (["pro", "inter", "intermediate"].includes(p)) return "intermediate";
-  if (p.startsWith("basic")) return "basic";
-  if (p.startsWith("premium")) return "premium";
-  return p; // tenta usar como veio
-}
+/** ===== Armazenamento simples (em memória) =====
+ * Em serverless reinicia às vezes. Para produção, troque por um storage
+ * (Netlify Blobs, Redis, Supabase, etc.). A lógica abaixo é plugável: basta
+ * substituir readCounter/writeCounter por chamadas ao seu storage.
+ */
+const mem = globalThis.__USAGE_MEM__ || (globalThis.__USAGE_MEM__ = new Map());
+async function readCounter(key)  { return Number(mem.get(key) || 0); }
+async function writeCounter(key, value) { mem.set(key, String(value)); return true; }
 
-/** Aproximação segura: ~4 chars ≈ 1 token (ajuste se quiser) */
-function charsToTokens(chars = 0) {
-  return Math.ceil((chars || 0) / 4);
-}
+/** Helpers de chave por dia/mês (UTC) */
+function dayStampUTC()   { return new Date().toISOString().slice(0,10).replace(/-/g, ""); }       // YYYYMMDD
+function monthStampUTC() { return new Date().toISOString().slice(0,7).replace(/-/g, ""); }        // YYYYMM
+const reqKey     = (uid) => `reqs:${uid}:${dayStampUTC()}`;
+const dayTokKey  = (uid) => `toks:day:${uid}:${dayStampUTC()}`;
+const monTokKey  = (uid) => `toks:mon:${uid}:${monthStampUTC()}`;
 
-/** Chaves por usuário/período (UTC) */
-function dayKey(userId) {
-  const d = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  return `usage:${userId}:day:${d}`;
-}
-function monthKey(userId) {
-  const m = new Date().toISOString().slice(0, 7); // YYYY-MM
-  return `usage:${userId}:month:${m}`;
-}
-
-/** Utilitários de leitura/gravação no Blobs */
-async function readTokens(store, key) {
-  const raw = await store.get(key);
-  if (!raw) return 0;
-  try { return JSON.parse(raw).tokens || 0; } catch { return 0; }
-}
-async function writeTokens(store, key, tokens) {
-  await store.set(key, JSON.stringify({ tokens }));
+function ensureCaps(planKey) {
+  const caps = capsByPlan?.[planKey];
+  if (!caps) throw new Error(`Plano inválido: ${planKey}`);
+  return {
+    dayReqs:  Number(caps.limit_requests_per_day || 0),
+    dayToks:  Number(caps.limit_tokens_per_day   || 0),
+    monToks:  Number(caps.limit_tokens_per_month || 0),
+  };
 }
 
 /**
- * Valida limites e já contabiliza o uso desta chamada.
- * Lança erro se estourar o limite do plano.
+ * Checa limites e incrementa APENAS a contagem de requisições.
+ * Retorna { bill(actualOutputTokens) } para você registrar os tokens APÓS o sucesso.
  *
- * @param {Object} args
- * @param {{id:string,email?:string}} args.user
- * @param {"basic"|"intermediate"|"premium"|string} args.plan
- * @param {string} args.model
- * @param {number} args.promptSize   // chars
- * @param {number} args.expectedOutputSize // tokens estimados de saída
+ * @param {Object} p
+ * @param {{id:string}} p.user
+ * @param {string} p.plan              ex.: "basic_br" | "intermediate_us"
+ * @param {string} [p.model]           só informativo/logs
+ * @param {number} p.promptSize        tokens do prompt
+ * @param {number} [p.expectedOutputSize=800]  chute de saída para prever estouro
  */
-export async function guardAndBill({
-  user,
-  plan,
-  model,
-  promptSize = 0,
-  expectedOutputSize = 800
-}) {
+export default async function guardAndBill(p) {
+  const { user, plan, model, promptSize, expectedOutputSize = 800 } = p || {};
   if (!user?.id) throw new Error("user.id obrigatório");
+  if (!plan)     throw new Error("plan obrigatório");
+  const caps = ensureCaps(plan);
 
-  const planKey = normalizePlan(plan);
-  const caps = PLAN_CAPS[planKey];
-  if (!caps) throw new Error(`Plano inválido: ${planKey}`);
-
-  // Estimativa conservadora do custo desta chamada em tokens
-  const tokensIn = charsToTokens(promptSize);
-  const tokensOut = Math.max(0, expectedOutputSize || 0);
-  const tokensThisCall = tokensIn + tokensOut;
-
-  // Store de uso (namespace "usage")
-  const store = await getStore("usage");
-
-  // ----- Checagem/contagem DIÁRIA -----
-  const dKey = dayKey(user.id);
-  const usedToday = await readTokens(store, dKey);
-  const newToday = usedToday + tokensThisCall;
-
-  if (caps.limit_tokens_per_day && newToday > caps.limit_tokens_per_day) {
-    const left = Math.max(0, caps.limit_tokens_per_day - usedToday);
-    throw new Error(
-      `Limite diário do plano ${planKey} atingido. Restante hoje: ${left} tokens.`
-    );
+  // ========== 1) Requisições por dia ==========
+  const rK = reqKey(user.id);
+  const reqsToday = await readCounter(rK);
+  if (caps.dayReqs && reqsToday + 1 > caps.dayReqs) {
+    const left = Math.max(0, caps.dayReqs - reqsToday);
+    throw new Error(`Limite de requisições/dia do plano ${plan} atingido. Restantes hoje: ${left}.`);
   }
 
-  // ----- Checagem/contagem MENSAL (se existir para o plano) -----
-  if (caps.limit_tokens_per_month) {
-    const mKey = monthKey(user.id);
-    const usedThisMonth = await readTokens(store, mKey);
-    const newMonth = usedThisMonth + tokensThisCall;
-
-    if (newMonth > caps.limit_tokens_per_month) {
-      const left = Math.max(0, caps.limit_tokens_per_month - usedThisMonth);
-      throw new Error(
-        `Limite mensal do plano ${planKey} atingido. Restante no mês: ${left} tokens.`
-      );
-    }
-
-    // contabiliza mês
-    await writeTokens(store, mKey, newMonth);
+  // ========== 2) Tokens por dia (checagem preventiva) ==========
+  const dK = dayTokKey(user.id);
+  const dayTokens = await readCounter(dK);
+  const willSpend = Number(promptSize || 0) + Number(expectedOutputSize || 0);
+  if (caps.dayToks && dayTokens + willSpend > caps.dayToks) {
+    const left = Math.max(0, caps.dayToks - dayTokens);
+    throw new Error(`Limite diário de tokens do plano ${plan} atingido. Restantes hoje: ${left}.`);
   }
 
-  // contabiliza dia
-  await writeTokens(store, dKey, newToday);
+  // ========== 3) Tokens por mês (checagem preventiva) ==========
+  const mK = monTokKey(user.id);
+  const monTokens = await readCounter(mK);
+  if (caps.monToks && monTokens + willSpend > caps.monToks) {
+    const left = Math.max(0, caps.monToks - monTokens);
+    throw new Error(`Limite mensal de tokens do plano ${plan} atingido. Restantes no mês: ${left}.`);
+  }
 
-  // Se quiser, retorne dados úteis para log/debug
+  // Aprovado: já contabiliza 1 requisição agora
+  await writeCounter(rK, reqsToday + 1);
+
+  // Retorna função para "faturar" tokens após sucesso
   return {
     ok: true,
-    plan: planKey,
+    plan,
     model,
-    tokens: { in: tokensIn, out: tokensOut, total: tokensThisCall },
-    usage: { day: newToday }
+    usage_preview: {
+      requests_today: reqsToday + 1,
+      day_tokens_preview: dayTokens + willSpend,
+      month_tokens_preview: monTokens + willSpend,
+    },
+    /**
+     * Registra tokens reais após a resposta da OpenAI.
+     * @param {number} actualOutputTokens - se não souber, pode omitir que usa o expectedOutputSize
+     */
+    async bill(actualOutputTokens) {
+      const out = Number(
+        Number.isFinite(actualOutputTokens) ? actualOutputTokens : expectedOutputSize
+      );
+      const spend = Number(promptSize || 0) + out;
+      const [curDay, curMon] = await Promise.all([readCounter(dK), readCounter(mK)]);
+      await Promise.all([
+        writeCounter(dK, curDay + spend),
+        writeCounter(mK, curMon + spend),
+      ]);
+      return { billed_tokens: spend };
+    },
   };
 }
