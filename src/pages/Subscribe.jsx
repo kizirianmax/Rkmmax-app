@@ -1,19 +1,31 @@
 // src/pages/Subscribe.jsx
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
-// Seus IDs de preço (Stripe) por país:
-const PRICE_BR = {
-  basic: "price_1S3RNL...gmM",        // R$ 14,90
-  intermediate: "price_1S3RPw...ae8N", // R$ 50,00
-  premium: "price_1S3RSC...yLIQ",     // R$ 90,00
-};
-const PRICE_US = {
-  basic: "price_1S4XDM...y9Ow",        // US$ 10,00
-  intermediate: "price_1S3RZG...V8Ns", // US$ 20,00
-  premium: "price_1S4XSRE...5R9Y",     // US$ 30,00
+// Links de pagamento (Payment Links) por região e plano
+const LINKS = {
+  BR: {
+    basic:  "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i",
+    pro:    "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a",
+    premium:"", // TODO: cole aqui o link do Premium BR quando criar
+    labels: {
+      basic:   "Básico — R$ 14,90/mês",
+      pro:     "Intermediário — R$ 50,00/mês",
+      premium: "Premium — R$ 90,00/mês"
+    }
+  },
+  US: {
+    basic:  "https://buy.stripe.com/00w14naZh0fR1S51UN3oA09",
+    pro:    "https://buy.stripe.com/3c14gZebt8MmgM2ZXR3oAg",
+    premium:"", // TODO: cole aqui o link do Premium US quando criar
+    labels: {
+      basic:   "Basic — $10/month",
+      pro:     "Intermediate — $20/month",
+      premium: "Premium — $30/month"
+    }
+  }
 };
 
-// Detecta a região usando o idioma do navegador
+// Detecção simples de região pelo idioma do navegador
 function detectRegion() {
   const lang = (navigator.language || "en-US").toLowerCase();
   return lang.startsWith("pt") ? "BR" : "US";
@@ -22,39 +34,16 @@ function detectRegion() {
 export default function Subscribe() {
   const [region, setRegion] = useState(detectRegion());
 
-  // Seleciona o conjunto de preços com base na região
-  const PRICE = useMemo(
-    () => (region === "BR" ? PRICE_BR : PRICE_US),
-    [region]
-  );
+  const R = useMemo(() => (region === "BR" ? LINKS.BR : LINKS.US), [region]);
 
-  // Função que cria a sessão de checkout via Netlify Function e redireciona para o Stripe
-  const subscribe = useCallback(
-    async (planKey) => {
-      const res = await fetch("/.netlify/functions/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId: PRICE[planKey] }),
-      });
-      const data = await res.json();
-
-      // Se o backend retornar uma URL, redireciona direto
-      if (data?.url) {
-        window.location.href = data.url;
-        return;
-      }
-      // Se não, usa redirectToCheckout com sessionId
-      if (window.Stripe && data?.id) {
-        const stripe = window.Stripe(
-          import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-        );
-        await stripe.redirectToCheckout({ sessionId: data.id });
-      } else {
-        alert("Não foi possível iniciar o checkout.");
-      }
-    },
-    [PRICE]
-  );
+  const go = (planKey) => {
+    const url = R[planKey];
+    if (!url) {
+      alert("Link ainda não disponível para este plano.");
+      return;
+    }
+    window.location.href = url; // redireciona direto para a Stripe
+  };
 
   return (
     <div style={{ maxWidth: 560, margin: "40px auto", padding: 16 }}>
@@ -62,23 +51,25 @@ export default function Subscribe() {
       <p>
         Região detectada: <b>{region}</b>
       </p>
-      {/* Botões manuais para alternar BR/US (apenas para testes) */}
-      <button
-        onClick={() => setRegion("BR")}
-        style={{ marginRight: 8 }}
-      >
-        BR
-      </button>
-      <button onClick={() => setRegion("US")}>US</button>
 
-      {/* Botões de assinatura por plano */}
-      <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-        <button onClick={() => subscribe("basic")}>Assinar Básico</button>
-        <button onClick={() => subscribe("intermediate")}>
-          Assinar Intermediário
+      {/* Botões para trocar manualmente BR/US (útil para testes) */}
+      <div style={{ marginBottom: 12 }}>
+        <button onClick={() => setRegion("BR")} style={{ marginRight: 8 }}>
+          BR
         </button>
-        <button onClick={() => subscribe("premium")}>Assinar Premium</button>
+        <button onClick={() => setRegion("US")}>US</button>
       </div>
+
+      <div style={{ display: "grid", gap: 10 }}>
+        <button onClick={() => go("basic")}>{R.labels.basic}</button>
+        <button onClick={() => go("pro")}>{R.labels.pro}</button>
+        <button onClick={() => go("premium")}>{R.labels.premium}</button>
+      </div>
+
+      <p style={{ marginTop: 16, fontSize: 12, opacity: 0.8 }}>
+        * O valor exibido é apenas rótulo de UI; a cobrança é definida pelo
+        Payment Link da Stripe.
+      </p>
     </div>
   );
 }
