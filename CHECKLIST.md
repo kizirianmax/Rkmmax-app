@@ -1,95 +1,68 @@
-Crie um checklist em Markdown com o título:
+# ✅ Checklist Projeto RKMMax (Atualizado)
 
-# ✅ Checklist Projeto RKMMAX
-
-Organize em seções numeradas, com status de cada item:  
-- ✅ feito  
-- ⚠️ pendente  
-- ➡️ próximo  
-
----
+Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
 
 ## 1) Infra / Deploy
-- ✅ netlify.toml — presente e OK
-- ✅ .gitignore — ignora node_modules/, .env, src/config/plans.json
-- ✅ .env.local — 6 variáveis (BR/US) confirmadas
-- ✅ README.md — existe (pendente revisão final)
-- ✅ public/index.html — SEO + OG/Twitter + PWA + SW register
-- ✅ public/manifest.json — PWA Android/iOS
-- ✅ public/service-worker.js — cache estático/runtime
-- ⚠️ DNS/GoDaddy — registros A e CNAME configurados (aguardando propagação)
-- ➡️ SSL/HTTPS (Let’s Encrypt) — ativar no Netlify quando domínio responder
-
----
+- ✅ Importar repo no Vercel
+- ✅ Framework: Create React App
+- ✅ Variáveis no Vercel:
+  - REACT_APP_SUPABASE_URL
+  - REACT_APP_SUPABASE_ANON_KEY
+- ✅ Deploy produção (rkmmax-app.vercel.app)
+- ⚠️ Conectar domínio custom no Vercel + SSL
+- ⚠️ README final (documentar env e fluxo)
 
 ## 2) Stripe / Planos
-- ✅ src/config/plans.json — 6 planos (BR/US: básico, intermediário, premium)
-- ✅ netlify/functions/prices.js — lista preços ativos por região/tier
-- ✅ netlify/functions/checkout.js — endpoint único de checkout
-- ✅ netlify/functions/stripe-webhook.js — valida assinatura + atualiza Supabase
-
----
+- ✅ src/config/plans.json (6 planos BR/US)
+- ✅ Payment Link – Premium BR criado e colado no `Subscribe.jsx`
+- ⏭️ Payment Link – Premium US (criar e colar no `Subscribe.jsx`)
+- ⚠️ Webhooks: decidir migração (Vercel) ou manter Netlify
+- ⏭️ Testar checkout BR e depois US
 
 ## 3) Controle de uso / Billing interno
-- ✅ netlify/functions/_usage.js — getUsage / setUsage
-- ✅ netlify/functions/guardAndBill.js — limites por plano/modelo (diário + mensal GPT-5)
-- ✅ netlify/functions/chat.js — escolhe modelo, chama guardAndBill + OpenAI API
-
----
+- ✅ netlify/functions/_usage.js
+- ✅ netlify/functions/guardAndBill.js (limites diário/mensal)
+- ✅ netlify/functions/chat.js (seleção de modelo + billing)
 
 ## 4) Utilidades / Outros
-- ✅ netlify/functions/cors.js — CORS básico
-- ✅ netlify/functions/contact.js — endpoint simples de contato
-- ✅ netlify/functions/status.js — healthcheck
-- ⚠️ src/README arquitetura (pendente)
-
----
+- ✅ netlify/functions/cors.js
+- ✅ netlify/functions/contact.js
+- ✅ netlify/functions/status.js
+- ⚠️ README de arquitetura
 
 ## 5) Avatares / UI
-- ⚠️ public/avatars/ — 13 arquivos SVG/PNG organizados
-- ⚠️ src/data/avatars.json — mapeamento { agente: "/avatars/arquivo.svg" }
-- ⚠️ Integração no UI — usar avatars[agent]
-
----
+- ✅ public/avatars/ (SVG/PNG)
+- ✅ src/data/avatars.json (mapeamento)
+- ✅ Integração no UI (Serginho + Especialistas)
+- ⏭️ Revisão final dos 13 avatares
 
 ## 6) Testes / Qualidade
-- ⚠️ Testar PWA (Android/iOS)
-- ⚠️ Testar Checkout BR/US com lookup_key real e cupons
-- ⚠️ Testar Webhook Stripe em produção (Netlify)
+- ⏭️ Testar PWA (Android/iOS)
+- ⏭️ Testar checkout BR (Payment Link novo)
+- ⏭️ Testar checkout US
+- ⚠️ Testar Webhook Stripe em produção
 - ⚠️ Revisar CORS e headers de segurança
 - ⚠️ Documentar variáveis .env no README
 
----
-
 ## 7) Agentes Visíveis
-- ✅ 13 agentes conectados (Serginho + 12 especialistas)
-- ✅ Avatares carregados (parcial, revisão final pendente)
+- ✅ 13 agentes conectados (Serginho + 12)
 - ✅ Descrições configuradas
-
----
+- ⏭️ Conferência visual final (avatares e textos)
 
 ## 8) Agentes Ocultos (Novo diferencial)
-- ⚠️ Criar especialistas invisíveis (base de conhecimento, otimização, validação de fontes)
-- ⚠️ Configurar acesso apenas via Serginho
-- ⚠️ Usar ocultos p/ reduzir custo (menos GPT-5, mais GPT-4 mini + ocultos)
-
----
+- ⚠️ Criar especialistas invisíveis (base/otimização/validação)
+- ⚠️ Acesso apenas via Serginho
+- ⚠️ Orquestração p/ reduzir custo (menos GPT-5, mais GPT-4 mini + ocultos)
 
 ## 9) Serginho — Núcleo Inteligente
-- ⚠️ Configurar aprendizado ilimitado (fontes confiáveis)
-- ⚠️ Balanceamento automático p/ evitar viés/excesso
-- ⚠️ Delegar tarefas a ocultos p/ reduzir GPT-5
-- ⚠️ Evolução contínua: + agentes ocultos = Serginho mais forte
-
----
+- ⚠️ Aprendizado ilimitado (fontes confiáveis)
+- ⚠️ Balanceamento automático
+- ⚠️ Delegar tarefas a ocultos
+- ⚠️ Evolução contínua (mais agentes ocultos)
 
 ## 10) Fluxo Premium / UX
-- ⚠️ Tela padrão → botão único “Falar com Serginho”
-- ⚠️ Plano Básico/Intermediário → só Serginho responde
-- ⚠️ Plano Premium → botão “Explorar Especialistas”
-- ⚠️ Diferencial claro: exclusividade Premium
-
----
-
-📌 Observação final:  
-Esse fluxo (Serginho central, agentes ocultos, Premium) garante **simplicidade p/ iniciantes + exclusividade p/ avançados + otimização de custos no back-end**.
+- ✅ Tela padrão: botão “Falar com Serginho”
+- ✅ Básico/Intermediário → só Serginho
+- ✅ Premium → botão “Explorar Especialistas”
+- ⏭️ Marcar usuário Premium pós-compra
+  - (por enquanto manual no Supabase; depois automatizar via webhook)
