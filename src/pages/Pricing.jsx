@@ -2,16 +2,11 @@
 import React from "react";
 
 /**
- * Detecta ambiente (funciona com Vite, CRA e Node).
- * Em dev: import.meta.env.MODE === "development"
- * Em prod: "production"
+ * Detecta ambiente (funciona em Vercel/Next, Vite e CRA).
+ * Em produção, NODE_ENV = "production".
  */
-const metaEnv =
-  typeof import !== "undefined" && import.meta && import.meta.env
-    ? import.meta.env
-    : {};
 const isProd =
-  metaEnv.MODE === "production" || process.env.NODE_ENV === "production";
+  (typeof process !== "undefined" && process.env && process.env.NODE_ENV === "production");
 
 /**
  * Cole aqui seus Payment Links do Stripe.
@@ -20,19 +15,21 @@ const isProd =
  */
 const LINKS = {
   test: {
-    // ✅ seu link de teste do plano Básico:
+    // >>> Seu link de TESTE (Básico) já colocado:
     basic: "https://buy.stripe.com/test_14AbJ15EXbYz1S5bvn3oA01",
-    // Deixe vazio por enquanto (os botões ficam desabilitados):
+    // Deixa vazio por enquanto se ainda não criou:
     inter: "",
-    prem: "",
+    prem:  "",
   },
   live: {
-    // 🔜 quando criar os links live (modo produção), cole aqui:
-    basic: "https://buy.stripe.com/xxxBASICO",
-    inter: "https://buy.stripe.com/xxxINTER",
-    prem:  "https://buy.stripe.com/xxxPREM",
+    // Quando criar os links LIVE, cole aqui:
+    basic: "",
+    inter: "",
+    prem:  "",
   },
 };
+
+// Pega o link certo conforme o ambiente atual
 const getLink = (key) => (isProd ? LINKS.live[key] : LINKS.test[key]) || "";
 
 /**
