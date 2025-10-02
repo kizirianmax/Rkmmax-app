@@ -1,139 +1,207 @@
+// src/pages/PlansScreen.jsx
 import React, { useMemo, useState } from "react";
 
-const detectRegion = () => {
+/** Detecta região pelo locale do navegador */
+function detectRegion() {
   try {
-    const locale = Intl.DateTimeFormat().resolvedOptions().locale || "pt-BR";
-    return locale.toLowerCase().includes("pt") || locale.toLowerCase().includes("br") ? "BR" : "US";
+    const loc = (Intl.DateTimeFormat().resolvedOptions().locale || "pt-BR").toLowerCase();
+    return loc.includes("pt") || loc.includes("br") ? "BR" : "US";
   } catch {
     return "BR";
   }
-};
+}
 
+/** Payment Links (fallback) e rótulos por plano/região */
 const PLANS = {
   BR: [
-    {
-      planKey: "free",
-      icon: "🌿",
-      name: "Gratuito",
-      price: "R$0/mês",
-      features: [
-        "10 mensagens/dia (GPT-4.0 mini)",
-        "Ganhe mensagens extras assistindo anúncios",
-      ],
-      cta: "Começar grátis",
-      btnClass: "btn btn-free",
-      type: "free",
-    },
     {
       planKey: "basic_br",
       icon: "🔹",
       name: "Básico",
-      price: "R$14,90/mês",
-      features: ["GPT-5 Nano (~275k tokens/dia)", "Acesso a todos os agentes", "Suporte básico"],
+      price: "R$ 14,90/mês",
+      features: [
+        "Essenciais ilimitados",
+        "Acesso ao orquestrador",
+        "Suporte básico",
+      ],
+      payLink: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i", // Payment Link BR básico
+      priceId: null, // se quiser usar /api/checkout por price_id
       cta: "Assinar Básico",
-      btnClass: "btn btn-basic",
-      type: "paid",
     },
     {
       planKey: "inter_br",
       icon: "⚡",
       name: "Intermediário",
-      price: "R$29,90/mês",
-      features: ["GPT-4.1 Mini com voz (~410k tokens/dia)", "Todos os agentes liberados", "Bloqueio diário automático"],
+      price: "R$ 50,00/mês",
+      features: [
+        "Recursos avançados + voz",
+        "Limites diários maiores",
+        "Suporte via chat",
+      ],
+      payLink: "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a", // Payment Link BR intermediário
+      priceId: null,
       cta: "Assinar Intermediário",
-      btnClass: "btn btn-intermediate",
-      type: "paid",
     },
     {
       planKey: "prem_br",
       icon: "💎",
       name: "Premium",
-      price: "R$90,00/mês",
-      features: ["GPT-5 Standard + GPT-4.1 Mini", "~710k tokens/mês + ~1.2M tokens/dia", "Todos os agentes liberados", "Suporte prioritário"],
+      price: "R$ 90,00/mês",
+      features: [
+        "GPT-5 Standard + GPT-4.1 Mini",
+        "12 especialistas + Orquestrador",
+        "Prioridade máxima de suporte",
+      ],
+      payLink: "https://buy.stripe.com/00w6oHaZhfaLcwJczr3oA0c", // Payment Link BR premium
+      priceId: "price_1S7TM1ENxlkCT0yfGHMGJ9Rh", // opcional para /api/checkout
       cta: "Assinar Premium",
-      btnClass: "btn btn-premium",
-      type: "paid",
     },
   ],
   US: [
-    { planKey: "free", icon: "🌿", name: "Free", price: "$0/mo", features: ["10 messages/day (GPT-4.0 mini)", "Earn extra messages watching ads"], cta: "Start free", btnClass: "btn btn-free", type: "free" },
-    { planKey: "basic_us", icon: "🔹", name: "Basic", price: "$2.99/mo", features: ["GPT-5 Nano", "All agents", "Basic support"], cta: "Subscribe Basic", btnClass: "btn btn-basic", type: "paid" },
-    { planKey: "inter_us", icon: "⚡", name: "Intermediate", price: "$4.99/mo", features: ["GPT-4.1 Mini (voice)", "All agents unlocked", "Auto daily lock"], cta: "Subscribe Intermediate", btnClass: "btn btn-intermediate", type: "paid" },
-    { planKey: "prem_us", icon: "💎", name: "Premium", price: "$12.99/mo", features: ["GPT-5 Standard + GPT-4.1 Mini", "~710k tokens/mo + ~1.2M tokens/day", "All agents unlocked", "Priority support"], cta: "Subscribe Premium", btnClass: "btn btn-premium", type: "paid" },
+    {
+      planKey: "basic_us",
+      icon: "🔹",
+      name: "Basic",
+      price: "$10/month",
+      features: ["Core features", "Orchestrator access", "Basic support"],
+      payLink: "https://buy.stripe.com/00w14naZh0fR1S51UN3oA09",
+      priceId: null,
+      cta: "Subscribe Basic",
+    },
+    {
+      planKey: "inter_us",
+      icon: "⚡",
+      name: "Intermediate",
+      price: "$20/month",
+      features: ["Advanced + voice", "Higher daily limits", "Chat support"],
+      payLink: "https://buy.stripe.com/3c14gZebt8MmgM2ZXR3oAg",
+      priceId: null,
+      cta: "Subscribe Intermediate",
+    },
+    {
+      planKey: "prem_us",
+      icon: "💎",
+      name: "Premium",
+      price: "$30/month",
+      features: ["GPT-5 Std + GPT-4.1 Mini", "All specialists", "Priority support"],
+      payLink: "", // TODO: adicione quando criar o Payment Link US
+      priceId: null,
+      cta: "Subscribe Premium",
+    },
   ],
 };
 
 export default function PlansScreen() {
-  const [loading, setLoading] = useState(null);
   const region = useMemo(detectRegion, []);
+  const [loading, setLoading] = useState("");
   const plans = PLANS[region] || PLANS.BR;
 
-  const handleFree = () => {
-    alert(region === "BR" ? "Plano Gratuito ativado!" : "Free plan activated!");
-    // opcional: salvar preferência no Supabase/localStorage aqui
-  };
-
-  const startCheckout = async (planKey) => {
+  async function startCheckout(plan) {
     try {
-      setLoading(planKey);
-      const res = await fetch("/.netlify/functions/checkout", {
+      setLoading(plan.planKey);
+
+      // 1) tenta via API da Vercel (se você tiver /api/checkout configurado)
+      const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planKey, region }),
-      });
-      if (!res.ok) throw new Error("Checkout function error");
-      const { url } = await res.json();
-      if (!url) throw new Error("No URL returned");
-      window.location.href = url;
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao iniciar checkout. Verifique sua configuração do Stripe/Netlify.");
+        body: JSON.stringify({
+          planKey: plan.planKey,
+          region,
+          priceId: plan.priceId, // use se seu backend aceitar price_id
+        }),
+      }).catch(() => null);
+
+      if (res && res.ok) {
+        const { url } = await res.json();
+        if (url) {
+          window.location.href = url;
+          return;
+        }
+      }
+
+      // 2) fallback: Payment Link
+      if (plan.payLink) {
+        window.location.href = plan.payLink;
+        return;
+      }
+
+      alert("Link de pagamento ainda não configurado para este plano.");
+    } catch (e) {
+      console.error(e);
+      alert("Não foi possível iniciar o checkout agora.");
     } finally {
-      setLoading(null);
+      setLoading("");
     }
-  };
+  }
 
   return (
-    <main className="container">
-      <header className="section-header">
-        <h1 className="title-xl">Escolha seu Plano <span className="brand">RKMMax</span> 🚀</h1>
-        <p className="muted">Região detectada: <strong>{region}</strong></p>
+    <main className="container" style={{ maxWidth: 980, margin: "40px auto", padding: 16 }}>
+      <header style={{ marginBottom: 24 }}>
+        <h1 style={{ margin: 0 }}>Escolha seu Plano</h1>
+        <p style={{ opacity: 0.8, margin: "8px 0 0" }}>
+          Região detectada: <b>{region}</b>
+        </p>
       </header>
 
-      <section className="plans-grid">
+      <section
+        className="plans-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: 16,
+        }}
+      >
         {plans.map((p) => (
-          <article key={p.planKey} className="card plan-card" aria-label={`Plano ${p.name}`}>
-            <div className="plan-head">
-              <div className="plan-icon" aria-hidden>{p.icon}</div>
-              <h2 className="plan-title">{p.name}</h2>
-              <div className="plan-price">{p.price}</div>
+          <article
+            key={p.planKey}
+            className="card plan-card"
+            style={{
+              border: "1px solid #e7e7e7",
+              borderRadius: 12,
+              padding: 16,
+              boxShadow: "0 2px 10px rgba(0,0,0,.04)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }} aria-hidden>
+                {p.icon}
+              </span>
+              <h2 style={{ margin: 0 }}>{p.name}</h2>
             </div>
 
-            <ul className="plan-features">
-              {p.features.map((f, i) => <li key={i} className="feature">✔ {f}</li>)}
+            <div style={{ fontSize: 18, marginTop: 8 }}>{p.price}</div>
+
+            <ul style={{ marginTop: 12, paddingLeft: 18 }}>
+              {p.features.map((f, i) => (
+                <li key={i}>✔ {f}</li>
+              ))}
             </ul>
 
-            {p.type === "free" ? (
-              <button className={p.btnClass} onClick={handleFree} aria-label={`${p.cta} (plano gratuito)`}>
-                {p.cta}
-              </button>
-            ) : (
-              <button
-                className={p.btnClass}
-                onClick={() => startCheckout(p.planKey)}
-                disabled={loading === p.planKey}
-                aria-busy={loading === p.planKey}
-                aria-label={`${p.cta} — ${p.price}`}
-              >
-                {loading === p.planKey ? "Redirecionando..." : p.cta}
-              </button>
-            )}
+            <button
+              onClick={() => startCheckout(p)}
+              disabled={loading === p.planKey}
+              aria-busy={loading === p.planKey}
+              style={{
+                marginTop: 12,
+                width: "100%",
+                padding: "10px 14px",
+                borderRadius: 10,
+                border: "none",
+                background:
+                  p.planKey.includes("prem") ? "#6e2cf4" : p.planKey.includes("inter") ? "#4f8cff" : "#2eb88a",
+                color: "white",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              {loading === p.planKey ? "Redirecionando..." : p.cta}
+            </button>
           </article>
         ))}
       </section>
 
-      <footer className="section-footer">
-        <small className="muted">© {new Date().getFullYear()} RKMMax — todos os direitos reservados.</small>
+      <footer style={{ marginTop: 24, opacity: 0.8 }}>
+        <small>© {new Date().getFullYear()} RKMMax</small>
       </footer>
     </main>
   );
