@@ -1,20 +1,18 @@
 // src/pages/Pricing.jsx
 import React, { useEffect, useState } from "react";
 
-/** Detecta ambiente (Vite/CRA/Next). */
-const metaEnv = (typeof import !== "undefined" && import.meta && import.meta.env) ? import.meta.env : {};
-const isProd = metaEnv.MODE === "production" || process.env.NODE_ENV === "production";
+/** Detecta ambiente sem usar `typeof import` (compatível com CRA/Vercel). */
+const viteEnv = (typeof import.meta !== "undefined" && import.meta.env) ? import.meta.env : undefined;
+const isProd = (viteEnv?.MODE === "production") || (process.env?.NODE_ENV === "production");
 
-/** Cole seus Payment Links aqui. */
+/** Payment Links da Stripe */
 const LINKS = {
   test: {
-    // ✅ seu link de teste do Básico
-    basic: "https://buy.stripe.com/test_14AbJ15EXbYz1S5bvn3oA01",
-    inter: "", // (opcional) crie depois
-    prem:  "", // (opcional) crie depois
+    basic: "https://buy.stripe.com/test_14AbJ15EXbYz1S5bvn3oA01", // seu link de teste
+    inter: "",
+    prem:  "",
   },
   live: {
-    // quando for para produção, cole os links live aqui
     basic: "",
     inter: "",
     prem:  "",
@@ -51,7 +49,7 @@ const PLANS = [
   },
 ];
 
-/** Cartão de plano */
+/** Card do Plano */
 function PlanCard({ plan }) {
   const enabled = Boolean(plan.link);
   return (
@@ -106,7 +104,7 @@ function PlanCard({ plan }) {
 export default function Pricing() {
   const [banner, setBanner] = useState(null);
 
-  // Lê ?success=1 ou ?canceled=1 quando volta do Stripe
+  // Lê ?success=1 ou ?canceled=1 ao voltar do Stripe
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
