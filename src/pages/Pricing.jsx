@@ -1,40 +1,28 @@
 // src/pages/Pricing.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-/**
- * Detecta ambiente (funciona em Vercel/Next, Vite e CRA).
- * Em produção, NODE_ENV = "production".
- */
-const isProd =
-  (typeof process !== "undefined" && process.env && process.env.NODE_ENV === "production");
+/** Detecta ambiente (Vite/CRA/Next). */
+const metaEnv = (typeof import !== "undefined" && import.meta && import.meta.env) ? import.meta.env : {};
+const isProd = metaEnv.MODE === "production" || process.env.NODE_ENV === "production";
 
-/**
- * Cole aqui seus Payment Links do Stripe.
- * - Em desenvolvimento, use os links que começam com /test_
- * - Em produção, use os links live (sem /test_)
- */
+/** Cole seus Payment Links aqui. */
 const LINKS = {
   test: {
-    // >>> Seu link de TESTE (Básico) já colocado:
+    // ✅ seu link de teste do Básico
     basic: "https://buy.stripe.com/test_14AbJ15EXbYz1S5bvn3oA01",
-    // Deixa vazio por enquanto se ainda não criou:
-    inter: "",
-    prem:  "",
+    inter: "", // (opcional) crie depois
+    prem:  "", // (opcional) crie depois
   },
   live: {
-    // Quando criar os links LIVE, cole aqui:
+    // quando for para produção, cole os links live aqui
     basic: "",
     inter: "",
     prem:  "",
   },
 };
-
-// Pega o link certo conforme o ambiente atual
 const getLink = (key) => (isProd ? LINKS.live[key] : LINKS.test[key]) || "";
 
-/**
- * Planos — ajuste textos/benefícios à vontade.
- */
+/** Planos */
 const PLANS = [
   {
     key: "basic",
@@ -63,12 +51,9 @@ const PLANS = [
   },
 ];
 
-/**
- * Cartão de plano
- */
+/** Cartão de plano */
 function PlanCard({ plan }) {
   const enabled = Boolean(plan.link);
-
   return (
     <article
       className={[
@@ -117,10 +102,21 @@ function PlanCard({ plan }) {
   );
 }
 
-/**
- * Página de preços
- */
+/** Página de preços */
 export default function Pricing() {
+  const [banner, setBanner] = useState(null);
+
+  // Lê ?success=1 ou ?canceled=1 quando volta do Stripe
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "1") {
+      setBanner({ type: "success", text: "Pagamento confirmado! (modo de teste). Você receberá o e-mail da Stripe." });
+    } else if (params.get("canceled") === "1") {
+      setBanner({ type: "warn", text: "Pagamento cancelado. Tente novamente quando quiser." });
+    }
+  }, []);
+
   return (
     <main className="min-h-screen bg-gray-950 text-white">
       <section className="w-full max-w-6xl mx-auto px-4 py-10 md:py-14">
@@ -138,9 +134,23 @@ export default function Pricing() {
         </div>
 
         {!isProd && (
-          <div className="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-200 px-4 py-3 text-sm">
+          <div className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-200 px-4 py-3 text-sm">
             Modo de <strong>teste</strong> ativo. Use links do Stripe que começam com <code>/test_</code>.
             Em produção, troque por links <em>live</em> no topo deste arquivo.
+          </div>
+        )}
+
+        {banner && (
+          <div
+            className={[
+              "mb-6 rounded-xl px-4 py-3 text-sm flex items-start justify-between gap-4",
+              banner.type === "success"
+                ? "bg-emerald-600/15 border border-emerald-500/40 text-emerald-200"
+                : "bg-amber-600/15 border border-amber-500/40 text-amber-200",
+            ].join(" ")}
+          >
+            <span>{banner.text}</span>
+            <button onClick={() => setBanner(null)} className="opacity-70 hover:opacity-100">✕</button>
           </div>
         )}
 
