@@ -6,8 +6,12 @@ import React from "react";
  * Em dev: import.meta.env.MODE === "development"
  * Em prod: "production"
  */
-const metaEnv = (typeof import !== "undefined" && import.meta && import.meta.env) ? import.meta.env : {};
-const isProd = metaEnv.MODE === "production" || process.env.NODE_ENV === "production";
+const metaEnv =
+  typeof import !== "undefined" && import.meta && import.meta.env
+    ? import.meta.env
+    : {};
+const isProd =
+  metaEnv.MODE === "production" || process.env.NODE_ENV === "production";
 
 /**
  * Cole aqui seus Payment Links do Stripe.
@@ -16,14 +20,17 @@ const isProd = metaEnv.MODE === "production" || process.env.NODE_ENV === "produc
  */
 const LINKS = {
   test: {
-    basic: "https://buy.stripe.com/test_xxxBASICO", // <-- SUBSTITUA
-    inter: "https://buy.stripe.com/test_xxxINTER",  // <-- SUBSTITUA
-    prem:  "https://buy.stripe.com/test_xxxPREM",   // <-- SUBSTITUA
+    // ✅ seu link de teste do plano Básico:
+    basic: "https://buy.stripe.com/test_14AbJ15EXbYz1S5bvn3oA01",
+    // Deixe vazio por enquanto (os botões ficam desabilitados):
+    inter: "",
+    prem: "",
   },
   live: {
-    basic: "https://buy.stripe.com/xxxBASICO",      // <-- SUBSTITUA
-    inter: "https://buy.stripe.com/xxxINTER",       // <-- SUBSTITUA
-    prem:  "https://buy.stripe.com/xxxPREM",        // <-- SUBSTITUA
+    // 🔜 quando criar os links live (modo produção), cole aqui:
+    basic: "https://buy.stripe.com/xxxBASICO",
+    inter: "https://buy.stripe.com/xxxINTER",
+    prem:  "https://buy.stripe.com/xxxPREM",
   },
 };
 const getLink = (key) => (isProd ? LINKS.live[key] : LINKS.test[key]) || "";
