@@ -1,31 +1,32 @@
 // src/pages/Pricing.jsx
 import React from "react";
 
-// CRA/Next define NODE_ENV. Mas vamos escolher TESTE vs LIVE
-// com base em "existem links LIVE preenchidos?" para evitar
-// "Indisponível" quando ainda não tem LIVE.
+// Ambiente: CRA injeta NODE_ENV no build
+const isProd = process.env.NODE_ENV === "production";
+
+/**
+ * Payment Links do Stripe
+ * - TESTE usa LINKS.test
+ * - PRODUÇÃO usa LINKS.live
+ */
 const LINKS = {
   test: {
     basic: "https://buy.stripe.com/test_14AbJ15EXbYz1S5bvn3oA01",
-    inter: "https://buy.stripe.com/test_dRmaEX0kD1jVgMZ2YR3oA02",
-    prem:  null, // coloque o TESTE do Premium quando criar
+    inter: "https://buy.stripe.com/test_dRmaEX0kD1jVgMZ2YR3oA02", // <— NOVO (Intermediário)
+    prem:  null,                                                // ainda indisponível
   },
   live: {
-    basic: "",   // cole aqui quando tiver o link LIVE
-    inter: "",   // idem
-    prem:  "",   // idem
+    basic: "",  // cole aqui quando tiver os links LIVE
+    inter: "",
+    prem:  "",
   },
 };
 
-// Se tiver pelo menos 1 link LIVE preenchido (https), usamos LIVE.
-// Caso contrário, usamos TESTE (mesmo no build de produção).
-const usingLive = Object.values(LINKS.live).some(
-  (v) => typeof v === "string" && v.startsWith("https://")
-);
-const ENV_LINKS = usingLive ? LINKS.live : LINKS.test;
-
-// Fallback: se o plano estiver vazio, usa o do Básico
-const getLink = (key) => ENV_LINKS[key] || ENV_LINKS.basic || "";
+// sem fallback: só habilita o botão se o plano tiver link próprio
+const getLink = (key) => {
+  const env = isProd ? LINKS.live : LINKS.test;
+  return env[key] || "";
+};
 
 const PLANS = [
   {
@@ -42,7 +43,7 @@ const PLANS = [
     price: "R$ 50,00/mês",
     description: "Funções avançadas, voz (Whisper + TTS) e limites maiores.",
     features: ["Tudo do Básico", "Mais tokens/dia", "Whisper + TTS", "Suporte prioritário"],
-    link: getLink("inter"),
+    link: getLink("inter"), // agora aponta pro link de teste acima
   },
   {
     key: "prem",
@@ -50,7 +51,7 @@ const PLANS = [
     price: "R$ 90,00/mês",
     description: "Acesso total, priorização máxima e todos os especialistas.",
     features: ["Tudo do Intermediário", "GPT-5 + 4.1 Mini", "12 especialistas + Orquestrador", "Suporte 24/7"],
-    link: getLink("prem"),
+    link: getLink("prem"), // continua indisponível
   },
 ];
 
@@ -98,17 +99,16 @@ export default function Pricing() {
           borderRadius:999,
           fontWeight:800,
           border:'1px solid',
-          borderColor: usingLive ? '#059669' : '#d97706',
-          color: usingLive ? '#059669' : '#d97706'
+          borderColor: isProd ? '#059669' : '#d97706',
+          color: isProd ? '#059669' : '#d97706'
         }}>
-          {usingLive ? "PRODUÇÃO" : "TESTE"}
+          {isProd ? "PRODUÇÃO" : "TESTE"}
         </span>
       </div>
 
-      {!usingLive && (
+      {!isProd && (
         <div style={{marginBottom:16, padding:12, border:'1px solid #d97706', borderRadius:12}}>
-          Modo de <strong>teste</strong> ativo. Os botões usam Payment Links <strong>TESTE</strong>
-          até você colar os links <em>LIVE</em> no topo deste arquivo.
+          Modo de <strong>teste</strong> ativo.
         </div>
       )}
 
