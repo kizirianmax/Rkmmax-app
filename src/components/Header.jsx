@@ -7,13 +7,16 @@ export default function Header() {
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 480px)");
-    const handler = (e) => setIsSmall(e.matches);
-    if (mq.addEventListener) mq.addEventListener("change", handler);
-    else mq.addListener(handler);
+    const onChange = (e) => setIsSmall(e.matches);
+
+    // compat entre browsers
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else mq.addListener(onChange);
+
     setIsSmall(mq.matches);
     return () => {
-      if (mq.removeEventListener) mq.removeEventListener("change", handler);
-      else mq.removeListener(handler);
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange);
+      else mq.removeListener(onChange);
     };
   }, []);
 
@@ -27,6 +30,7 @@ export default function Header() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        gap: 12,
       }}
     >
       <Link
@@ -35,7 +39,9 @@ export default function Header() {
           fontWeight: 800,
           textDecoration: "none",
           color: "#111",
-          whiteSpace: "nowrap", // evita quebra
+          whiteSpace: "nowrap",       // não quebrar
+          overflow: "hidden",          // se ficar apertado
+          textOverflow: "ellipsis",    // usa reticências
         }}
         aria-label={BRAND.lockup}
         title={BRAND.lockup}
