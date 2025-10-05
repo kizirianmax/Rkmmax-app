@@ -1,8 +1,7 @@
-# RKMMAX App
+# RKMMax App
 
-Aplicação web do **RKMMAX Infinity — Matrix/Study**.  
-Frontend em **React (Create React App)** hospedado na **Vercel**.  
-Funções serverless (billing/uso/webhooks) atualmente na **Netlify**.
+Aplicação web do **RKMMax Infinity | Matrix/Study** (React + Vercel), com billing via **Stripe** e dados no **Supabase**.  
+Back-end leve em **Netlify Functions** (webhooks e utilidades).
 
 ---
 
@@ -15,14 +14,16 @@ Funções serverless (billing/uso/webhooks) atualmente na **Netlify**.
 
 ## Como rodar localmente
 
-> Pré-requisitos: Node 18+ e npm
+> Pré-requisitos: Node 18+ e npm.
 
 ```bash
 # 1) Dependências
 npm install
 
 # 2) Variáveis de ambiente
-# (crie .env.local na raiz — veja a seção "Variáveis" abaixo)
+# Crie um arquivo .env.local na raiz com:
+# REACT_APP_SUPABASE_URL=coloque_a_url_do_seu_projeto
+# REACT_APP_SUPABASE_ANON_KEY=coloque_a_sua_anon_key
 
 # 3) Subir o app
 npm start
