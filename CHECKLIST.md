@@ -1,5 +1,4 @@
 # ✅ Checklist Projeto RKMMax (Atualizado)
-
 Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
 
 ## 1) Infra / Deploy
@@ -14,8 +13,8 @@ Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
 
 ## 2) Stripe / Planos
 - ✅ src/config/plans.json (6 planos BR/US)
-- ✅ Payment Link – Premium BR criado e colado no `Subscribe.jsx`
-- ⏭️ Payment Link – Premium US (criar e colar no `Subscribe.jsx`)
+- ✅ Payment Link – Premium BR criado e colado no Subscribe.jsx
+- ⏭️ Payment Link – Premium US (criar e colar no Subscribe.jsx)
 - ⚠️ Webhooks: decidir migração (Vercel) ou manter Netlify
 - ⏭️ Testar checkout BR e depois US
 
@@ -66,3 +65,17 @@ Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
 - ✅ Premium → botão “Explorar Especialistas”
 - ⏭️ Marcar usuário Premium pós-compra
   - (por enquanto manual no Supabase; depois automatizar via webhook)
+
+## 11) Banco de Dados / Supabase
+- ✅ pgvector movido do schema `public` para `extensions` (verificado)
+- ✅ Auth (Email) fortalecida:
+  - Minimum password length: **8**
+  - Password requirements: **lowercase + UPPERCASE + dígitos + símbolos**
+  - Email OTP expiration: **600s** (10 min)
+  - Secure email change: **ON**
+- ✅ Reinício do Postgres (Project Settings → Restart database)
+- ✅ Security Advisor sem **Errors**
+- ⚠️ Avisos restantes (ok manter no Free):
+  - “Leaked Password Protection Disabled” → recurso **Pro**
+  - “Postgres version has security patches available” → informativo do provedor
+- ⏭️ RLS/Policies nas tabelas novas (`user_profiles`, `trusted_chunks`, `user_actions`/embeddings)
