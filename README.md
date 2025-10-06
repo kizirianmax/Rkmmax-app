@@ -1,17 +1,3 @@
-# RKMMax App
-
-Aplicação web do **RKMMax Infinity | Matrix/Study** (React + Vercel), com billing via **Stripe** e dados no **Supabase**.  
-Back-end leve em **Netlify Functions** (webhooks e utilidades).
-
----
-
-## Operação e Manutenção
-
-- Runbook rápido: **[MAINTENANCE.md](./MAINTENANCE.md)**
-- Progresso geral do projeto: **[CHECKLIST.md](./CHECKLIST.md)**
-
----
-
 ## Como rodar localmente
 
 > Pré-requisitos: Node 18+ e npm.
@@ -20,10 +6,18 @@ Back-end leve em **Netlify Functions** (webhooks e utilidades).
 # 1) Dependências
 npm install
 
-# 2) Variáveis de ambiente
-# Crie um arquivo .env.local na raiz com:
-# REACT_APP_SUPABASE_URL=coloque_a_url_do_seu_projeto
-# REACT_APP_SUPABASE_ANON_KEY=coloque_a_sua_anon_key
+# 2) Variáveis de ambiente (.env.local na raiz do projeto)
+
+# Supabase
+REACT_APP_SUPABASE_URL=coloque_a_url_do_seu_projeto
+REACT_APP_SUPABASE_ANON_KEY=coloque_a_sua_anon_key
+
+# Stripe – Payment Links (usados na tela /subscribe)
+REACT_APP_LINK_PREMIUM_BR=https://buy.stripe.com/SEU_LINK_PREMIUM_BR
+REACT_APP_LINK_PREMIUM_US=https://buy.stripe.com/SEU_LINK_PREMIUM_US
+
+# Região padrão mostrada na tela de assinatura (BR ou US)
+REACT_APP_REGION_DEFAULT=BR
 
 # 3) Subir o app
 npm start
