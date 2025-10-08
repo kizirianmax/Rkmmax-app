@@ -1,5 +1,5 @@
 // netlify/functions/guardAndBill.js
-import capsByPlan from "../../src/lib/planCaps.js";
+import { capsByPlan } from "../../src/lib/planCaps.js";
 
 /** ===== Armazenamento simples (em memória) =====
  * Em serverless reinicia às vezes. Para produção, troque por um storage
