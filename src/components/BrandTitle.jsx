@@ -1,14 +1,23 @@
+// src/components/BrandTitle.jsx
 import { useEffect } from "react";
 import { BRAND } from "../config/brand";
 
-/**
- * Atualiza o título da aba quando a Home carrega.
- * Ex.: "RKMMAX Infinity | Matrix/Study — Projetos de estudo com fontes verificadas"
- */
 export default function BrandTitle() {
   useEffect(() => {
+    if (typeof document === "undefined") return;
+
     const old = document.title;
-    document.title = `${BRAND.lockup} — Projetos de estudo com fontes verificadas`;
+
+    // monta o título usando lockup + claim, com fallback
+    const parts = [];
+    if (BRAND?.lockup) parts.push(BRAND.lockup);
+    if (BRAND?.claim) parts.push(BRAND.claim);
+    const next =
+      parts.join(" — ") || BRAND?.shortLockup || "RKMMAX";
+
+    document.title = next;
+
+    // restaura ao desmontar
     return () => {
       document.title = old;
     };
