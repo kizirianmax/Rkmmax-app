@@ -1,4 +1,4 @@
-# ✅ Checklist Projeto RKMMax (Atualizado)
+# ✅ Checklist Projeto RKMMax (Atualizado — 08/10/2025)
 Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
 
 ## 1) Infra / Deploy
@@ -7,9 +7,11 @@ Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
 - ✅ Variáveis no Vercel:
   - REACT_APP_SUPABASE_URL
   - REACT_APP_SUPABASE_ANON_KEY
+  - (opcional p/ fallback) REACT_APP_BACKEND_PROVIDER=auto
+  - (opcional p/ fallback) REACT_APP_FUNCTIONS_BASE_URL=https://SEU_SITE.netlify.app
 - ✅ Deploy produção (rkmmax-app.vercel.app)
 - ⚠️ Conectar domínio custom no Vercel + SSL
-- ⚠️ README final (documentar env e fluxo)
+- ⚠️ README final (documentar env, fluxo, segurança)
 
 ## 2) Stripe / Planos
 - ✅ src/config/plans.json (6 planos BR/US)
@@ -20,8 +22,10 @@ Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
 
 ## 3) Controle de uso / Billing interno
 - ✅ netlify/functions/_usage.js
-- ✅ netlify/functions/guardAndBill.js (limites diário/mensal)
-- ✅ netlify/functions/chat.js (seleção de modelo + billing)
+- ✅ netlify/functions/guardAndBill.js (limites diário/mensal) — **imports corrigidos**
+- ✅ netlify/functions/chat.js (seleção de modelo + billing) — **imports corrigidos**
+- ✅ src/lib/planCaps.js **unificado** (PLAN, LIMITS, FEATURES, capsByPlan) — **export default + nomeado**
+- ⏭️ (se usar) webhook Stripe para marcar Premium automático
 
 ## 4) Utilidades / Outros
 - ✅ netlify/functions/cors.js
@@ -67,7 +71,7 @@ Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
   - (por enquanto manual no Supabase; depois automatizar via webhook)
 
 ## 11) Banco de Dados / Supabase
-- ✅ pgvector movido do schema `public` para `extensions` (verificado)
+- ✅ pgvector movido do schema `public` → `extensions` (verificado)
 - ✅ Auth (Email) fortalecida:
   - Minimum password length: **8**
   - Password requirements: **lowercase + UPPERCASE + dígitos + símbolos**
@@ -79,3 +83,10 @@ Legendas: ✅ feito | ⚠️ pendente | ⏭️ próximo
   - “Leaked Password Protection Disabled” → recurso **Pro**
   - “Postgres version has security patches available” → informativo do provedor
 - ⏭️ RLS/Policies nas tabelas novas (`user_profiles`, `trusted_chunks`, `user_actions`/embeddings)
+
+## 12) Integração Vercel ↔ Netlify (frontend chama funções)
+- ✅ Criado `src/lib/fnClient.js` (fallback: Vercel `/api` → Netlify `/.netlify/functions`)
+- ⏭️ **Passo 2**: trocar `fetch('/.netlify/functions/...')` por `callFn('/...')` nos arquivos do **frontend**
+- (opcional) ⚠️ Criar `src/patchNetlifyFetch.js` e importar em `src/index.js` para interceptar automaticamente chamadas antigas
+- ✅ Deploys automáticos no Netlify (cada push na `main` publica)
+- ✅ Último deploy **Published** (imports corrigidos)
