@@ -1,40 +1,38 @@
-// src/ErrorBoundary.jsx
-import React from "react";
+import React from 'react';
 
 export default class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { error: null };
-  }
+  state = { error: null };
 
   static getDerivedStateFromError(error) {
     return { error };
   }
 
   componentDidCatch(error, info) {
-    console.error("ErrorBoundary capturou um erro:", error, info);
+    console.error('App error:', error, info);
   }
 
   render() {
-    if (this.state.error) {
+    const { error } = this.state;
+    if (error) {
+      const isDebug =
+        typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).has('debug');
+
+      if (isDebug) {
+        return (
+          <div style={{ maxWidth: 800, margin: '40px auto', padding: 16 }}>
+            <h2>Algo deu errado</h2>
+            <pre>{String(error?.message || error)}</pre>
+          </div>
+        );
+      }
       return (
-        <div
-          style={{
-            padding: 24,
-            background: "#ffe6e6",
-            border: "2px solid #ff4d4f",
-            borderRadius: 12,
-            margin: 24,
-            fontFamily: "Arial, sans-serif",
-            color: "#a8071a",
-          }}
-        >
-          <h2>⚠️ Algo deu errado</h2>
+        <div style={{ maxWidth: 800, margin: '40px auto', padding: 16 }}>
+          <h2>Algo deu errado</h2>
           <p>Tente atualizar a página ou voltar mais tarde.</p>
         </div>
       );
     }
-
     return this.props.children;
   }
 }
