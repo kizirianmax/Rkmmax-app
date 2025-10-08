@@ -1,20 +1,24 @@
 // src/patchNetlifyFetch.js
-if (typeof window !== 'undefined') {
-  const originalFetch = window.fetch;
+// Só reescreve para /api/* quando estiver rodando no Vercel.
+// Na Netlify mantém /.netlify/functions/* como está.
 
-  const isNF = (u) => typeof u === 'string' && u.startsWith('/.netlify/functions/');
+(function () {
+  if (typeof window === 'undefined' || typeof window.fetch !== 'function') return;
 
-  window.fetch = async (input, init) => {
-    if (!isNF(input)) return originalFetch(input, init);
+  const isVercel = /vercel\.app$/.test(window.location.hostname);
+  if (!isVercel) {
+    // Estamos na Netlify → não faz nada
+    return;
+  }
 
-    // 1) Tenta Netlify (seu caso atual)
-    try {
-      const res = await originalFetch(input, init);
-      if (res && res.status !== 404) return res;
-    } catch (_) {}
+  const PREFIX = '/.netlify/functions/';
+  const originalFetch = window.fetch.bind(window);
 
-    // 2) Fallback p/ Vercel (se um dia mudar)
-    const vercelPath = input.replace('/.netlify/functions', '/api');
-    return originalFetch(vercelPath, init);
+  window.fetch = (input, init) => {
+    if (typeof input === 'string' && input.startsWith(PREFIX)) {
+      const fn = input.slice(PREFIX.length); // ex.: 'status', 'chat'
+      return originalFetch(`/api/${fn}`, init);
+    }
+    return originalFetch(input, init);
   };
-}
+})();
