@@ -1,14 +1,20 @@
 // src/patchNetlifyFetch.js
-import { callFn } from './lib/fnClient';
-
-if (typeof window !== 'undefined') {        // ✅ proteção
+if (typeof window !== 'undefined') {
   const originalFetch = window.fetch;
 
+  const isNF = (u) => typeof u === 'string' && u.startsWith('/.netlify/functions/');
+
   window.fetch = async (input, init) => {
-    if (typeof input === 'string' && input.startsWith('/.netlify/functions/')) {
-      const path = input.replace('/.netlify/functions', ''); // vira '/status', '/chat', etc.
-      return await callFn(path, init);
-    }
-    return originalFetch(input, init);
+    if (!isNF(input)) return originalFetch(input, init);
+
+    // 1) Tenta Netlify (seu caso atual)
+    try {
+      const res = await originalFetch(input, init);
+      if (res && res.status !== 404) return res;
+    } catch (_) {}
+
+    // 2) Fallback p/ Vercel (se um dia mudar)
+    const vercelPath = input.replace('/.netlify/functions', '/api');
+    return originalFetch(vercelPath, init);
   };
 }
