@@ -1,32 +1,44 @@
-# MAINTENANCE — RKMMax
+# MAINTENANCE — RKMMax (Atualizado)
 
-> Runbook de operação e manutenção (5–10 min por dia).
+> Runbook de operação e manutenção (5–10 min/dia).  
+> **Fonte de verdade:** repositório GitHub (`main`). Deploy 100% no **Netlify**.
 
 ## 0) Visão geral
-- Frontend: React (CRA) no Vercel.
-- Functions: Netlify (`/netlify/functions/*`).
-- Billing: Stripe (Payment Links + Webhooks futuros).
-- Banco: Supabase.
+- **Frontend:** React (CRA) no **Netlify**.
+- **Serverless Functions:** **Netlify** (`/netlify/functions/*`).
+- **Billing:** Stripe (checkout em `/.netlify/functions/checkout`; webhooks futuros).
+- **Banco:** Supabase.
 
 ## 1) Rotina rápida (diária)
-- ✅ Vercel > Deploys: tudo verde? Último deploy é o esperado?
-- ✅ Netlify > Functions: erros nas funções `_usage`, `guardAndBill`, `chat`?
-- ✅ Stripe > Payments/Webhooks: pagamentos falhando?
-- ✅ Supabase > Tabelas: usuários novos / flag de plano correta?
+- ✅ Netlify → Deploys: último deploy verde no `main`.
+- ✅ Netlify → Functions logs: `_usage`, `guardAndBill`, `chat`, `checkout`, `status`.
+- ✅ Stripe → Payments / Logs (Live/Test).
+- ✅ Supabase → usuários novos e flag de plano (por enquanto manual).
 
-## 2) Ambientes / Variáveis
-- **Vercel (.env)**
-  - `REACT_APP_SUPABASE_URL`
-  - `REACT_APP_SUPABASE_ANON_KEY`
-- **Stripe**
-  - Payment Links colados em `src/components/Subscribe.jsx`
-  - (futuro) Webhook secret no provedor escolhido (Vercel ou Netlify)
-- **Netlify**
-  - Configure variáveis se migrar as functions para lá/usar webhooks.
+## 2) Variáveis (Netlify → Site settings → Environment variables)
+Frontend:
+- `REACT_APP_SUPABASE_URL`
+- `REACT_APP_SUPABASE_ANON_KEY`
+
+Functions:
+- `STRIPE_SECRET_KEY_RKMMAX`
+- `STRIPE_WEBHOOK_SECRET` *(quando ativar webhook)*
+- `OPENAI_API_KEY` *(se usado em `chat.js`)*
+
+Obs.: `SITE_URL`/`URL` o Netlify injeta em produção (usado em `checkout.js`).  
+Após mudar envs → **trigger deploy**.
 
 ## 3) Deploy
-- Deploy automático ao fazer commit no `main` (Vercel).
-- Para testar local:  
-  ```bash
-  npm install
-  npm start
+- Automático ao commitar em `main`.
+- Build (CRA):
+  - **Command:** `npm run build`
+  - **Publish directory:** `build`
+  - **Functions:** `netlify/functions`
+- SPA redirect: `public/_redirects` com `/*  /index.html  200`.
+
+### Local
+```bash
+npm install
+npm start
+# ou:
+# netlify dev   # precisa do Netlify CLI
