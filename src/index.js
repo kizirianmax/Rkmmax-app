@@ -1,16 +1,20 @@
 import './patchNetlifyFetch';
-// src/index.js
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import ErrorBoundary from "./ErrorBoundary";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import ErrorBoundary from './ErrorBoundary';
 
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+const container = document.getElementById('root');
+if (!container) {
+  console.error('Elemento #root não encontrado');
+} else {
+  const root = ReactDOM.createRoot(container);
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+}
