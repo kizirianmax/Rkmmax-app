@@ -1,7 +1,6 @@
 // netlify/functions/checkout.js
 import Stripe from "stripe";
 
-// use a sua env no Netlify (Settings → Environment variables)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY_RKMMAX, {
   apiVersion: "2024-06-20",
 });
@@ -17,7 +16,6 @@ export async function handler(event) {
       return { statusCode: 400, body: "Missing lookupKey" };
     }
 
-    // Busca o preço pelo lookup_key (ativo)
     const prices = await stripe.prices.list({
       lookup_keys: [lookupKey],
       active: true,
@@ -30,12 +28,12 @@ export async function handler(event) {
       return { statusCode: 404, body: "Price not found for lookupKey" };
     }
 
-    // URL do seu site (Netlify popula SITE_URL em produção; URL/DEPLOY_PRIME_URL em previews)
-    const site = process.env.SITE_URL || process.env.URL || "http://localhost:3000";
-    const successUrl = `${site}/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${site}/plans`;
+    const site =
+      process.env.SITE_URL || process.env.URL || "http://localhost:3000";
 
-    // Cria a sessão de checkout
+    const successUrl = `${site}/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${site}/pricing`; // <-- alterado aqui
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       billing_address_collection: "auto",
