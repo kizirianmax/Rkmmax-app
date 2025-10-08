@@ -1,12 +1,40 @@
+// src/App.jsx
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 
 import Header from "./components/Header";
 import BrandTitle from "./components/BrandTitle";
+import PlanGate from "./components/PlanGate";
 
 import Home from "./pages/Home";
 import AgentsPage from "./pages/Agents";
 import Pricing from "./pages/Pricing";
+
+// Página simples para o retorno do Stripe (/success)
+function CheckoutSuccess() {
+  return (
+    <div style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
+      <h2 style={{ fontSize: 22, marginBottom: 8 }}>Assinatura criada!</h2>
+      <p style={{ color: "#475569", marginBottom: 16 }}>
+        Obrigado pelo apoio. Seu acesso Premium foi ativado.
+      </p>
+      <Link
+        to="/agents"
+        style={{
+          display: "inline-block",
+          padding: "10px 16px",
+          background: "#06b6d4",
+          color: "#000",
+          borderRadius: 12,
+          fontWeight: 700,
+          textDecoration: "none",
+        }}
+      >
+        Acessar Especialistas
+      </Link>
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -21,11 +49,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
 
-        {/* Protegida por plano Premium */}
+        {/* Área Premium */}
         <Route
           path="/agents"
           element={
-            <PlanGate>
+            <PlanGate requirePlan="premium">
               <AgentsPage />
             </PlanGate>
           }
@@ -33,7 +61,11 @@ export default function App() {
 
         {/* Planos */}
         <Route path="/pricing" element={<Pricing />} />
-        <Route path="/plans" element={<Pricing />} />
+        {/* Mantém o alias antigo e redireciona */}
+        <Route path="/plans" element={<Navigate to="/pricing" replace />} />
+
+        {/* Sucesso do Stripe */}
+        <Route path="/success" element={<CheckoutSuccess />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
