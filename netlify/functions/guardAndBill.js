@@ -11,32 +11,32 @@ async function readCounter(key)  { return Number(mem.get(key) || 0); }
 async function writeCounter(key, value) { mem.set(key, String(value)); return true; }
 
 /** Helpers de chave por dia/mês (UTC) */
-function dayStampUTC()   { return new Date().toISOString().slice(0,10).replace(/-/g, ""); }       // YYYYMMDD
-function monthStampUTC() { return new Date().toISOString().slice(0,7).replace(/-/g, ""); }        // YYYYMM
-const reqKey     = (uid) => `reqs:${uid}:${dayStampUTC()}`;
-const dayTokKey  = (uid) => `toks:day:${uid}:${dayStampUTC()}`;
-const monTokKey  = (uid) => `toks:mon:${uid}:${monthStampUTC()}`;
+function dayStampUTC()   { return new Date().toISOString().slice(0,10).replace(/-/g, ""); } // YYYYMMDD
+function monthStampUTC() { return new Date().toISOString().slice(0,7).replace(/-/g, ""); }   // YYYYMM
+const reqKey    = (uid) => `reqs:${uid}:${dayStampUTC()}`;
+const dayTokKey = (uid) => `toks:day:${uid}:${dayStampUTC()}`;
+const monTokKey = (uid) => `toks:mon:${uid}:${monthStampUTC()}`;
 
 function ensureCaps(planKey) {
   const caps = capsByPlan?.[planKey];
   if (!caps) throw new Error(`Plano inválido: ${planKey}`);
   return {
-    dayReqs:  Number(caps.limit_requests_per_day || 0),
-    dayToks:  Number(caps.limit_tokens_per_day   || 0),
-    monToks:  Number(caps.limit_tokens_per_month || 0),
+    dayReqs: Number(caps.limit_requests_per_day || 0),
+    dayToks: Number(caps.limit_tokens_per_day   || 0),
+    monToks: Number(caps.limit_tokens_per_month || 0),
   };
 }
 
 /**
  * Checa limites e incrementa APENAS a contagem de requisições.
- * Retorna { bill(actualOutputTokens) } para você registrar os tokens APÓS o sucesso.
+ * Retorna { bill(actualOutputTokens) } para registrar tokens APÓS o sucesso.
  *
  * @param {Object} p
  * @param {{id:string}} p.user
- * @param {string} p.plan              ex.: "basic_br" | "intermediate_us"
- * @param {string} [p.model]           só informativo/logs
- * @param {number} p.promptSize        tokens do prompt
- * @param {number} [p.expectedOutputSize=800]  chute de saída para prever estouro
+ * @param {string} p.plan
+ * @param {string} [p.model]
+ * @param {number} p.promptSize
+ * @param {number} [p.expectedOutputSize=800]
  */
 export default async function guardAndBill(p) {
   const { user, plan, model, promptSize, expectedOutputSize = 800 } = p || {};
