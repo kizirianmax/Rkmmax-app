@@ -10,17 +10,24 @@ export default function usePlan() {
       setPlan("basic"); setLoading(false); return;
     }
 
-    const load = async () => {
-      const email = window.localStorage.getItem("user_email");
-      if (!email) { setPlan("basic"); setLoading(false); return; }
+    const ctrl = new AbortController();
 
+    const load = async () => {
+      const raw = window.localStorage.getItem("user_email");
+      if (!raw) { setPlan("basic"); setLoading(false); return; }
+
+      const email = raw.trim().toLowerCase();
       try {
         const res = await fetch("/api/me-plan", {
           headers: { "x-user-email": email },
+          signal: ctrl.signal,
         });
+        if (!res.ok) { setPlan("basic"); return; }
+
         const j = await res.json().catch(() => ({}));
         setPlan(j.plan || "basic");
       } catch {
+        if (ctrl.signal.aborted) return;
         setPlan("basic");
       } finally {
         setLoading(false);
@@ -30,10 +37,17 @@ export default function usePlan() {
     load();
 
     const onStorage = (e) => {
-      if (e.key === "user_email") load();
+      if (e.key === "user_email") {
+        setLoading(true);
+        load();
+      }
     };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+
+    return () => {
+      ctrl.abort();
+      window.removeEventListener("storage", onStorage);
+    };
   }, []);
 
   return { plan, loading };
