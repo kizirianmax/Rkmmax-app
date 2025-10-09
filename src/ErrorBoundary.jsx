@@ -7,10 +7,14 @@ export default class ErrorBoundary extends React.Component {
   static getDerivedStateFromError(error) {
     return { error };
   }
+
   componentDidCatch(error, info) {
-    // aparece no console também
     console.error("App crash:", error, info);
+    // TODO: enviar para Sentry/Logtail, se quiser.
   }
+
+  reset = () => this.setState({ error: null });
+  reload = () => typeof window !== "undefined" && window.location.reload();
 
   render() {
     const { error } = this.state;
@@ -23,12 +27,17 @@ export default class ErrorBoundary extends React.Component {
     return (
       <div style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
         <h1 style={{ marginBottom: 8 }}>Algo deu errado</h1>
+
         {!showDebug ? (
           <>
             <p>Tente atualizar a página.</p>
-            <p>
-              Para ver detalhes do erro, abra{" "}
-              <a href="?debug=1">esta página com ?debug=1</a>.
+            <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+              <button onClick={this.reset} style={btn}>Tentar novamente</button>
+              <a href="/" style={btnLink}>Ir para a Home</a>
+              <button onClick={this.reload} style={btn}>Recarregar</button>
+            </div>
+            <p style={{ marginTop: 12 }}>
+              Precisa de detalhes? <a href="?debug=1">abrir com ?debug=1</a>.
             </p>
           </>
         ) : (
@@ -49,3 +58,13 @@ export default class ErrorBoundary extends React.Component {
     );
   }
 }
+
+const btn = {
+  padding: "10px 14px",
+  borderRadius: 12,
+  border: "1px solid #ccc",
+  background: "#f2f2f2",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+const btnLink = { ...btn, background: "transparent", textDecoration: "none", display: "inline-block" };
