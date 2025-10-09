@@ -10,7 +10,7 @@ import Home from "./pages/Home";
 import AgentsPage from "./pages/Agents";
 import Pricing from "./pages/Pricing";
 
-// Página simples para o retorno do Stripe (/success)
+// página simples para retorno do Stripe (/success)
 function CheckoutSuccess() {
   return (
     <div style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
@@ -39,7 +39,7 @@ function CheckoutSuccess() {
 export default function App() {
   return (
     <BrowserRouter>
-      {/* Define o título da aba com base na marca */}
+      {/* Título da aba baseado na marca */}
       <BrandTitle />
 
       {/* Navegação */}
@@ -61,7 +61,7 @@ export default function App() {
 
         {/* Planos */}
         <Route path="/pricing" element={<Pricing />} />
-        {/* Mantém o alias antigo e redireciona */}
+        {/* alias antigo */}
         <Route path="/plans" element={<Navigate to="/pricing" replace />} />
 
         {/* Sucesso do Stripe */}
