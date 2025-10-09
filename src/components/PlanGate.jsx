@@ -3,7 +3,11 @@ import React from "react";
 import usePlan from "../hooks/usePlan";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 
-export default function PlanGate({ requirePlan = "premium", children, redirect = false }) {
+export default function PlanGate({
+  requirePlan = "premium",
+  children,
+  redirect = false,
+}) {
   const { plan, loading } = usePlan();
   const [params] = useSearchParams();
   const forceRedirect = redirect || params.get("redirect") === "1";
@@ -13,7 +17,7 @@ export default function PlanGate({ requirePlan = "premium", children, redirect =
   const ok = requirePlan === "premium" ? plan === "premium" : true;
   if (ok) return children;
 
-  if (forceRedirect) return <Navigate to="/pricing" replace />;
+  if (forceRedirect) return <Navigate to="/plans" replace />; // mantém a rota certa
 
   return (
     <div style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
@@ -22,7 +26,7 @@ export default function PlanGate({ requirePlan = "premium", children, redirect =
         Este conteúdo está disponível para assinantes do plano <strong>Premium</strong>.
       </p>
       <Link
-        to="/pricing"
+        to="/plans"
         style={{
           display: "inline-block",
           padding: "10px 16px",
