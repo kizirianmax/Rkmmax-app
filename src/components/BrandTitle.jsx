@@ -8,16 +8,16 @@ export default function BrandTitle() {
 
     const old = document.title;
 
-    // monta o título usando lockup + claim, com fallback
+    // Monta lockup + claim; se faltar algo, usa shortLockup ou um default
     const parts = [];
     if (BRAND?.lockup) parts.push(BRAND.lockup);
     if (BRAND?.claim) parts.push(BRAND.claim);
-    const next =
-      parts.join(" — ") || BRAND?.shortLockup || "RKMMAX";
+
+    const next = parts.join(" — ") || BRAND?.shortLockup || "RKMMAX";
 
     document.title = next;
 
-    // restaura ao desmontar
+    // Restaura ao desmontar
     return () => {
       document.title = old;
     };
