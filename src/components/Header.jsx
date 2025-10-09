@@ -17,9 +17,10 @@ export default function Header() {
       <Link
         to="/"
         style={{ fontWeight: 800, textDecoration: "none", color: "#111" }}
+        className="brand"
       >
-        <span className="hidden sm:inline">{BRAND.lockup}</span>
-        <span className="sm:hidden">{BRAND.shortLockup}</span>
+        <span className="brand-full">{BRAND.lockup}</span>
+        <span className="brand-short">{BRAND.shortLockup}</span>
       </Link>
 
       <nav style={{ display: "flex", gap: 12 }}>
