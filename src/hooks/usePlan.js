@@ -1,3 +1,4 @@
+// src/hooks/usePlan.js
 import { useEffect, useState } from "react";
 
 export default function usePlan() {
@@ -6,41 +7,33 @@ export default function usePlan() {
 
   useEffect(() => {
     if (typeof window === "undefined") {
-      setLoading(false);
-      return;
+      setPlan("basic"); setLoading(false); return;
     }
 
-    let cancelled = false;
-
     const load = async () => {
-      const email = window.localStorage.getItem("user_email") || "";
-      const headers = email ? { "x-user-email": email } : {};
+      const email = window.localStorage.getItem("user_email");
+      if (!email) { setPlan("basic"); setLoading(false); return; }
 
       try {
-        const res = await fetch("/api/me-plan", { method: "GET", headers });
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json().catch(() => ({}));
-        if (!cancelled) setPlan(data?.plan || "basic");
-      } catch (e) {
-        if (!cancelled) setPlan("basic");
+        const res = await fetch("/api/me-plan", {
+          headers: { "x-user-email": email },
+        });
+        const j = await res.json().catch(() => ({}));
+        setPlan(j.plan || "basic");
+      } catch {
+        setPlan("basic");
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
     };
 
     load();
 
     const onStorage = (e) => {
-      if (e.key === "user_email") {
-        setLoading(true);
-        load();
-      }
+      if (e.key === "user_email") load();
     };
     window.addEventListener("storage", onStorage);
-    return () => {
-      cancelled = true;
-      window.removeEventListener("storage", onStorage);
-    };
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   return { plan, loading };
