@@ -17,13 +17,12 @@ export default function Header() {
       <Link
         to="/"
         style={{ fontWeight: 800, textDecoration: "none", color: "#111" }}
-        className="brand"
       >
         <span className="brand-full">{BRAND.lockup}</span>
         <span className="brand-short">{BRAND.shortLockup}</span>
       </Link>
 
-      <nav style={{ display: "flex", gap: 12 }}>
+      <nav className="nav" style={{ display: "flex", gap: 12 }}>
         <NavLink to="/agents">Agentes</NavLink>
         <NavLink to="/plans">Planos</NavLink>
       </nav>
