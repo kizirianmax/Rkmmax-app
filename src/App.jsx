@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import Header from "./components/Header";
 import BrandTitle from "./components/BrandTitle";
 import PlanGate from "./components/PlanGate";
+import CrashSwitch from "./components/CrashSwitch"; // <-- TEMP: para testar ErrorBoundary
 
 import Home from "./pages/Home";
 import AgentsPage from "./pages/Agents";
@@ -41,6 +42,9 @@ export default function App() {
     <BrowserRouter>
       {/* Título da aba baseado na marca */}
       <BrandTitle />
+
+      {/* TEMP: força um crash quando acessar ?crash=1 (remover depois do teste) */}
+      <CrashSwitch />
 
       {/* Navegação */}
       <Header />
