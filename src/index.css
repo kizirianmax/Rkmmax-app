@@ -53,3 +53,11 @@ body {
   background: #eee;
   font-size: 0.9rem;
 }
+/* Responsivo do título da marca (sem Tailwind) */
+.brand-full { display: inline; }
+.brand-short { display: none; }
+
+@media (max-width: 640px) {
+  .brand-full { display: none; }
+  .brand-short { display: inline; }
+}
