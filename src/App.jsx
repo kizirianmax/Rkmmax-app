@@ -5,7 +5,8 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import Header from "./components/Header";
 import BrandTitle from "./components/BrandTitle";
 import PlanGate from "./components/PlanGate";
-import CrashSwitch from "./components/CrashSwitch"; // <-- TEMP: para testar ErrorBoundary
+import CrashSwitch from "./components/CrashSwitch"; // TEMP: para testar ErrorBoundary
+import Debug from "./pages/Debug"; // <--- NOVO
 
 import Home from "./pages/Home";
 import AgentsPage from "./pages/Agents";
@@ -40,16 +41,10 @@ function CheckoutSuccess() {
 export default function App() {
   return (
     <BrowserRouter>
-      {/* Título da aba baseado na marca */}
       <BrandTitle />
-
-      {/* TEMP: força um crash quando acessar ?crash=1 (remover depois do teste) */}
-      <CrashSwitch />
-
-      {/* Navegação */}
+      <CrashSwitch /> {/* TEMP: remova depois dos testes */}
       <Header />
 
-      {/* Rotas */}
       <Routes>
         <Route path="/" element={<Home />} />
 
@@ -65,8 +60,10 @@ export default function App() {
 
         {/* Planos */}
         <Route path="/pricing" element={<Pricing />} />
-        {/* alias antigo */}
         <Route path="/plans" element={<Navigate to="/pricing" replace />} />
+
+        {/* Debug / testes */}
+        <Route path="/debug" element={<Debug />} /> {/* <--- NOVO */}
 
         {/* Sucesso do Stripe */}
         <Route path="/success" element={<CheckoutSuccess />} />
