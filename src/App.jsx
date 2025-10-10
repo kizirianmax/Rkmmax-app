@@ -1,25 +1,39 @@
-// src/App.jsx
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+// src/App.jsx (mesmo arquivo, só o componente CheckoutSuccess)
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-import Header from "./components/Header";
-import BrandTitle from "./components/BrandTitle";
-import PlanGate from "./components/PlanGate";
-import CrashSwitch from "./components/CrashSwitch"; // TEMP: para testar ErrorBoundary
-import Debug from "./pages/Debug"; // <--- NOVO
-
-import Home from "./pages/Home";
-import AgentsPage from "./pages/Agents";
-import Pricing from "./pages/Pricing";
-
-// página simples para retorno do Stripe (/success)
 function CheckoutSuccess() {
+  const [email, setEmail] = useState(
+    () => window.localStorage.getItem("user_email") || ""
+  );
+  const save = () => {
+    const v = email.trim().toLowerCase();
+    if (v) {
+      window.localStorage.setItem("user_email", v);
+      alert("E-mail salvo! Agora você tem acesso Premium.");
+    }
+  };
+
   return (
     <div style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
       <h2 style={{ fontSize: 22, marginBottom: 8 }}>Assinatura criada!</h2>
       <p style={{ color: "#475569", marginBottom: 16 }}>
         Obrigado pelo apoio. Seu acesso Premium foi ativado.
       </p>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <input
+          type="email"
+          placeholder="seu@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid #ddd" }}
+        />
+        <button onClick={save} style={{ padding: "10px 16px", borderRadius: 12 }}>
+          Salvar e-mail
+        </button>
+      </div>
+
       <Link
         to="/agents"
         style={{
@@ -35,42 +49,5 @@ function CheckoutSuccess() {
         Acessar Especialistas
       </Link>
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <BrandTitle />
-      <CrashSwitch /> {/* TEMP: remova depois dos testes */}
-      <Header />
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-
-        {/* Área Premium */}
-        <Route
-          path="/agents"
-          element={
-            <PlanGate requirePlan="premium">
-              <AgentsPage />
-            </PlanGate>
-          }
-        />
-
-        {/* Planos */}
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/plans" element={<Navigate to="/pricing" replace />} />
-
-        {/* Debug / testes */}
-        <Route path="/debug" element={<Debug />} /> {/* <--- NOVO */}
-
-        {/* Sucesso do Stripe */}
-        <Route path="/success" element={<CheckoutSuccess />} />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
   );
 }
