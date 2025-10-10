@@ -5,12 +5,11 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import Header from "./components/Header";
 import BrandTitle from "./components/BrandTitle";
 import PlanGate from "./components/PlanGate";
-import CrashSwitch from "./components/CrashSwitch"; // <-- TEMP: remover depois do teste
 
 import Home from "./pages/Home";
 import AgentsPage from "./pages/Agents";
 import Pricing from "./pages/Pricing";
-import Debug from "./pages/Debug"; // página de debug
+import Debug from "./pages/Debug";
 
 // Página simples para retorno do Stripe (/success)
 function CheckoutSuccess() {
@@ -22,12 +21,12 @@ function CheckoutSuccess() {
   );
 
   const save = () => {
+    if (typeof window === "undefined") return;
     const v = email.trim().toLowerCase();
-    if (!v) return;
-    if (typeof window !== "undefined") {
+    if (v) {
       window.localStorage.setItem("user_email", v);
+      alert("E-mail salvo! Agora você tem acesso Premium.");
     }
-    alert("E-mail salvo! Agora você tem acesso Premium.");
   };
 
   return (
@@ -74,9 +73,6 @@ export default function App() {
       {/* Título da aba baseado na marca */}
       <BrandTitle />
 
-      {/* TEMP: força um crash quando acessar ?crash=1 (remova depois do teste) */}
-      <CrashSwitch />
-
       {/* Navegação */}
       <Header />
 
@@ -102,7 +98,7 @@ export default function App() {
         {/* Sucesso do Stripe */}
         <Route path="/success" element={<CheckoutSuccess />} />
 
-        {/* Debug (testes rápidos) */}
+        {/* Debug (pode remover quando quiser) */}
         <Route path="/debug" element={<Debug />} />
 
         {/* Fallback */}
