@@ -5,24 +5,39 @@ import usePlan from "../hooks/usePlan";
 
 export default function Debug() {
   const { plan, loading } = usePlan();
-  const [email, setEmail] = useState(
-    typeof window !== "undefined" ? localStorage.getItem("user_email") || "" : ""
+
+  // Lazy initializer para evitar tocar no localStorage em SSR
+  const [email, setEmail] = useState(() =>
+    typeof window !== "undefined" ? window.localStorage.getItem("user_email") || "" : ""
   );
+
   const [resp, setResp] = useState(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setEmail(localStorage.getItem("user_email") || "");
+      setEmail(window.localStorage.getItem("user_email") || "");
     }
   }, []);
 
+  const notifyPlanChange = (newValue) => {
+    // avisa o hook usePlan (que escuta 'storage') mesmo na MESMA aba
+    try {
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: "user_email", newValue })
+      );
+    } catch {
+      // fallback macio (não obrigatório)
+    }
+  };
+
   const saveEmail = (value) => {
     if (typeof window === "undefined") return;
-    const v = value.trim().toLowerCase();
+    const v = (value || "").trim().toLowerCase();
     setEmail(v);
-    if (v) localStorage.setItem("user_email", v);
-    else localStorage.removeItem("user_email");
+    if (v) window.localStorage.setItem("user_email", v);
+    else window.localStorage.removeItem("user_email");
+    notifyPlanChange(v || null);
   };
 
   const callApi = async () => {
@@ -30,11 +45,15 @@ export default function Debug() {
       setBusy(true);
       setResp(null);
       const res = await fetch(`/api/me-plan?email=${encodeURIComponent(email)}`, {
-        headers: { "x-user-email": email },
+        headers: { "x-user-email": email || "" },
       });
       const text = await res.text();
       let body;
-      try { body = JSON.parse(text); } catch { body = { raw: text }; }
+      try {
+        body = JSON.parse(text);
+      } catch {
+        body = { raw: text };
+      }
       setResp({ ok: res.ok, status: res.status, body });
     } catch (err) {
       setResp({ ok: false, error: String(err) });
@@ -68,18 +87,24 @@ export default function Debug() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <button onClick={() => saveEmail(email)} style={btn()}>Salvar</button>
-          <button onClick={clearEmail} style={btn()}>Limpar</button>
-          <button onClick={setPremium} style={btn()}>Usar premium@exemplo.com</button>
+          <button onClick={() => saveEmail(email)} style={btn()} disabled={!email.trim()}>
+            Salvar
+          </button>
+          <button onClick={clearEmail} style={btn()}>
+            Limpar
+          </button>
+          <button onClick={setPremium} style={btn()}>
+            Usar premium@exemplo.com
+          </button>
         </div>
         <small style={{ color: "#64748b" }}>
-          Ao mudar o e-mail, o <code>usePlan</code> recalcula sozinho.
+          Ao salvar/limpar, o <code>usePlan</code> atualiza automaticamente.
         </small>
       </section>
 
       <section style={{ marginTop: 24 }}>
         <h2 style={{ fontSize: 20 }}>/api/me-plan</h2>
-        <button onClick={callApi} disabled={busy} style={btn()}>
+        <button onClick={callApi} disabled={busy || !email.trim()} style={btn()}>
           {busy ? "Chamando…" : "Testar API"}
         </button>
         {resp && (
@@ -93,7 +118,7 @@ export default function Debug() {
         <h2 style={{ fontSize: 20 }}>Crash / ErrorBoundary</h2>
         <p>
           Para simular um crash, acesse{" "}
-          <a href={`${origin}/?crash=1`}>{origin}/?crash=1</a> (precisa do <code>CrashSwitch</code> montado).
+          <a href={`${origin}/?crash=1`}>{origin}/?crash=1</a> (com <code>CrashSwitch</code> montado).
         </p>
         <p>
           Para ver detalhes, abra com <a href={`${origin}/?debug=1`}>?debug=1</a>.
