@@ -9,7 +9,6 @@ import PlanGate from "./components/PlanGate";
 import Home from "./pages/Home";
 import AgentsPage from "./pages/Agents";
 import Pricing from "./pages/Pricing";
-import Debug from "./pages/Debug";
 
 // Página simples para retorno do Stripe (/success)
 function CheckoutSuccess() {
@@ -70,13 +69,9 @@ function CheckoutSuccess() {
 export default function App() {
   return (
     <BrowserRouter>
-      {/* Título da aba baseado na marca */}
       <BrandTitle />
-
-      {/* Navegação */}
       <Header />
 
-      {/* Rotas */}
       <Routes>
         <Route path="/" element={<Home />} />
 
@@ -92,14 +87,10 @@ export default function App() {
 
         {/* Planos */}
         <Route path="/pricing" element={<Pricing />} />
-        {/* alias antigo */}
         <Route path="/plans" element={<Navigate to="/pricing" replace />} />
 
         {/* Sucesso do Stripe */}
         <Route path="/success" element={<CheckoutSuccess />} />
-
-        {/* Debug (pode remover quando quiser) */}
-        <Route path="/debug" element={<Debug />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
