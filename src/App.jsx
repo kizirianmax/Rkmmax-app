@@ -1,17 +1,33 @@
-// src/App.jsx (mesmo arquivo, só o componente CheckoutSuccess)
+// src/App.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 
+import Header from "./components/Header";
+import BrandTitle from "./components/BrandTitle";
+import PlanGate from "./components/PlanGate";
+import CrashSwitch from "./components/CrashSwitch"; // <-- TEMP: remover depois do teste
+
+import Home from "./pages/Home";
+import AgentsPage from "./pages/Agents";
+import Pricing from "./pages/Pricing";
+import Debug from "./pages/Debug"; // página de debug
+
+// Página simples para retorno do Stripe (/success)
 function CheckoutSuccess() {
   const [email, setEmail] = useState(
-    () => window.localStorage.getItem("user_email") || ""
+    () =>
+      (typeof window !== "undefined" &&
+        window.localStorage.getItem("user_email")) ||
+      ""
   );
+
   const save = () => {
     const v = email.trim().toLowerCase();
-    if (v) {
+    if (!v) return;
+    if (typeof window !== "undefined") {
       window.localStorage.setItem("user_email", v);
-      alert("E-mail salvo! Agora você tem acesso Premium.");
     }
+    alert("E-mail salvo! Agora você tem acesso Premium.");
   };
 
   return (
@@ -49,5 +65,49 @@ function CheckoutSuccess() {
         Acessar Especialistas
       </Link>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      {/* Título da aba baseado na marca */}
+      <BrandTitle />
+
+      {/* TEMP: força um crash quando acessar ?crash=1 (remova depois do teste) */}
+      <CrashSwitch />
+
+      {/* Navegação */}
+      <Header />
+
+      {/* Rotas */}
+      <Routes>
+        <Route path="/" element={<Home />} />
+
+        {/* Área Premium */}
+        <Route
+          path="/agents"
+          element={
+            <PlanGate requirePlan="premium">
+              <AgentsPage />
+            </PlanGate>
+          }
+        />
+
+        {/* Planos */}
+        <Route path="/pricing" element={<Pricing />} />
+        {/* alias antigo */}
+        <Route path="/plans" element={<Navigate to="/pricing" replace />} />
+
+        {/* Sucesso do Stripe */}
+        <Route path="/success" element={<CheckoutSuccess />} />
+
+        {/* Debug (testes rápidos) */}
+        <Route path="/debug" element={<Debug />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
