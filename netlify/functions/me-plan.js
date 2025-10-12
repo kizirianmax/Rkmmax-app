@@ -9,7 +9,7 @@ const supabase = createClient(
 
 // helper de resposta JSON + CORS básico
 const resp = (status, data) => ({
-  statusCode: status,
+  básico: status,
   headers: {
     "content-type": "application/json",
     "access-control-allow-origin": "*"
