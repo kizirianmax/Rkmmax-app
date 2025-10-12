@@ -1,9 +1,12 @@
 // api/_utils/plans.js
-// Import simples do JSON (sem "assert") — compatível com Next/Vercel.
-// Ajuste o caminho se você mover o plans.json de lugar.
+// Se o plans.json está na RAIZ do projeto:
 import plansJson from "../../plans.json";
+// Se você moveu para src/config/plans.json, use:
+// import plansJson from "../../src/config/plans.json";
 
-// Mapeia lookup_key do Stripe → id do plano no seu JSON
+/**
+ * Mapeia lookup_key do Stripe → id do plano no JSON
+ */
 export function getPlanByKey(planKey) {
   const map = {
     rkmmax_basic_br: "basic_br",
@@ -17,12 +20,12 @@ export function getPlanByKey(planKey) {
   return id ? plansJson.plans[id] : null;
 }
 
-// Busca pelo id interno do JSON (ex.: "basic_br")
+/** Retorna direto por id definido no JSON (ex.: "basic_br") */
 export function getPlanById(id) {
   return plansJson.plans[id] || null;
 }
 
-// Lista de lookup_keys permitidos (se precisar validar)
-export const ALLOWED_LOOKUP_KEYS = Object.values(plansJson.plans).map(
-  (p) => p.lookup_key
-);
+/** Lista de lookup_keys válidas (se existir no JSON) */
+export const ALLOWED_LOOKUP_KEYS = Object.values(plansJson.plans)
+  .map((p) => p.lookup_key)
+  .filter(Boolean);
