@@ -1,24 +1,65 @@
-// /api/me-plan.js — Vercel Function
-export default function handler(req, res) {
+// api/me-plan.js
+import { createClient } from "@supabase/supabase-js";
+
+// CORS básico
+function applyCORS(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "no-store");
+}
+
+// ⚠️ Configure essas variáveis no Vercel (Project → Settings → Environment Variables)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+// Se quiser mapear stripe_price_id → plano depois, mova seu helper para api/_utils/plans.js
+// import { getPlanById } from "./_utils/plans";
+
+export default async function handler(req, res) {
+  applyCORS(res);
+
+  if (!["GET", "HEAD"].includes(req.method)) {
+    res.setHeader("Allow", "GET, HEAD");
+    return res.status(405).json({ ok: false, error: "method_not_allowed" });
+  }
+
   try {
-    const raw = (req.headers["x-user-email"] ?? req.query.email ?? "").toString();
-    const email = raw.trim().toLowerCase();
+    const email =
+      req.headers["x-user-email"] ||
+      req.headers["X-User-Email"] ||
+      req.query.email ||
+      "";
 
-    // Lê da env PREMIUM_EMAILS: "email1@dominio.com, email2@dominio.com"
-    const envList = (process.env.PREMIUM_EMAILS || "")
-      .split(",")
-      .map(s => s.trim().toLowerCase())
-      .filter(Boolean);
+    if (!email) {
+      return res.status(200).json({ userPlan: "basic", reason: "missing_email" });
+    }
 
-    // fallback se a env não estiver setada
-    const premiumList = new Set(
-      envList.length ? envList : ["premium@exemplo.com", "seu-email@exemplo.com"]
-    );
+    const { data, error } = await supabase
+      .from("subscriptions")
+      .select("status, stripe_price_id, current_period_end")
+      .eq("email", email)
+      .order("current_period_end", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    const plan = premiumList.has(email) ? "premium" : "basic";
-    res.status(200).json({ plan });
-  } catch {
-    // Em qualquer erro, devolve basic
-    res.status(200).json({ plan: "basic" });
+    if (error) return res.status(500).json({ userPlan: "basic", error: error.message });
+    if (!data) return res.status(200).json({ userPlan: "basic", reason: "no_subscription" });
+
+    const isActive = ["active", "trialing"].includes(data.status);
+    if (!isActive) return res.status(200).json({ userPlan: "basic", reason: "inactive" });
+
+    // const planObj = getPlanById?.(data.stripe_price_id) || null;
+    // const userPlan = planObj?.id || "premium";
+    const userPlan = "premium"; // até mapear stripe_price_id
+
+    return res.status(200).json({
+      userPlan,
+      // planMeta: planObj || null,
+      current_period_end: data.current_period_end
+    });
+  } catch (e) {
+    return res.status(500).json({ userPlan: "basic", error: e.message });
   }
 }
