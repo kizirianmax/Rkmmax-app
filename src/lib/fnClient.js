@@ -1,41 +1,84 @@
 // src/lib/fnClient.js
-const PROVIDERS = {
-  vercel: () => `${window.location.origin}/api`,
-  netlify: () => process.env.REACT_APP_FUNCTIONS_BASE_URL, // ex: https://seuapp.netlify.app
+// Cliente único para chamar funções no backend.
+// Tenta Vercel (/api) primeiro e, se falhar, cai para Netlify (/.netlify/functions),
+// ou você pode forçar o provedor via REACT_APP_BACKEND_PROVIDER.
+
+const API_BASE = "/api"; // Vercel
+const PROVIDER = (process.env.REACT_APP_BACKEND_PROVIDER || "auto").toLowerCase(); // "auto" | "vercel" | "netlify"
+const NF_BASE_RAW = (process.env.REACT_APP_FUNCTIONS_BASE_URL || "").replace(/\/+$/, ""); // ex: https://seusite.netlify.app
+const NF_REL = "/.netlify/functions"; // caminho relativo no Netlify
+
+function toInit(init) {
+  const out = { ...(init || {}) };
+  // Headers
+  const headers = new Headers(out.headers || {});
+  if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  out.headers = headers;
+  // Body → JSON string
+  if (out && typeof out === "object" && out.body && typeof out.body === "object") {
+    out.body = JSON.stringify(out.body);
+  }
+  return out;
+}
+
+function normName(name) {
+  return name.startsWith("/") ? name : `/${name}`;
+}
+
+async function parseResponse(res) {
+  const ct = res.headers.get("content-type") || "";
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status} ${res.statusText} — ${text?.slice(0, 400)}`);
+  }
+  if (ct.includes("application/json")) {
+    try { return JSON.parse(text); } catch { return { raw: text }; }
+  }
+  return text;
+}
+
+async function callVercel(name, init) {
+  const url = `${API_BASE}${normName(name)}`;
+  const res = await fetch(url, toInit(init));
+  return parseResponse(res);
+}
+
+async function callNetlify(name, init) {
+  const prefix = NF_BASE_RAW || "";
+  const url = `${prefix}${NF_REL}${normName(name)}`;
+  const res = await fetch(url, toInit(init));
+  return parseResponse(res);
+}
+
+export async function callFn(name, init) {
+  const mode = PROVIDER;
+  if (mode === "vercel") return callVercel(name, init);
+  if (mode === "netlify") return callNetlify(name, init);
+
+  // auto: tenta Vercel → fallback Netlify
+  try {
+    return await callVercel(name, init);
+  } catch {
+    return await callNetlify(name, init);
+  }
+}
+
+export function backendInfo() {
+  return {
+    provider: PROVIDER,          // "auto" | "vercel" | "netlify"
+    vercelBase: API_BASE,        // "/api"
+    netlifyBase: NF_BASE_RAW || null, // ex: "https://seusite.netlify.app"
+  };
+}
+
+// Conveniências
+export const get = (name, params, init = {}) => {
+  const qs = params ? `?${new URLSearchParams(params).toString()}` : "";
+  return callFn(`${name}${qs}`, { ...init, method: "GET" });
 };
 
-function buildUrl(provider, path) {
-  const base = PROVIDERS[provider]?.();
-  if (!base) return null;
-  return provider === 'vercel'
-    ? `${base}${path}`                                // /api/status
-    : `${base}/.netlify/functions${path}`;           // /.netlify/functions/status
-}
+export const post = (name, body, init = {}) => {
+  return callFn(name, { ...init, method: "POST", body });
+};
 
-/**
- * REACT_APP_BACKEND_PROVIDER:
- *  - 'vercel'  -> só Vercel
- *  - 'netlify' -> só Netlify
- *  - 'auto'    -> Vercel e, se falhar, tenta Netlify (default)
- */
-export async function callFn(path, fetchOptions = {}) {
-  const mode = (process.env.REACT_APP_BACKEND_PROVIDER || 'auto').toLowerCase();
-  const order =
-    mode === 'vercel' ? ['vercel']
-  : mode === 'netlify' ? ['netlify']
-  : ['vercel', 'netlify'];
-
-  let lastError;
-  for (const p of order) {
-    const url = buildUrl(p, path);
-    if (!url) continue;
-    try {
-      const res = await fetch(url, fetchOptions);
-      if (res.ok) return res;
-      lastError = new Error(`${p} respondeu ${res.status}`);
-    } catch (err) {
-      lastError = err;
-    }
-  }
-  throw lastError || new Error('Nenhum provider respondeu.');
-}
+export default callFn;
