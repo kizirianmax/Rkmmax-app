@@ -16,9 +16,7 @@ function send(res, status, data) {
 // 👉 Ajuste se quiser um fallback diferente durante testes
 //   - "basic" = seguro p/ produção
 //   - "premium" = libera tudo enquanto você configura o Supabase
-const FALLBACK_PLAN = "basic";
-
-export default async function handler(req, res) {
+const FALLBACK_PLAN = "premium";tdefault async function handler(req, res) {
   applyCORS(res);
 
   // aceita apenas GET/HEAD
