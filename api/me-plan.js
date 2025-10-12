@@ -1,51 +1,61 @@
 // api/me-plan.js
-const { createClient } = require("@supabase/supabase-js");
+import { createClient } from "@supabase/supabase-js";
 
+// CORS + no-cache
 function applyCORS(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-User-Email");
-  res.setHeader("Cache-Control", "no-store");
   res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "no-store");
 }
 
-function getEmail(req) {
-  try {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const q = url.searchParams.get("email");
-    return String(req.headers["x-user-email"] || q || "").trim().toLowerCase();
-  } catch {
-    return "";
-  }
+function send(res, status, data) {
+  applyCORS(res);
+  return res.status(status).json(data);
 }
 
-module.exports = async (req, res) => {
+// 👉 Ajuste se quiser um fallback diferente durante testes
+//   - "basic" = seguro p/ produção
+//   - "premium" = libera tudo enquanto você configura o Supabase
+const FALLBACK_PLAN = "basic";
+
+export default async function handler(req, res) {
   applyCORS(res);
 
-  if (req.method === "OPTIONS") return res.status(204).end();
+  // aceita apenas GET/HEAD
   if (!["GET", "HEAD"].includes(req.method)) {
-    res.setHeader("Allow", "GET, HEAD, OPTIONS");
-    return res.status(405).end(JSON.stringify({ ok: false, error: "method_not_allowed" }));
+    res.setHeader("Allow", "GET, HEAD");
+    return send(res, 405, { ok: false, error: "method_not_allowed" });
+  }
+
+  // e-mail pelo header ou querystring
+  const email =
+    req.headers["x-user-email"] ||
+    req.query.email ||
+    "";
+
+  if (!email) {
+    return send(res, 200, { userPlan: "basic", reason: "missing_email" });
+  }
+
+  const hasEnv =
+    !!process.env.SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  // Sem env do Supabase → fallback (evita 500)
+  if (!hasEnv) {
+    return send(res, 200, {
+      userPlan: FALLBACK_PLAN,
+      reason: "fallback_no_supabase_env",
+    });
   }
 
   try {
-    const email = getEmail(req);
-    if (!email) {
-      return res.status(200).end(JSON.stringify({ userPlan: "basic", reason: "missing_email" }));
-    }
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { persistSession: false } }
+    );
 
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    // Fallback se as envs não estiverem configuradas ainda
-    if (!url || !key) {
-      const userPlan = email === "premium@exemplo.com" ? "premium" : "basic";
-      return res
-        .status(200)
-        .end(JSON.stringify({ userPlan, reason: "fallback_no_supabase_env" }));
-    }
-
-    const supabase = createClient(url, key);
+    // busca a assinatura mais recente do usuário
     const { data, error } = await supabase
       .from("subscriptions")
       .select("status, stripe_price_id, current_period_end")
@@ -55,30 +65,21 @@ module.exports = async (req, res) => {
       .maybeSingle();
 
     if (error) {
-      return res.status(500).end(JSON.stringify({ userPlan: "basic", error: error.message }));
+      return send(res, 200, { userPlan: "basic", reason: "supabase_error", error: error.message });
     }
     if (!data) {
-      return res.status(200).end(JSON.stringify({ userPlan: "basic", reason: "no_subscription" }));
+      return send(res, 200, { userPlan: "basic", reason: "no_subscription" });
     }
 
-    const isActive = ["active", "trialing"].includes(data.status);
-    if (!isActive) {
-      return res.status(200).end(JSON.stringify({ userPlan: "basic", reason: "inactive" }));
-    }
+    const active = ["active", "trialing"].includes(data.status);
+    const userPlan = active ? "premium" : "basic";
 
-    // (opcional) mapear stripe_price_id -> plano do seu JSON
-    // const { getPlanById } = require("./_utils/plans");
-    // const planObj = getPlanById?.(data.stripe_price_id) || null;
-    // const userPlan = planObj?.id || "premium";
-
-    return res.status(200).end(
-      JSON.stringify({
-        userPlan: "premium",
-        // planMeta: planObj,
-        current_period_end: data.current_period_end,
-      })
-    );
+    return send(res, 200, {
+      userPlan,
+      current_period_end: data.current_period_end,
+      status: data.status,
+    });
   } catch (e) {
-    return res.status(500).end(JSON.stringify({ userPlan: "basic", error: String(e) }));
+    return send(res, 200, { userPlan: "basic", reason: "exception", error: String(e) });
   }
-};
+}
