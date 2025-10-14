@@ -4,7 +4,7 @@ import Stripe from "stripe";
 const stripeKey = process.env.STRIPE_SECRET_KEY || "";
 const stripe = stripeKey ? new Stripe(stripeKey) : null;
 
-// -- Helpers -------------------------------------------------
+/* ------------------------ Helpers ------------------------ */
 function allowCORS(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS");
@@ -16,6 +16,19 @@ function allowCORS(req, res) {
   return false;
 }
 
+// sinônimos/aliases que reconhecemos por lookup_key, metadata.tier ou nome do produto
+const TIER_ALIASES = {
+  basic: ["basic", "básico"],
+  intermediate: [
+    "intermediate",
+    "intermediario",
+    "intermediário",
+    "medio",
+    "médio",
+  ],
+  premium: ["premium"],
+};
+
 function matchesRegion(price, region) {
   const lk = (price.lookup_key || "").toLowerCase();
   const metaRegion = (price.metadata?.region || "").toLowerCase();
@@ -25,11 +38,14 @@ function matchesRegion(price, region) {
   );
 }
 
-function matchesTier(price, tier) {
+function matchesTier(price, tierKey) {
   const lk = (price.lookup_key || "").toLowerCase();
   const metaTier = (price.metadata?.tier || "").toLowerCase();
   const prodName = (price.product?.name || "").toLowerCase();
-  return lk.includes(tier) || metaTier === tier || prodName.includes(tier);
+  const aliases = TIER_ALIASES[tierKey] || [tierKey];
+  return aliases.some(
+    (a) => lk.includes(a) || metaTier === a || prodName.includes(a)
+  );
 }
 
 function fmtMoney(amount, currency, locale = "pt-BR") {
@@ -40,7 +56,7 @@ function fmtMoney(amount, currency, locale = "pt-BR") {
   }).format((amount || 0) / 100);
 }
 
-// -- Handler -------------------------------------------------
+/* ------------------------ Handler ------------------------ */
 export default async function handler(req, res) {
   if (allowCORS(req, res)) return;
 
@@ -51,7 +67,7 @@ export default async function handler(req, res) {
 
   const region = (req.query.region || "BR").toUpperCase();
 
-  // fallback amigável se faltar ENV na Vercel
+  // Fallback amigável se faltar ENV na Vercel
   if (!stripe) {
     return res
       .status(200)
@@ -66,10 +82,15 @@ export default async function handler(req, res) {
       expand: ["data.product"],
     });
 
+    // filtra por região (via lookup_key rkm_<REG>_* ou metadata.region)
     const regional = list.data.filter((p) => matchesRegion(p, region));
 
-    const tiers = ["basic", "premium"];
-    const labels = { basic: "Básico", premium: "Premium" };
+    // inclui o plano intermediário
+    const tiers = ["basic", "intermediate", "premium"];
+    const labels =
+      region === "US"
+        ? { basic: "Basic", intermediate: "Intermediate", premium: "Premium" }
+        : { basic: "Básico", intermediate: "Intermediário", premium: "Premium" };
 
     const resultados = tiers
       .map((tier) => {
@@ -89,7 +110,7 @@ export default async function handler(req, res) {
 
         return {
           id: chosen.id,
-          tier,
+          tier, // "basic" | "intermediate" | "premium"
           nome: labels[tier],
           produto: chosen.product?.name || labels[tier],
           descricao: chosen.product?.description || "",
