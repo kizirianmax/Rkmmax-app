@@ -1,12 +1,15 @@
 {
-  "name": "rkmmax-app",
+  "name": "rkmmmax-app",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "react-scripts start",
-    "prebuild": "mkdir -p src/config && cp ./plans.json ./src/config/plans.json",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "dependencies": {
