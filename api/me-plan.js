@@ -1,11 +1,9 @@
 // api/me-plan.js
-import { createClient } from "@supabase/supabase-js";
-import { getPlanById } from "./_utils/plans.js";
 
 // Troque se quiser liberar tudo temporariamente antes das ENVs
 const FALLBACK_PLAN = "basic";
 
-// CORS + pré-flight
+// CORS + preflight
 function applyCORS(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS");
@@ -26,14 +24,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "method_not_allowed" });
   }
 
-  // email por header (x-user-email) ou query (?email=)
+  // email via header (x-user-email) ou query (?email=)
   const emailHeader = req.headers["x-user-email"] || req.headers["X-User-Email"];
   const email = (emailHeader || req.query?.email || "")
     .toString()
     .trim()
     .toLowerCase();
 
-  // Fallback se faltar SUPABASE_* no Vercel
+  // Se faltar ENV do Supabase, responde fallback (sem tentar importar o pacote)
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(200).json({
       userPlan: FALLBACK_PLAN,
@@ -44,6 +42,18 @@ export default async function handler(req, res) {
 
   if (!email) {
     return res.status(200).json({ userPlan: "basic", reason: "missing_email" });
+  }
+
+  // Importa supabase-js apenas quando necessário (evita 500 se pacote não estiver instalado)
+  let createClient;
+  try {
+    ({ createClient } = await import("@supabase/supabase-js"));
+  } catch {
+    return res.status(200).json({
+      userPlan: FALLBACK_PLAN,
+      reason: "supabase_js_not_installed",
+      email: email || undefined,
+    });
   }
 
   const supabase = createClient(
@@ -61,6 +71,7 @@ export default async function handler(req, res) {
       .maybeSingle();
 
     if (error) throw error;
+
     if (!data) {
       return res.status(200).json({ userPlan: "basic", reason: "no_subscription" });
     }
@@ -70,13 +81,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ userPlan: "basic", reason: "inactive" });
     }
 
-    // Mapeia o price do Stripe para um plano interno (se existir no plans.json)
-    const planObj = getPlanById?.(data.stripe_price_id) || null;
-    const plan = planObj?.id || "premium"; // se estiver ativo e não mapear, considera premium
-
+    // Simples: assinatura ativa => premium (faça o mapeamento por price_id aqui se quiser)
     return res.status(200).json({
-      userPlan: plan,
-      planMeta: planObj,
+      userPlan: "premium",
       current_period_end: data.current_period_end,
       price_id: data.stripe_price_id,
     });
