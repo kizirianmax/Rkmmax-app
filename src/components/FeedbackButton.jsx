@@ -76,8 +76,8 @@ export default function FeedbackButton() {
         onClick={() => setIsOpen(true)}
         style={{
           position: "fixed",
-          bottom: 20,
-          right: 20,
+          bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+          right: 16,
           padding: "12px 20px",
           background: "#6366f1",
           color: "white",
@@ -86,9 +86,12 @@ export default function FeedbackButton() {
           fontWeight: 600,
           cursor: "pointer",
           boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
-          zIndex: 1000,
+          zIndex: 60,
           fontSize: 14,
+          minHeight: 48,
+          touchAction: "manipulation",
         }}
+        role="button"
         aria-label="Reportar problema ou dar feedback"
       >
         🐛 Feedback
@@ -98,10 +101,11 @@ export default function FeedbackButton() {
 
   return (
     <div
+      className="feedback-overlay"
       style={{
         position: "fixed",
-        bottom: 20,
-        right: 20,
+        bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+        right: 16,
         width: 360,
         maxWidth: "calc(100vw - 40px)",
         background: "white",
@@ -109,7 +113,8 @@ export default function FeedbackButton() {
         borderRadius: 12,
         boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
         padding: 20,
-        zIndex: 1000,
+        zIndex: 60,
+        pointerEvents: "auto",
       }}
     >
       {submitted ? (

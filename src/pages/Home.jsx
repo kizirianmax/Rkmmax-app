@@ -56,8 +56,9 @@ export default function Home() {
         </p>
 
         <a
-          href="/agents"
+          href="/chat"
           style={sx.cta}
+          role="button"
           aria-label="Explorar especialistas (com Serginho)"
         >
           Explorar Especialistas (Premium)
@@ -104,7 +105,7 @@ export default function Home() {
           Suporte e upgrades simples para crescer junto com você.
         </p>
 
-        <a href="/pricing" style={sx.buttonDark} aria-label="Ver planos">
+        <a href="/pricing" style={sx.buttonDark} role="button" aria-label="Ver planos">
           Ver planos
         </a>
 
@@ -144,6 +145,7 @@ const sx = {
     maxWidth: 1120,
     margin: "0 auto",
     padding: "28px 16px 56px",
+    paddingBottom: "96px", // Espaço para botão flutuante no mobile
     fontFamily:
       'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
     color: tone.ink,
@@ -200,13 +202,16 @@ const sx = {
   cta: {
     marginTop: 14,
     display: "inline-block",
-    padding: "12px 18px",
-    borderRadius: 12,
+    padding: "12px 20px",
+    minHeight: 48,
+    borderRadius: 16,
     color: "#fff",
     fontWeight: 900,
+    fontSize: 16,
     background: tone.grad,
     boxShadow: "0 12px 20px rgba(79,70,229,.25)",
-    textDecoration: "none"
+    textDecoration: "none",
+    touchAction: "manipulation"
   },
 
   sectionHeader: {
@@ -272,13 +277,16 @@ const sx = {
   },
   buttonDark: {
     display: "inline-block",
-    padding: "10px 16px",
-    borderRadius: 12,
+    padding: "12px 20px",
+    minHeight: 48,
+    borderRadius: 16,
     fontWeight: 900,
+    fontSize: 16,
     color: "#fff",
     background: "#0f172a",
     textDecoration: "none",
-    marginTop: 2
+    marginTop: 2,
+    touchAction: "manipulation"
   },
   features: {
     marginTop: 12,
