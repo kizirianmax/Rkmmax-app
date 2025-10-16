@@ -1,14 +1,18 @@
 // src/App.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import { initSentry } from "./lib/sentry.js";
+import { initAnalytics } from "./lib/analytics.js";
+import FeedbackButton from "./components/FeedbackButton.jsx";
 
-import Header from "./components/Header";
-import BrandTitle from "./components/BrandTitle";
-import PlanGate from "./components/PlanGate";
+import Header from "./components/Header.jsx";
+import BrandTitle from "./components/BrandTitle.jsx";
+import PlanGate from "./components/PlanGate.jsx";
 
-import Home from "./pages/Home";
-import AgentsPage from "./pages/Agents";
-import Pricing from "./pages/Pricing";
+import Home from "./pages/Home.jsx";
+import AgentsPage from "./pages/Agents.jsx";
+import Pricing from "./pages/Pricing.jsx";
+import Help from "./pages/Help.jsx";
 
 // Página simples para retorno do Stripe (/success)
 function CheckoutSuccess() {
@@ -67,6 +71,12 @@ function CheckoutSuccess() {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Initialize observability tools
+    initSentry();
+    initAnalytics();
+  }, []);
+
   return (
     <BrowserRouter>
       <BrandTitle />
@@ -92,9 +102,16 @@ export default function App() {
         {/* Sucesso do Stripe */}
         <Route path="/success" element={<CheckoutSuccess />} />
 
+        {/* Help & Status */}
+        <Route path="/help" element={<Help />} />
+        <Route path="/status" element={<Help />} />
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* Feedback Button */}
+      <FeedbackButton />
     </BrowserRouter>
   );
 }

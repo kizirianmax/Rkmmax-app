@@ -1,0 +1,9 @@
+build/
+node_modules/
+.vercel/
+.netlify/
+netlify.backup/
+coverage/
+*.min.js
+package-lock.json
+

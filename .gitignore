@@ -1,8 +1,44 @@
-# dependências
+# Dependencies
 node_modules/
+/.pnp
+.pnp.js
 
-# variáveis de ambiente
+# Testing
+/coverage
+
+# Production
+/build
+
+# Environment variables
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# arquivos gerados automaticamente
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Netlify (migrating to Vercel only)
+.netlify/
+
+# Vercel
+.vercel
+
+# Auto-generated files
 src/config/plans.json
+

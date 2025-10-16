@@ -1,6 +1,6 @@
 // src/components/PlanGate.jsx
 import React from "react";
-import usePlan from "../hooks/usePlan";
+import usePlan from "../hooks/usePlan.js";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 
 export default function PlanGate({

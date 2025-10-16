@@ -1,6 +1,6 @@
 // src/pages/Account.jsx
 import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient.js";
 import { useNavigate } from "react-router-dom";
 
 export default function Account() {

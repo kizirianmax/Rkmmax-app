@@ -1,0 +1,19 @@
+# Ignore Netlify-specific files
+netlify/
+netlify.toml
+.netlify/
+
+# Ignore local development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore build artifacts
+build/
+.cache/
+
+# Ignore logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

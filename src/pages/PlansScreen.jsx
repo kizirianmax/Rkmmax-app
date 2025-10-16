@@ -84,7 +84,7 @@ const PLANS = {
       name: "Premium",
       price: "$30/month",
       features: ["GPT-5 Std + GPT-4.1 Mini", "All specialists", "Priority support"],
-      payLink: "", // TODO: adicione quando criar o Payment Link US
+      payLink: process.env.REACT_APP_LINK_PREMIUM_US || "",
       priceId: null,
       cta: "Subscribe Premium",
     },

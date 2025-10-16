@@ -1,6 +1,6 @@
 // src/components/BrandTitle.jsx
 import { useEffect } from "react";
-import { BRAND } from "../config/brand";
+import { BRAND } from "../config/brand.js";
 
 export default function BrandTitle() {
   useEffect(() => {

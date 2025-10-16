@@ -1,5 +1,5 @@
 // src/lib/modelPicker.js
-import { PLAN, MODEL_BY_PLAN } from "./planCaps";
+import { PLAN, MODEL_BY_PLAN } from "./planCaps.js";
 
 /**
  * pickModel(plan, context)

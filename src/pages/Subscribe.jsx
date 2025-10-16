@@ -16,7 +16,7 @@ const LINKS = {
   US: {
     basic:  "https://buy.stripe.com/00w14naZh0fR1S51UN3oA09",
     pro:    "https://buy.stripe.com/3c14gZebt8MmgM2ZXR3oAg",
-    premium:"https://buy.stripe.com/test_XXXXXX", // 🔴 Substitua pelo link real Premium US
+    premium: process.env.REACT_APP_LINK_PREMIUM_US || "https://buy.stripe.com/test_XXXXXX",
     labels: {
       basic:   "Basic — $10/month",
       pro:     "Intermediate — $20/month",

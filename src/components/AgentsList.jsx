@@ -1,6 +1,6 @@
 // src/components/AgentsList.jsx
 import React from "react";
-import { AGENTS } from "../data/agents";
+import { AGENTS } from "../data/agents.js";
 import "./AgentsList.css"; // vamos criar depois
 
 export default function AgentsList() {
