@@ -1,5 +1,7 @@
 // src/ErrorBoundary.jsx
 import React from "react";
+import { captureError } from "./lib/sentry.js";
+import { trackEvent, Events } from "./lib/analytics.js";
 
 export default class ErrorBoundary extends React.Component {
   state = { error: null };
@@ -10,7 +12,18 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, info) {
     console.error("App crash:", error, info);
-    // TODO: enviar para Sentry/Logtail, se quiser.
+    
+    // Send to Sentry
+    captureError(error, {
+      componentStack: info.componentStack,
+      url: window.location.href,
+    });
+    
+    // Track in analytics
+    trackEvent(Events.ERROR_OCCURRED, {
+      error: error.message,
+      url: window.location.href,
+    });
   }
 
   reset = () => this.setState({ error: null });

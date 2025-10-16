@@ -1,7 +1,7 @@
 // src/components/Header.jsx
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
-import { BRAND } from "../config/brand";
+import { BRAND } from "../config/brand.js";
 
 export default function Header() {
   return (

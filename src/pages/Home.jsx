@@ -1,5 +1,5 @@
 import React from "react";
-import { BRAND } from "../config/brand";
+import { BRAND } from "../config/brand.js";
 
 /**
  * Home — RKMMAX Infinity Matrix/Study

@@ -1,9 +1,9 @@
 // src/pages/Agents.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import usePlan from "../hooks/usePlan";
-import AgentCard from "../components/AgentCard";
-import { AGENTS } from "../data/agents";
+import usePlan from "../hooks/usePlan.js";
+import AgentCard from "../components/AgentCard.jsx";
+import { AGENTS } from "../data/agents.js";
 
 export default function AgentsPage() {
   const navigate = useNavigate();

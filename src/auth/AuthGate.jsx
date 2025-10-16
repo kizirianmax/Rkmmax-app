@@ -3,7 +3,7 @@ import React from "react";
 import { Navigate, useLocation, matchPath } from "react-router-dom";
 // IMPORTANTE: seu AuthProvider deve expor o hook useAuth.
 // Se no seu projeto for diferente, ajuste a importação abaixo.
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "./AuthProvider.jsx";
 
 // Rotas que NÃO exigem login
 const PUBLIC_ROUTES = ["/", "/plans", "/login", "/reset-password"];
