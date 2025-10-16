@@ -6,6 +6,9 @@
   --brand-dark: #0e7490;
   --text: #333;
   --bg: #f9f9f9;
+  
+  /* Safe area para mobile (iOS/Android) */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Reset básico */
@@ -20,6 +23,10 @@ body{
   background-color: var(--bg);
   color: var(--text);
   line-height: 1.6;
+  
+  /* Safe area para mobile */
+  padding-bottom: calc(24px + var(--safe-bottom));
+  scroll-padding-bottom: calc(120px + var(--safe-bottom));
 }
 
 /* Barra superior (se usar) */
