@@ -15,17 +15,21 @@ export function initSentry() {
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
-        maskAllText: false,
-        blockAllMedia: false,
+        // Mascarar PII para privacidade
+        maskAllText: true,
+        maskAllInputs: true,
+        blockAllMedia: true,
+        // Permitir apenas elementos específicos
+        unmask: ['.public-content'],
       }),
     ],
     
-    // Performance Monitoring
-    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+    // Performance Monitoring - Amostragem econômica: 5% em produção
+    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.05 : 1.0,
     
-    // Session Replay
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
+    // Session Replay - Amostragem econômica
+    replaysSessionSampleRate: 0.05, // 5% das sessões normais
+    replaysOnErrorSampleRate: 1.0,  // 100% dos erros (crítico)
     
     // Release tracking
     release: process.env.REACT_APP_VERSION || "1.0.0",
