@@ -12,20 +12,26 @@ export function initAnalytics() {
 
   posthog.init(apiKey, {
     api_host: host,
-    autocapture: true,
+    
+    // Amostragem econômica: capturar apenas eventos essenciais
+    autocapture: false, // Desabilitar autocapture para reduzir volume
     capture_pageview: true,
-    capture_pageleave: true,
+    capture_pageleave: false, // Desabilitar para economia
     
-    // Privacy settings
-    mask_all_text: false,
-    mask_all_element_attributes: false,
+    // Privacy settings - Mascarar PII
+    mask_all_text: true,
+    mask_all_element_attributes: true,
     
-    // Performance
+    // Session Recording - Amostragem econômica
     session_recording: {
-      maskAllInputs: false,
+      maskAllInputs: true, // Mascarar todos os inputs
       maskInputOptions: {
         password: true,
+        email: true,
+        tel: true,
       },
+      // Gravar apenas 5% das sessões
+      sampleRate: process.env.NODE_ENV === "production" ? 0.05 : 1.0,
     },
     
     // Disable in development
