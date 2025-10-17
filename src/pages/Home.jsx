@@ -16,13 +16,12 @@ export default function Home() {
       {/* Header / Hero */}
       <header style={sx.hero} aria-labelledby="hero-title">
         <h1 id="hero-title" style={sx.title}>
-          Bem-vindo ao <span style={sx.brand}>{BRAND.lockup}</span>
+          Construa qualquer projeto com IA — em um só lugar.
         </h1>
 
         <p style={sx.sub}>
-          Projetos de estudo com <strong>ABNT/APA</strong>, cronograma e{" "}
-          <strong>fontes verificadas (Source-Proof)</strong> — orquestrados
-          pelo motor <strong>{BRAND.engine}</strong>. {BRAND.claim}
+          <strong>Serginho + Especialistas.</strong> E, quando precisar, o{" "}
+          <strong>Study Lab</strong> (opcional) para estudo acelerado.
         </p>
       </header>
 
@@ -51,18 +50,35 @@ export default function Home() {
 
         <p style={sx.p}>
           Agente especial e generalista. Orquestra os especialistas, supervisiona
-          e articula todas as interações para resolver qualquer tarefa — com foco
-          supremo em <strong>estudo</strong>.
+          e articula todas as interações para resolver <strong>qualquer tarefa</strong>.
         </p>
 
-        <a
-          href="/chat"
-          style={sx.cta}
-          role="button"
-          aria-label="Explorar especialistas (com Serginho)"
-        >
-          Explorar Especialistas (Premium)
-        </a>
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          <a
+            href="/serginho"
+            style={sx.cta}
+            role="button"
+            aria-label="Falar com o Serginho"
+          >
+            Falar com o Serginho
+          </a>
+          <a
+            href="/agents"
+            style={{ ...sx.cta, background: "#f1f5f9", color: "#0f172a" }}
+            role="button"
+            aria-label="Explorar Especialistas"
+          >
+            Explorar Especialistas
+          </a>
+          <a
+            href="/study"
+            style={{ ...sx.cta, background: "#f1f5f9", color: "#0f172a" }}
+            role="button"
+            aria-label="Abrir Study Lab"
+          >
+            Abrir Study Lab
+          </a>
+        </div>
       </section>
 
       {/* preview dos especialistas */}
