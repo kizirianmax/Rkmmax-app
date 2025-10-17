@@ -10,7 +10,10 @@ import BrandTitle from "./components/BrandTitle.jsx";
 import PlanGate from "./components/PlanGate.jsx";
 
 import Home from "./pages/Home.jsx";
+import Serginho from "./pages/Serginho.jsx";
 import AgentsPage from "./pages/Agents.jsx";
+import Projects from "./pages/Projects.jsx";
+import StudyLab from "./pages/StudyLab.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Help from "./pages/Help.jsx";
 
@@ -84,6 +87,10 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/serginho" element={<Serginho />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/study" element={<StudyLab />} />
+        <Route path="/study-lab" element={<Navigate to="/study" replace />} />
 
         {/* Área Premium */}
         <Route

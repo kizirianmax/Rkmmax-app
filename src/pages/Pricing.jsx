@@ -20,18 +20,33 @@ const getLink = (key) => {
 };
 
 const PLANS = [
-  { key: "basic", name: "RKM MAX Básico", price: "R$ 14,90/mês",
-    description: "Funções essenciais e limite inicial diário.",
-    features: ["Essenciais ilimitados", "Limite diário de tokens", "Suporte inicial"],
+  { key: "basic", name: "Básico", price: "R$ 14,90/mês",
+    description: "Acesso ao Serginho e funções essenciais.",
+    features: ["Serginho (orquestrador)", "Limite diário de tokens", "Suporte inicial"],
     link: getLink("basic") },
-  { key: "inter", name: "RKM MAX Intermediário", price: "R$ 50,00/mês",
-    description: "Funções avançadas, voz (Whisper + TTS) e limites maiores.",
+  { key: "inter", name: "Intermediário", price: "R$ 50,00/mês",
+    description: "Mais tokens, voz e recursos avançados.",
     features: ["Tudo do Básico", "Mais tokens/dia", "Whisper + TTS", "Suporte prioritário"],
     link: getLink("inter") },
-  { key: "prem", name: "RKM MAX Premium", price: "R$ 90,00/mês",
-    description: "Acesso total, priorização máxima e todos os especialistas.",
-    features: ["Tudo do Intermediário", "GPT-5 + 4.1 Mini", "12 especialistas + Orquestrador", "Suporte 24/7"],
+  { key: "prem", name: "Premium", price: "R$ 90,00/mês",
+    description: "Acesso total aos 12 especialistas e recursos premium.",
+    features: ["Tudo do Intermediário", "12 especialistas", "GPT-5 + 4.1 Mini", "Suporte 24/7"],
     link: getLink("prem") },
+];
+
+const FAQ = [
+  {
+    q: "Posso usar para estudo?",
+    a: "Sim! Acesse o Study Lab (opcional) para estudo acelerado com ABNT/APA, cronogramas e fontes verificadas."
+  },
+  {
+    q: "Há desconto educacional?",
+    a: "Sim! Use o código EDU50 no checkout para 50% OFF nos primeiros 6 meses."
+  },
+  {
+    q: "Como funciona o pagamento?",
+    a: "Pagamentos processados com segurança pela Stripe. Cancele a qualquer momento."
+  },
 ];
 
 function PlanCard({ plan }) {
@@ -74,6 +89,18 @@ export default function Pricing() {
         </div>
       )}
       {PLANS.map(p => <PlanCard key={p.key} plan={p} />)}
+      
+      {/* FAQ */}
+      <section style={{marginTop:48, maxWidth:720}}>
+        <h2 style={{fontSize:28, fontWeight:800, marginBottom:24}}>Perguntas Frequentes</h2>
+        {FAQ.map((item, i) => (
+          <div key={i} style={{marginBottom:24}}>
+            <h3 style={{fontSize:18, fontWeight:700, marginBottom:8}}>{item.q}</h3>
+            <p style={{color:'#64748b'}}>{item.a}</p>
+          </div>
+        ))}
+      </section>
+      
       <p style={{marginTop:24, color:'#64748b', fontSize:12}}>Pagamentos processados com segurança pela Stripe.</p>
     </main>
   );

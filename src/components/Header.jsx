@@ -23,8 +23,11 @@ export default function Header() {
       </Link>
 
       <nav className="nav" style={{ display: "flex", gap: 12 }}>
-        <NavLink to="/agents">Agentes</NavLink>
-        <NavLink to="/plans">Planos</NavLink>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/serginho">Serginho</NavLink>
+        <NavLink to="/agents">Especialistas</NavLink>
+        <NavLink to="/projects">Projetos</NavLink>
+        <NavLink to="/study">Study Lab</NavLink>
       </nav>
     </header>
   );
