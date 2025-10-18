@@ -14,6 +14,7 @@ import Serginho from "./pages/Serginho.jsx";
 import AgentsPage from "./pages/Agents.jsx";
 import Projects from "./pages/Projects.jsx";
 import StudyLab from "./pages/StudyLab.jsx";
+import Specialists from "./pages/Specialists.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Help from "./pages/Help.jsx";
 
@@ -90,6 +91,7 @@ export default function App() {
         <Route path="/serginho" element={<Serginho />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/study" element={<StudyLab />} />
+        <Route path="/specialists" element={<Specialists />} />
         <Route path="/study-lab" element={<Navigate to="/study" replace />} />
 
         {/* Área Premium */}

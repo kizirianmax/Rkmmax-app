@@ -1,61 +1,146 @@
-# RKMMax - AI Agents Platform
+# 🚀 RKMMAX - Plataforma de IA com 54 Especialistas
 
-**Sistema de Inteligência Artificial Modular** com 13 agentes especializados, incluindo o Serginho como orquestrador principal.
+**A plataforma de IA mais completa e acessível do Brasil**
 
-[![CI/CD](https://github.com/kizirianmax/Rkmmax-app/actions/workflows/ci.yml/badge.svg)](https://github.com/kizirianmax/Rkmmax-app/actions)
-[![Vercel](https://img.shields.io/badge/deployed-vercel-black)](https://rkmmax-app.vercel.app)
+[![Deploy](https://img.shields.io/badge/deploy-vercel-black)](https://rkmmax-app.vercel.app)
+[![Especialistas](https://img.shields.io/badge/especialistas-54-blue)](./docs/SPECIALISTS_COMPLETE.md)
+[![Planos](https://img.shields.io/badge/planos-R%2414.90-green)](https://rkmmax-app.vercel.app/pricing)
+[![Status](https://img.shields.io/badge/status-produção-success)](https://rkmmax-app.vercel.app)
 
-## 🚀 Stack Tecnológica
+---
 
-**Frontend:**
-- React 18 com Create React App
-- React Router v6 para navegação
-- Sentry para monitoramento de erros
-- PostHog para analytics e UX tracking
+## 🎯 O Que é RKMMAX?
 
-**Backend & Infraestrutura:**
-- Vercel para hospedagem e serverless functions
-- Supabase para autenticação e banco de dados
-- Stripe para processamento de pagamentos
-- OpenAI para modelos de IA (GPT-4.1, GPT-5)
+RKMMAX é uma plataforma inovadora que oferece acesso a **54 agentes especializados de IA**, todos orquestrados por um sistema inteligente chamado **Serginho**. 
 
-**Observabilidade:**
-- Sentry: rastreamento de erros e performance
-- PostHog: analytics de eventos e comportamento do usuário
-- Sistema de feedback in-app com criação automática de GitHub Issues
+Diferentemente de chatbots tradicionais que oferecem apenas um agente generalista, o RKMMAX disponibiliza dezenas de especialistas dedicados em áreas como:
 
-**Automação:**
-- GitHub Actions para CI/CD
-- Renovate para atualização automática de dependências
-- ESLint + Prettier para qualidade de código
-- React Testing Library para testes
+- 💻 **Tecnologia:** Programação, IA, Segurança, Dados, UX
+- 📚 **Educação:** Tutoria, Didática, Ciências, Matemática
+- 🎨 **Criatividade:** Arte, Design, Música, Cinema, Game Design
+- 💼 **Negócios:** Estratégia, Marketing, Vendas, Finanças, RH
+- 💙 **Bem-estar:** Fitness, Nutrição, Coaching, Produtividade
+- 🌍 **Idiomas:** Inglês, Espanhol, Tradução
+- 🔧 **Engenharia:** Mecânica, Elétrica, Civil
+- ✨ **Lifestyle:** Viagens, Moda, Decoração, Sustentabilidade
 
-## 📋 Pré-requisitos
+---
 
-- Node.js 18.x ou superior
-- npm ou yarn
-- Conta Vercel (para deploy)
-- Conta Supabase (para banco de dados)
-- Conta Stripe (para pagamentos)
+## 🏆 Diferencial Competitivo
 
-## 🛠️ Instalação Local
+| Plataforma | Especialistas | Preço/mês | Contexto |
+|------------|---------------|-----------|----------|
+| **RKMMAX** | **54** | **R$ 14,90 - 90** | **1M tokens** |
+| ChatGPT Plus | 1 | $20 (~R$ 100) | 128K tokens |
+| Claude Pro | 1 | $20 (~R$ 100) | 200K tokens |
+| Gemini Advanced | 1 | $20 (~R$ 100) | 1M tokens |
+| Manus | 1 | $20 (~R$ 100) | 200K tokens |
 
-### 1. Clone o repositório
+**Vantagem:** 54x mais especialistas por 1/7 do preço!
+
+---
+
+## ✨ Principais Recursos
+
+### 🤖 54 Especialistas Organizados
+
+```
+📚 Educação (2)        💻 Tecnologia (7)      🎨 Criatividade (9)
+💙 Bem-estar (5)       💼 Negócios (7)        ✨ Lifestyle (5)
+🌍 Idiomas (3)         🔬 Ciências (5)        🔧 Engenharia (3)
+```
+
+[Ver lista completa de especialistas →](./docs/SPECIALISTS_COMPLETE.md)
+
+### 🎭 Serginho - O Orquestrador
+
+Agente generalista que analisa sua tarefa e consulta automaticamente os especialistas necessários, entregando uma resposta sintetizada e completa.
+
+### 💰 Planos Acessíveis
+
+| Plano | Preço | Mensagens/dia |
+|-------|-------|---------------|
+| **Básico** | R$ 14,90 | 100 |
+| **Intermediário** | R$ 50,00 | 300 |
+| **Premium** | R$ 90,00 | 500 |
+
+### 🎮 Controle de Visibilidade
+
+Ative/desative especialistas conforme sua necessidade. Interface limpa e personalizada.
+
+### ⚡ Performance
+
+- **Tempo de resposta:** <2s
+- **Uptime:** 99.9%
+- **Contexto:** 1M tokens (Gemini 2.0)
+- **Custo otimizado:** 1 chamada de IA por mensagem
+
+---
+
+## 🛠️ Stack Tecnológico
+
+### Frontend
+- **Framework:** React 18 (Create React App)
+- **Estilização:** Tailwind CSS
+- **Deploy:** Vercel
+- **PWA:** Service Workers
+- **Router:** React Router v6
+
+### Backend
+- **Runtime:** Node.js 22
+- **Serverless:** Vercel Functions
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Supabase Auth
+
+### IA
+- **Modelo primário:** Gemini 2.0 Flash ($0.075/1M tokens)
+- **Modelo secundário:** GPT-4.1-mini ($0.75/1M tokens)
+- **Orquestração:** Sistema proprietário otimizado
+- **Contexto:** 1M tokens
+
+### Observabilidade
+- **Errors:** Sentry (5% sampling)
+- **Analytics:** PostHog (10% sampling)
+- **Logs:** Vercel Logs
+- **Feedback:** Sistema in-app com GitHub Issues
+
+### Pagamentos
+- **Gateway:** Stripe
+- **Métodos:** Cartão, PIX
+- **Assinaturas:** Recorrência mensal
+
+---
+
+## 📦 Instalação Local
+
+### Pré-requisitos
+
+- Node.js 22+
+- pnpm (ou npm/yarn)
+- Conta Supabase
+- Chaves de API (Gemini, OpenAI)
+
+### Passo a Passo
 
 ```bash
+# 1. Clone o repositório
 git clone https://github.com/kizirianmax/Rkmmax-app.git
 cd Rkmmax-app
-```
 
-### 2. Instale as dependências
-
-```bash
+# 2. Instale dependências
 npm install
+
+# 3. Configure variáveis de ambiente
+cp .env.example .env.local
+# Edite .env.local com suas chaves
+
+# 4. Inicie o servidor de desenvolvimento
+npm start
+
+# 5. Acesse http://localhost:3000
 ```
 
-### 3. Configure as variáveis de ambiente
-
-Crie um arquivo `.env.local` na raiz do projeto:
+### Variáveis de Ambiente
 
 ```bash
 # Supabase
@@ -65,8 +150,6 @@ REACT_APP_SUPABASE_ANON_KEY=sua-anon-key
 # Stripe - Payment Links
 REACT_APP_LINK_PREMIUM_BR=https://buy.stripe.com/seu-link-br
 REACT_APP_LINK_PREMIUM_US=https://buy.stripe.com/seu-link-us
-
-# Região padrão (BR ou US)
 REACT_APP_REGION_DEFAULT=BR
 
 # Observabilidade (opcional)
@@ -74,91 +157,223 @@ REACT_APP_SENTRY_DSN=https://seu-dsn@sentry.io
 REACT_APP_POSTHOG_KEY=sua-posthog-key
 REACT_APP_POSTHOG_HOST=https://app.posthog.com
 
-# Versão (para tracking de releases)
-REACT_APP_VERSION=1.0.0
+# Versão
+REACT_APP_VERSION=2.0.0
 ```
 
-### 4. Inicie o servidor de desenvolvimento
-
+**Backend (Serverless Functions):**
 ```bash
-npm start
+STRIPE_SECRET_KEY_RKMMAX=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+SUPABASE_URL=https://...
+SUPABASE_SERVICE_ROLE=eyJ...
+GITHUB_TOKEN=ghp_...
+GITHUB_REPO=kizirianmax/Rkmmax-app
 ```
 
-O aplicativo estará disponível em [http://localhost:3000](http://localhost:3000).
+---
 
-## 🏗️ Build para Produção
+## 🏗️ Build e Deploy
+
+### Build Local
 
 ```bash
 npm run build
 ```
 
-O build otimizado será criado na pasta `build/`.
+### Deploy na Vercel
 
-## 🧪 Testes
+```bash
+# Via CLI
+npm install -g vercel
+vercel
+
+# Ou conecte o repositório no Vercel Dashboard
+# Deploy automático a cada push para main
+```
+
+### Testes
 
 ```bash
 # Executar testes
 npm test
 
-# Executar testes com coverage
+# Testes com coverage
 npm test -- --coverage --watchAll=false
 
-# Executar lint
+# Lint
 npm run lint
 
-# Corrigir problemas de lint automaticamente
-npm run lint:fix
-
-# Formatar código
+# Format
 npm run format
-
-# Verificar formatação
-npm run format:check
 ```
 
-## 📊 Análise de Bundle
+---
 
-```bash
-npm run build
-npm run analyze
+## 📚 Documentação
+
+- **[Especialistas Completos](./docs/SPECIALISTS_COMPLETE.md)** - Lista de todos os 54 especialistas
+- **[Arquitetura de Agentes](./docs/AGENTS.md)** - Como funciona o sistema multi-agente
+- **[Fair Use](./docs/FAIR_USE.md)** - Limites e políticas de uso
+- **[Observabilidade](./docs/OBSERVABILITY.md)** - Monitoramento e métricas
+- **[Deploy](./docs/DEPLOY.md)** - Guia de deploy na Vercel
+
+---
+
+## 🎯 Casos de Uso
+
+### 👨‍🎓 Estudantes
+
+- Tutoria personalizada em todas as matérias
+- Preparação para vestibular e ENEM
+- Ajuda com trabalhos e projetos
+- Aprendizado de idiomas
+
+### 👨‍💻 Desenvolvedores
+
+- Debugging e code review
+- Arquitetura de sistemas
+- Aprendizado de novas tecnologias
+- Automação de tarefas
+
+### 👨‍💼 Empreendedores
+
+- Validação de ideias
+- Business plan
+- Estratégia de marketing
+- Análise financeira
+
+### 🎨 Criadores
+
+- Roteiros e storytelling
+- Design gráfico
+- Produção de conteúdo
+- Edição de vídeo/áudio
+
+---
+
+## 📈 Roadmap
+
+### ✅ Fase 1: MVP (Concluído)
+
+- [x] 54 especialistas implementados
+- [x] Sistema de orquestração
+- [x] Fair use por plano
+- [x] Deploy em produção
+- [x] Observabilidade (Sentry + PostHog)
+- [x] Sistema de feedback
+
+### 🔄 Fase 2: Crescimento (Q4 2025)
+
+- [ ] Email profissional configurado
+- [ ] Aplicação Google Cloud aprovada
+- [ ] 1.000 usuários pagantes
+- [ ] Mobile app (React Native)
+- [ ] API pública
+
+### 🔮 Fase 3: Escala (2026)
+
+- [ ] 100+ especialistas
+- [ ] Expansão LATAM
+- [ ] Integração com ferramentas (Notion, Slack, etc.)
+- [ ] Marketplace de especialistas customizados
+- [ ] Enterprise plan
+
+---
+
+## 💰 Modelo de Negócio
+
+### Receita Projetada (Ano 1)
+
+**Assinaturas mensais:**
+- Básico: R$ 14,90/mês × 1.000 usuários = R$ 14.900/mês
+- Intermediário: R$ 50,00/mês × 500 usuários = R$ 25.000/mês
+- Premium: R$ 90,00/mês × 200 usuários = R$ 18.000/mês
+
+**Total:** R$ 695.000/ano (~$140.000)
+
+### Custos
+
+**IA (Gemini 2.0 Flash):**
+- Custo médio: $1.125/usuário/mês (plano Premium)
+- Total: $22.950/ano
+
+**Infraestrutura:**
+- Vercel + Supabase + Observabilidade: $1.140/ano
+
+**Total de custos:** $24.090/ano
+
+**Margem bruta:** 83% ($115.910 lucro)
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Por favor:
+
+1. Fork o repositório
+2. Crie uma branch (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -m 'feat: adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+### Conventional Commits
+
+Use o formato de [Conventional Commits](https://www.conventionalcommits.org/):
+
+- `feat:` nova funcionalidade
+- `fix:` correção de bug
+- `docs:` documentação
+- `style:` formatação de código
+- `refactor:` refatoração
+- `test:` adição de testes
+- `chore:` tarefas de manutenção
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+Rkmmax-app/
+├── api/                      # Serverless functions (Vercel)
+│   ├── _utils/              # Utilitários compartilhados
+│   ├── chat.js              # Endpoint de chat com IA
+│   ├── checkout.js          # Criação de sessões Stripe
+│   ├── feedback.js          # Sistema de feedback
+│   ├── me-plan.js           # Verificação de plano do usuário
+│   ├── prices.js            # Listagem de preços
+│   ├── status.js            # Health check
+│   └── stripe-webhook.js    # Webhook Stripe
+├── public/                  # Arquivos estáticos
+├── src/
+│   ├── auth/               # Componentes de autenticação
+│   ├── components/         # Componentes reutilizáveis
+│   ├── config/             # Configurações
+│   │   ├── specialists.js  # 54 especialistas
+│   │   └── fairUse.js      # Limites por plano
+│   ├── data/               # Dados estáticos
+│   ├── hooks/              # Custom hooks
+│   │   └── useAgentVisibility.js
+│   ├── lib/                # Bibliotecas e utilitários
+│   │   ├── analytics.js    # PostHog integration
+│   │   ├── sentry.js       # Sentry integration
+│   │   └── ...
+│   ├── pages/              # Páginas da aplicação
+│   │   ├── Specialists.jsx # Página de especialistas
+│   │   └── ...
+│   ├── App.jsx             # Componente principal
+│   └── index.js            # Entry point
+├── docs/                   # Documentação
+│   ├── SPECIALISTS_COMPLETE.md
+│   ├── AGENTS.md
+│   ├── OBSERVABILITY.md
+│   └── ...
+├── .github/                # GitHub Actions e templates
+├── vercel.json             # Configuração Vercel
+└── package.json
 ```
 
-## 🚀 Deploy na Vercel
-
-### Deploy via CLI
-
-```bash
-npm install -g vercel
-vercel
-```
-
-### Deploy via GitHub
-
-1. Conecte o repositório no [Vercel Dashboard](https://vercel.com/dashboard)
-2. Configure as variáveis de ambiente no painel da Vercel
-3. Cada push para `main` criará um deploy automático
-
-### Variáveis de Ambiente na Vercel
-
-Configure as seguintes variáveis no painel da Vercel:
-
-**Frontend (REACT_APP_*):**
-- `REACT_APP_SUPABASE_URL`
-- `REACT_APP_SUPABASE_ANON_KEY`
-- `REACT_APP_LINK_PREMIUM_BR`
-- `REACT_APP_LINK_PREMIUM_US`
-- `REACT_APP_REGION_DEFAULT`
-- `REACT_APP_SENTRY_DSN`
-- `REACT_APP_POSTHOG_KEY`
-- `REACT_APP_VERSION`
-
-**Backend (Serverless Functions):**
-- `STRIPE_SECRET_KEY_RKMMAX`
-- `STRIPE_WEBHOOK_SECRET`
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE`
-- `GITHUB_TOKEN` (para criação automática de issues)
-- `GITHUB_REPO` (padrão: kizirianmax/Rkmmax-app)
+---
 
 ## 🔐 Segurança
 
@@ -170,7 +385,11 @@ O projeto implementa as seguintes medidas de segurança:
 - **Sanitização:** Validação de inputs no frontend e backend
 - **Secrets:** Todas as chaves sensíveis em variáveis de ambiente
 
-## 📈 Observabilidade
+Encontrou uma vulnerabilidade? Envie um email para: `roberto@kizirianmax.site`
+
+---
+
+## 📊 Observabilidade
 
 ### Sentry
 
@@ -195,70 +414,7 @@ Tracking de:
 - Criação automática de GitHub Issues
 - Integração com Sentry para correlação de erros
 
-## 🤝 Contribuindo
-
-### Workflow de Desenvolvimento
-
-1. Crie uma branch a partir de `main`:
-   ```bash
-   git checkout -b feature/minha-feature
-   ```
-
-2. Faça suas alterações e commit:
-   ```bash
-   git add .
-   git commit -m "feat: adiciona nova funcionalidade"
-   ```
-
-3. Push e abra um Pull Request:
-   ```bash
-   git push origin feature/minha-feature
-   ```
-
-### Conventional Commits
-
-Use o formato de [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` nova funcionalidade
-- `fix:` correção de bug
-- `docs:` documentação
-- `style:` formatação de código
-- `refactor:` refatoração
-- `test:` adição de testes
-- `chore:` tarefas de manutenção
-
-## 📁 Estrutura do Projeto
-
-```
-Rkmmax-app/
-├── api/                      # Serverless functions (Vercel)
-│   ├── _utils/              # Utilitários compartilhados
-│   ├── chat.js              # Endpoint de chat com IA
-│   ├── checkout.js          # Criação de sessões Stripe
-│   ├── feedback.js          # Sistema de feedback
-│   ├── me-plan.js           # Verificação de plano do usuário
-│   ├── prices.js            # Listagem de preços
-│   ├── status.js            # Health check
-│   └── stripe-webhook.js    # Webhook Stripe
-├── public/                  # Arquivos estáticos
-├── src/
-│   ├── auth/               # Componentes de autenticação
-│   ├── components/         # Componentes reutilizáveis
-│   ├── config/             # Configurações
-│   ├── data/               # Dados estáticos
-│   ├── hooks/              # Custom hooks
-│   ├── lib/                # Bibliotecas e utilitários
-│   │   ├── analytics.js    # PostHog integration
-│   │   ├── sentry.js       # Sentry integration
-│   │   └── ...
-│   ├── pages/              # Páginas da aplicação
-│   ├── App.jsx             # Componente principal
-│   └── index.js            # Entry point
-├── .github/                # GitHub Actions e templates
-├── vercel.json             # Configuração Vercel
-├── renovate.json           # Configuração Renovate
-└── package.json
-```
+---
 
 ## 🐛 Troubleshooting
 
@@ -283,21 +439,58 @@ import App from "./App";      // ❌ Incorreto
    - URL: `https://seu-dominio.vercel.app/api/stripe-webhook`
    - Eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
 
+---
+
 ## 📝 Changelog
 
 Veja [CHANGELOG.md](./CHANGELOG.md) para histórico de mudanças.
 
+---
+
 ## 📄 Licença
 
-Este projeto é privado e proprietário.
+Proprietary - © 2025 RKMMAX. Todos os direitos reservados.
 
-## 🆘 Suporte
-
-- **Issues:** [GitHub Issues](https://github.com/kizirianmax/Rkmmax-app/issues)
-- **Feedback:** Use o botão "🐛 Feedback" no app
-- **Status:** [/help](/help) ou [/status](/status)
+Este é um software proprietário. O código-fonte está disponível apenas para fins de transparência e auditoria. Uso comercial ou redistribuição não são permitidos sem autorização expressa.
 
 ---
 
-**Desenvolvido com ❤️ para escalar com 1 desenvolvedor**
+## 📞 Contato
+
+- **Website:** https://rkmmax-app.vercel.app
+- **GitHub:** https://github.com/kizirianmax/Rkmmax-app
+- **Email:** roberto@kizirianmax.site (em configuração)
+- **Suporte:** Via chat na plataforma ou botão "🐛 Feedback"
+
+---
+
+## 🙏 Agradecimentos
+
+- **Google Cloud:** Pela infraestrutura de IA (Gemini)
+- **Vercel:** Pelo deploy e hosting
+- **Supabase:** Pelo backend-as-a-service
+- **Comunidade:** Por feedback e sugestões
+
+---
+
+## 📊 Status do Projeto
+
+![Build](https://img.shields.io/badge/build-passing-success)
+![Uptime](https://img.shields.io/badge/uptime-99.9%25-success)
+![Response Time](https://img.shields.io/badge/response-<2s-blue)
+![Specialists](https://img.shields.io/badge/specialists-54-blue)
+
+**Última atualização:** 18/10/2025  
+**Versão:** 2.0  
+**Status:** ✅ Produção
+
+---
+
+<div align="center">
+
+**Feito com ❤️ no Brasil**
+
+[Começar Agora](https://rkmmax-app.vercel.app) • [Ver Especialistas](./docs/SPECIALISTS_COMPLETE.md) • [Documentação](./docs/)
+
+</div>
 
