@@ -16,7 +16,7 @@ export default function Home() {
       {/* Header / Hero */}
       <header style={sx.hero} aria-labelledby="hero-title">
         <h1 id="hero-title" style={sx.title}>
-          Construa qualquer projeto com IA — em um só lugar.
+          Serginho e sua equipe de especialistas transformam o impossível em realidade
         </h1>
 
         <p style={sx.sub}>
