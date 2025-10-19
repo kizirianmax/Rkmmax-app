@@ -11,7 +11,7 @@ const LINKS = {
     inter: "https://buy.stripe.com/test_dRmaEX0kD1jVgMZ2YR3oA02",
     prem:  null, // cai no basic
   },
-  live: { basic: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i", inter: "https://buy.stripe.com/fZu6oH2sL3s354h7f73", prem: "" }, // preencha quando tiver os links LIVE
+  live: { basic: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i", inter: "https://buy.stripe.com/fZu6oH2sL3s354h7f73", prem: "https://buy.stripe.com/00w6oHaZhfaLcwJczr3" }, // preencha quando tiver os links LIVE
 };
 
 const getLink = (key) => {
