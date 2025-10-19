@@ -85,7 +85,13 @@ function Specialists() {
                 }`}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="text-5xl">{specialist.emoji}</div>
+                  <img 
+                    src={specialist.avatar || `/avatars/${specialist.id}.png`} 
+                    alt={specialist.name}
+                    className="w-16 h-16 rounded-2xl object-cover"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }}
+                  />
+                  <div className="text-5xl" style={{display: 'none'}}>{specialist.emoji}</div>
                   {!isAvailable && (
                     <span className="px-3 py-1 bg-purple-100 text-purple-600 text-xs font-medium rounded-full">
                       Premium
