@@ -18,7 +18,7 @@ const PLANS = {
       planKey: "basic_br",
       icon: "🔹",
       name: "Básico",
-      price: "R$ 14,90/mês",
+      price: "R$ 25,00/mês",
       features: [
         "Essenciais ilimitados",
         "Acesso ao orquestrador",

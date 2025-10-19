@@ -20,7 +20,7 @@ const getLink = (key) => {
 };
 
 const PLANS = [
-  { key: "basic", name: "Básico", price: "R$ 14,90/mês",
+  { key: "basic", name: "Básico", price: "R$ 25,00/mês",
     description: "Acesso ao Serginho e funções essenciais.",
     features: ["Serginho (orquestrador)", "Limite diário de tokens", "Suporte inicial"],
     link: getLink("basic") },

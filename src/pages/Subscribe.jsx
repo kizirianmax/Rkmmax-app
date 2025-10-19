@@ -8,7 +8,7 @@ const LINKS = {
     pro:    "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a",
     premium:"https://buy.stripe.com/00w6oHaZhfaLCwJczr3oA0c", // ✅ Premium BR
     labels: {
-      basic:   "Básico — R$ 14,90/mês",
+      basic:   "Básico — R$ 25,00/mês",
       pro:     "Intermediário — R$ 50,00/mês",
       premium: "Premium — R$ 90,00/mês"
     }
