@@ -29,7 +29,7 @@ export default function Home() {
       <section style={sx.card} aria-labelledby="serginho-title">
         <div style={sx.row}>
           <img
-            src="/serginho.svg"
+            src="/avatars/serginho.png"
             alt="Avatar do Serginho (Orquestrador)"
             width={64}
             height={64}
@@ -63,7 +63,7 @@ export default function Home() {
             Falar com o Serginho
           </a>
           <a
-            href="/agents"
+            href="/specialists"
             style={{ ...sx.cta, background: "#f1f5f9", color: "#0f172a" }}
             role="button"
             aria-label="Explorar Especialistas"
@@ -84,8 +84,8 @@ export default function Home() {
       {/* preview dos especialistas */}
       <div style={sx.sectionHeader}>
         <h3 style={sx.h3}>Especialistas (preview)</h3>
-        <a href="/agents" style={sx.link} aria-label="Ver todos os especialistas">
-          Ver todos os 12
+        <a href="/specialists" style={sx.link} aria-label="Ver todos os especialistas">
+          Ver todos os 54
         </a>
       </div>
 
