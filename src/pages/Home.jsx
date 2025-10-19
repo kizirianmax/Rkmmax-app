@@ -129,7 +129,7 @@ export default function Home() {
           • SSL/TLS automático
           <br />• Checkout Stripe
           <br />• PWA Android/iOS
-          <br />• 12 Especialistas + Orquestrador
+          <br />• 54 Especialistas + Serginho Infinito
         </div>
       </section>
 
