@@ -80,6 +80,7 @@ export default function Pricing() {
         <span style={{
           marginLeft:'auto', padding:'4px 10px', borderRadius:999, fontWeight:800, border:'1px solid',
           borderColor: isProd ? '#059669' : '#d97706', color: isProd ? '#059669' : '#d97706'
+      }}>{isProd ? "PRODUÇÃO" : "TESTE"}</span>
       </div>
       {!isProd && (
         <div style={{marginBottom:16, padding:12, border:'1px solid #d97706', borderRadius:12}}>
