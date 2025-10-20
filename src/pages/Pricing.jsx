@@ -12,6 +12,7 @@ const LINKS = {
   live: { basic: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i", inter: "https://buy.stripe.com/fZu6oH2sL3s354h7f73", prem: "https://buy.stripe.com/00w6oHaZhfaLcwJczr3" }, // preencha quando tiver os links LIVE
 };
 
+const isProd = true; // forçar produção
 const getLink = (key) => {
   const env = isProd ? LINKS.live : LINKS.test;
   return env[key] || env.basic || "";
