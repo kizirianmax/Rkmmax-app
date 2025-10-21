@@ -80,8 +80,9 @@ function Specialists() {
             return (
               <div
                 key={specialist.id}
+                onClick={() => isAvailable && alert(`Iniciar conversa com ${specialist.name}`)}
                 className={`bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all ${
-                  !isAvailable ? 'opacity-50' : 'hover:-translate-y-1'
+                  !isAvailable ? 'opacity-50' : 'hover:-translate-y-1 cursor-pointer'
                 }`}
               >
                 <div className="flex items-start justify-between mb-4">
@@ -114,6 +115,10 @@ function Specialists() {
                   
                   <button
                     disabled={!isAvailable}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isAvailable) alert(`Iniciar conversa com ${specialist.name}`);
+                    }}
                     className={`px-4 py-2 rounded-lg font-medium transition-all ${
                       isAvailable
                         ? 'bg-purple-600 text-white hover:bg-purple-700'
