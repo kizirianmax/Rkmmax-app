@@ -89,31 +89,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Planos */}
-      <section style={sx.card} aria-labelledby="plans-title">
-        <div style={sx.row}>
-          <div style={sx.plansIcon} aria-hidden>💳</div>
-          <div>
-            <h2 id="plans-title" style={sx.h2}>Planos</h2>
-            <p style={sx.role}>Assine com segurança (Stripe)</p>
-          </div>
-        </div>
-
-        <p style={sx.p}>
-          Planos claros, pagamento via Stripe e acesso imediato ao app.
-          Suporte e upgrades simples para crescer junto com você.
-        </p>
-
-
-
-        <div style={sx.features} aria-label="Benefícios">
-          • SSL/TLS automático
-          <br />• Checkout Stripe
-          <br />• PWA Android/iOS
-          <br />• 54 Especialistas + Serginho Infinito
-        </div>
-      </section>
-
       <footer style={sx.footer}>
         <small style={sx.muted}>
           © {new Date().getFullYear()} {BRAND.master} — {BRAND.vertical}
