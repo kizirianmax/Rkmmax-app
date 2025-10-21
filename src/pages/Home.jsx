@@ -15,6 +15,7 @@ export default function Home() {
     <main style={sx.page} role="main" aria-label="Página inicial">
       {/* Header / Hero */}
       <header style={sx.hero} aria-labelledby="hero-title">
+        <div style={sx.heroOverlay} aria-hidden />
         <h1 id="hero-title" style={sx.title}>
           Serginho e sua equipe de especialistas transformam o impossível em realidade
         </h1>
@@ -165,12 +166,27 @@ const sx = {
     color: tone.ink,
     lineHeight: 1.45
   },
-  hero: { marginBottom: 12 },
+  hero: { 
+    marginBottom: 12,
+    position: "relative",
+    padding: "32px 20px",
+    borderRadius: 16,
+    background: "url('/hero-bg.png') center/cover no-repeat",
+    overflow: "hidden"
+  },
+  heroOverlay: {
+    position: "absolute",
+    inset: 0,
+    background: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)",
+    borderRadius: 16
+  },
   title: {
     fontSize: 36,
     fontWeight: 900,
     letterSpacing: -0.5,
-    margin: "0 0 10px"
+    margin: "0 0 10px",
+    position: "relative",
+    zIndex: 1
   },
   brand: {
     background: tone.grad,
@@ -178,7 +194,7 @@ const sx = {
     backgroundClip: "text",
     color: "transparent"
   },
-  sub: { margin: "0 0 24px", fontSize: 18, color: tone.mute },
+  sub: { margin: "0 0 24px", fontSize: 18, color: tone.mute, position: "relative", zIndex: 1 },
 
   card: {
     background: tone.bgCard,
