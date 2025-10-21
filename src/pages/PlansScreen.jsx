@@ -11,7 +11,7 @@ function detectRegion() {
   }
 }
 
-/** Payment Links (fallback) e rótulos por plano/região */
+/** Payment Links via variáveis de ambiente e rótulos por plano/região */
 const PLANS = {
   BR: [
     {
@@ -24,8 +24,8 @@ const PLANS = {
         "Acesso ao orquestrador",
         "Suporte básico",
       ],
-      payLink: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i", // Payment Link BR básico
-      priceId: null, // se quiser usar /api/checkout por price_id
+      payLink: process.env.REACT_APP_STRIPE_PAYMENT_LINK_BASIC_BR || "",
+      priceId: null,
       cta: "Assinar Básico",
     },
     {
@@ -38,7 +38,7 @@ const PLANS = {
         "Limites diários maiores",
         "Suporte via chat",
       ],
-      payLink: "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a", // Payment Link BR intermediário
+      payLink: process.env.REACT_APP_STRIPE_PAYMENT_LINK_INTERMEDIATE_BR || "",
       priceId: null,
       cta: "Assinar Intermediário",
     },
@@ -52,8 +52,8 @@ const PLANS = {
         "12 especialistas + Orquestrador",
         "Prioridade máxima de suporte",
       ],
-      payLink: "https://buy.stripe.com/00w6oHaZhfaLcwJczr3oA0c", // Payment Link BR premium
-      priceId: "price_1S7TM1ENxlkCT0yfGHMGJ9Rh", // opcional para /api/checkout
+      payLink: process.env.REACT_APP_STRIPE_PAYMENT_LINK_PREMIUM_BR || "",
+      priceId: "price_1S7TM1ENxlkCT0yfGHMGJ9Rh",
       cta: "Assinar Premium",
     },
   ],
@@ -64,7 +64,7 @@ const PLANS = {
       name: "Basic",
       price: "$10/month",
       features: ["Core features", "Orchestrator access", "Basic support"],
-      payLink: "https://buy.stripe.com/00w14naZh0fR1S51UN3oA09",
+      payLink: process.env.REACT_APP_STRIPE_PAYMENT_LINK_BASIC_US || "",
       priceId: null,
       cta: "Subscribe Basic",
     },
@@ -74,7 +74,7 @@ const PLANS = {
       name: "Intermediate",
       price: "$20/month",
       features: ["Advanced + voice", "Higher daily limits", "Chat support"],
-      payLink: "https://buy.stripe.com/3c14gZebt8MmgM2ZXR3oAg",
+      payLink: process.env.REACT_APP_STRIPE_PAYMENT_LINK_INTERMEDIATE_US || "",
       priceId: null,
       cta: "Subscribe Intermediate",
     },
@@ -84,7 +84,7 @@ const PLANS = {
       name: "Premium",
       price: "$30/month",
       features: ["GPT-5 Std + GPT-4.1 Mini", "All specialists", "Priority support"],
-      payLink: process.env.REACT_APP_LINK_PREMIUM_US || "",
+      payLink: process.env.REACT_APP_STRIPE_PAYMENT_LINK_PREMIUM_US || "",
       priceId: null,
       cta: "Subscribe Premium",
     },
@@ -206,3 +206,4 @@ export default function PlansScreen() {
     </main>
   );
 }
+
