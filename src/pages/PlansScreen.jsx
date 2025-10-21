@@ -92,9 +92,35 @@ const PLANS = {
 };
 
 export default function PlansScreen() {
-  const region = useMemo(detectRegion, []);
+  // Admin mode: permite alternar entre BR/US
+  const [isAdminMode, setIsAdminMode] = useState(() => {
+    return localStorage.getItem('rkmmax_admin') === 'true';
+  });
+  const [adminRegion, setAdminRegion] = useState(() => {
+    return localStorage.getItem('rkmmax_admin_region') || 'BR';
+  });
+  const [logoClicks, setLogoClicks] = useState(0);
+  
+  const detectedRegion = useMemo(detectRegion, []);
+  const region = isAdminMode ? adminRegion : detectedRegion;
   const [loading, setLoading] = useState("");
   const plans = PLANS[region] || PLANS.BR;
+
+  // Ativar modo admin: clicar 3x no logo
+  React.useEffect(() => {
+    if (logoClicks >= 3 && !isAdminMode) {
+      localStorage.setItem('rkmmax_admin', 'true');
+      setIsAdminMode(true);
+      setLogoClicks(0);
+      alert('🔧 Modo Admin Ativado!');
+    }
+  }, [logoClicks, isAdminMode]);
+
+  const toggleAdminRegion = () => {
+    const newRegion = adminRegion === 'BR' ? 'US' : 'BR';
+    setAdminRegion(newRegion);
+    localStorage.setItem('rkmmax_admin_region', newRegion);
+  };
 
   async function startCheckout(plan) {
     try {
@@ -136,11 +162,72 @@ export default function PlansScreen() {
 
   return (
     <main className="container" style={{ maxWidth: 980, margin: "40px auto", padding: 16 }}>
-      <header style={{ marginBottom: 24 }}>
-        <h1 style={{ margin: 0 }}>Escolha seu Plano</h1>
+      <header style={{ marginBottom: 24, position: 'relative' }}>
+        <h1 
+          style={{ margin: 0, cursor: 'pointer', display: 'inline-block' }}
+          onClick={() => setLogoClicks(prev => prev + 1)}
+          title="Clique 3x para ativar modo admin"
+        >
+          Escolha seu Plano
+        </h1>
         <p style={{ opacity: 0.8, margin: "8px 0 0" }}>
           Região detectada: <b>{region}</b>
         </p>
+        
+        {/* Botão Admin - só aparece quando ativado */}
+        {isAdminMode && (
+          <div style={{
+            position: 'fixed',
+            top: 20,
+            right: 20,
+            zIndex: 9999,
+            background: '#1a1a1a',
+            color: 'white',
+            padding: '12px 16px',
+            borderRadius: 8,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <span style={{ fontSize: 12, opacity: 0.8 }}>🔧 ADMIN</span>
+            <button
+              onClick={toggleAdminRegion}
+              style={{
+                background: adminRegion === 'BR' ? '#0070f3' : '#10b981',
+                color: 'white',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: 14
+              }}
+            >
+              {adminRegion === 'BR' ? '🇧🇷 BR' : '🇺🇸 US'}
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem('rkmmax_admin');
+                localStorage.removeItem('rkmmax_admin_region');
+                setIsAdminMode(false);
+                alert('Modo admin desativado');
+              }}
+              style={{
+                background: '#ef4444',
+                color: 'white',
+                border: 'none',
+                padding: '6px 10px',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: 12
+              }}
+              title="Desativar modo admin"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </header>
 
       <section
