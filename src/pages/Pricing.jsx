@@ -1,15 +1,18 @@
 // src/pages/Pricing.jsx
 import React from "react";
 
-
-/** Seus Payment Links do Stripe */
+/** Payment Links do Stripe via variáveis de ambiente */
 const LINKS = {
   test: {
     basic: "https://buy.stripe.com/test_14AbJ15EXbYz1S5bvn3oA01",
     inter: "https://buy.stripe.com/test_dRmaEX0kD1jVgMZ2YR3oA02",
     prem:  null, // cai no basic
   },
-  live: { basic: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i", inter: "https://buy.stripe.com/bJe8wP4AT1jVcwJ6b33", prem: "https://buy.stripe.com/00w6oHaZhfaLcwJczr3" }, // preencha quando tiver os links LIVE
+  live: {
+    basic: process.env.REACT_APP_STRIPE_PAYMENT_LINK_BASIC_BR || "",
+    inter: process.env.REACT_APP_STRIPE_PAYMENT_LINK_INTERMEDIATE_BR || "",
+    prem: process.env.REACT_APP_STRIPE_PAYMENT_LINK_PREMIUM_BR || "",
+  },
 };
 
 const isProd = true; // forçar produção
@@ -104,3 +107,4 @@ export default function Pricing() {
     </main>
   );
 }
+

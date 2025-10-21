@@ -1,12 +1,12 @@
 // src/pages/Subscribe.jsx
 import React, { useMemo, useState } from "react";
 
-// Links de pagamento (Payment Links) por região e plano
+// Links de pagamento (Payment Links) por região e plano via variáveis de ambiente
 const LINKS = {
   BR: {
-    basic:  "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i",
-    pro:    "https://buy.stripe.com/7sY14nffxfaL2W9dDv3oA0a",
-    premium:"https://buy.stripe.com/00w6oHaZhfaLCwJczr3oA0c", // ✅ Premium BR
+    basic:  process.env.REACT_APP_STRIPE_PAYMENT_LINK_BASIC_BR || "",
+    pro:    process.env.REACT_APP_STRIPE_PAYMENT_LINK_INTERMEDIATE_BR || "",
+    premium: process.env.REACT_APP_STRIPE_PAYMENT_LINK_PREMIUM_BR || "",
     labels: {
       basic:   "Básico — R$ 25,00/mês",
       pro:     "Intermediário — R$ 50,00/mês",
@@ -14,9 +14,9 @@ const LINKS = {
     }
   },
   US: {
-    basic:  "https://buy.stripe.com/00w14naZh0fR1S51UN3oA09",
-    pro:    "https://buy.stripe.com/3c14gZebt8MmgM2ZXR3oAg",
-    premium: process.env.REACT_APP_LINK_PREMIUM_US || "https://buy.stripe.com/test_XXXXXX",
+    basic:  process.env.REACT_APP_STRIPE_PAYMENT_LINK_BASIC_US || "",
+    pro:    process.env.REACT_APP_STRIPE_PAYMENT_LINK_INTERMEDIATE_US || "",
+    premium: process.env.REACT_APP_STRIPE_PAYMENT_LINK_PREMIUM_US || "",
     labels: {
       basic:   "Basic — $10/month",
       pro:     "Intermediate — $20/month",
@@ -73,3 +73,4 @@ export default function Subscribe() {
     </div>
   );
 }
+
