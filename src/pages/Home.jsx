@@ -81,31 +81,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* preview dos especialistas */}
-      <div style={sx.sectionHeader}>
-        <h3 style={sx.h3}>Especialistas (preview)</h3>
-        <a href="/specialists" style={sx.link} aria-label="Ver todos os especialistas">
-          Ver todos os 54
-        </a>
-      </div>
-
-      <div style={sx.chipsRow} role="list" aria-label="Especialistas em destaque">
-        {[
-          { id: "emo", name: "Emo", icon: "💜" },
-          { id: "didak", name: "Didak", icon: "📚" },
-          { id: "code", name: "Code", icon: "💻" },
-          { id: "focus", name: "Focus", icon: "🎯" },
-          { id: "bizu", name: "Bizu", icon: "🧠" },
-          { id: "orac", name: "Orac", icon: "🔮" },
-        ].map((it) => (
-          <div key={it.id} style={sx.chip} role="listitem" aria-label={it.name}>
-            <div aria-hidden style={sx.chipIcon}>{it.icon}</div>
-            <div style={{ fontWeight: 800 }}>{it.name}</div>
-            <span style={sx.chipBadge}>Premium</span>
-          </div>
-        ))}
-      </div>
-
       {/* Planos */}
       <section style={sx.card} aria-labelledby="plans-title">
         <div style={sx.row}>
