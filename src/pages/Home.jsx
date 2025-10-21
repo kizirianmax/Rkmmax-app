@@ -53,10 +53,10 @@ export default function Home() {
           e articula todas as interações para resolver <strong>qualquer tarefa</strong>.
         </p>
 
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "10px", flexDirection: "column", marginTop: 16 }}>
           <a
             href="/serginho"
-            style={sx.cta}
+            style={sx.ctaButton}
             role="button"
             aria-label="Falar com o Serginho"
           >
@@ -64,7 +64,7 @@ export default function Home() {
           </a>
           <a
             href="/specialists"
-            style={{ ...sx.cta, background: "#f1f5f9", color: "#0f172a" }}
+            style={sx.ctaSecondary}
             role="button"
             aria-label="Explorar Especialistas"
           >
@@ -72,11 +72,19 @@ export default function Home() {
           </a>
           <a
             href="/study"
-            style={{ ...sx.cta, background: "#f1f5f9", color: "#0f172a" }}
+            style={sx.ctaSecondary}
             role="button"
             aria-label="Abrir Study Lab"
           >
             Abrir Study Lab
+          </a>
+          <a
+            href="/pricing"
+            style={sx.ctaSecondary}
+            role="button"
+            aria-label="Ver Planos"
+          >
+            Ver Planos
           </a>
         </div>
       </section>
@@ -96,9 +104,7 @@ export default function Home() {
           Suporte e upgrades simples para crescer junto com você.
         </p>
 
-        <a href="/pricing" style={sx.buttonDark} role="button" aria-label="Ver planos">
-          Ver planos
-        </a>
+
 
         <div style={sx.features} aria-label="Benefícios">
           • SSL/TLS automático
@@ -190,17 +196,29 @@ const sx = {
   role: { margin: "2px 0 0", fontSize: 14, color: tone.soft },
   p: { margin: "12px 0", color: "#374151" },
 
-  cta: {
-    marginTop: 14,
-    display: "inline-block",
+  ctaButton: {
+    display: "block",
     padding: "12px 20px",
-    minHeight: 48,
-    borderRadius: 16,
+    textAlign: "center",
+    borderRadius: 12,
     color: "#fff",
-    fontWeight: 900,
-    fontSize: 16,
+    fontWeight: 700,
+    fontSize: 15,
     background: tone.grad,
-    boxShadow: "0 12px 20px rgba(79,70,229,.25)",
+    boxShadow: "0 4px 12px rgba(79,70,229,.2)",
+    textDecoration: "none",
+    touchAction: "manipulation"
+  },
+  ctaSecondary: {
+    display: "block",
+    padding: "12px 20px",
+    textAlign: "center",
+    borderRadius: 12,
+    color: "#0f172a",
+    fontWeight: 700,
+    fontSize: 15,
+    background: "#f1f5f9",
+    border: "1px solid #e2e8f0",
     textDecoration: "none",
     touchAction: "manipulation"
   },
