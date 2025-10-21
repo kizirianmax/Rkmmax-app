@@ -89,6 +89,48 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Informações e Regulamento */}
+      <section style={sx.infoCard} aria-labelledby="info-title">
+        <div style={sx.infoHeader}>
+          <div style={sx.infoIcon} aria-hidden>📜</div>
+          <h3 id="info-title" style={sx.infoTitle}>Sobre o RKMMAX</h3>
+        </div>
+
+        <p style={sx.infoText}>
+          Plataforma completa com <strong>54 especialistas de IA</strong> orquestrados pelo Serginho. 
+          Pagamento seguro via <strong>Stripe</strong>, acesso imediato e suporte dedicado para 
+          transformar suas ideias em realidade.
+        </p>
+
+        <div style={sx.benefitsList}>
+          <div style={sx.benefitItem}>
+            <span style={sx.benefitIcon}>✅</span>
+            <span>SSL/TLS automático</span>
+          </div>
+          <div style={sx.benefitItem}>
+            <span style={sx.benefitIcon}>✅</span>
+            <span>Checkout Stripe seguro</span>
+          </div>
+          <div style={sx.benefitItem}>
+            <span style={sx.benefitIcon}>✅</span>
+            <span>PWA para Android/iOS</span>
+          </div>
+          <div style={sx.benefitItem}>
+            <span style={sx.benefitIcon}>✅</span>
+            <span>54 Especialistas + Serginho</span>
+          </div>
+        </div>
+
+        <a 
+          href="/regulamento" 
+          style={sx.regulamentoButton}
+          role="button"
+          aria-label="Ver regulamento do projeto"
+        >
+          📜 Regulamento do Projeto
+        </a>
+      </section>
+
       <footer style={sx.footer}>
         <small style={sx.muted}>
           © {new Date().getFullYear()} {BRAND.master} — {BRAND.vertical}
@@ -307,6 +349,73 @@ const sx = {
     border: `1px solid ${tone.line}`,
     color: tone.mute,
     fontSize: 15
+  },
+
+  infoCard: {
+    background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 20,
+    border: "1px solid #e2e8f0",
+    boxShadow: "0 4px 12px rgba(15,23,42,.08)"
+  },
+  infoHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 16
+  },
+  infoIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    display: "grid",
+    placeItems: "center",
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+    fontSize: 24,
+    flexShrink: 0
+  },
+  infoTitle: {
+    fontSize: 20,
+    fontWeight: 900,
+    margin: 0,
+    color: tone.ink2
+  },
+  infoText: {
+    margin: "0 0 16px",
+    fontSize: 15,
+    lineHeight: 1.6,
+    color: "#475569"
+  },
+  benefitsList: {
+    display: "grid",
+    gap: 10,
+    marginBottom: 20
+  },
+  benefitItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    fontSize: 14,
+    color: "#334155"
+  },
+  benefitIcon: {
+    fontSize: 16,
+    flexShrink: 0
+  },
+  regulamentoButton: {
+    display: "block",
+    padding: "12px 20px",
+    textAlign: "center",
+    borderRadius: 12,
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 15,
+    background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)",
+    boxShadow: "0 4px 12px rgba(15,23,42,.25)",
+    textDecoration: "none",
+    touchAction: "manipulation",
+    border: "1px solid #1e293b"
   },
 
   footer: { marginTop: 24, textAlign: "center" },
