@@ -43,8 +43,8 @@ export default function Home() {
             <p style={sx.role}>Orquestrador</p>
           </div>
 
-          <span style={sx.badgePWA} aria-label="Disponível como PWA para Android e iOS">
-            📱 PWA Android/iOS
+          <span style={sx.badgePWA} aria-label="Disponível como aplicativo">
+            ✨ APP
           </span>
         </div>
 
@@ -182,18 +182,15 @@ const sx = {
   },
   badgePWA: {
     marginLeft: "auto",
-    padding: "8px 14px",
+    padding: "6px 14px",
     borderRadius: 999,
-    fontSize: 12,
-    fontWeight: 900,
+    fontSize: 13,
+    fontWeight: 800,
     color: "#fff",
-    background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-    border: "2px solid #06b6d4",
-    boxShadow: "0 0 20px rgba(6,182,212,.4), 0 0 40px rgba(6,182,212,.2), inset 0 0 10px rgba(6,182,212,.1)",
-    backdropFilter: "blur(4px)",
-    textShadow: "0 0 10px rgba(6,182,212,.8)",
-    animation: "pulse-glow 2s ease-in-out infinite",
-    letterSpacing: "0.5px"
+    background: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%)",
+    boxShadow: "0 4px 12px rgba(139,92,246,.35), 0 2px 6px rgba(236,72,153,.25)",
+    backdropFilter: "blur(2px)",
+    letterSpacing: "1px"
   },
   h2: { fontSize: 24, fontWeight: 900, margin: 0 },
   h3: { margin: "18px 0 6px", fontSize: 18, fontWeight: 900, color: tone.ink2 },
