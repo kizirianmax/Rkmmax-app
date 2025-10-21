@@ -56,35 +56,35 @@ export default function Home() {
         <div style={{ display: "flex", gap: "10px", flexDirection: "column", marginTop: 16 }}>
           <a
             href="/serginho"
-            style={sx.ctaButton}
+            style={sx.ctaBlue}
             role="button"
             aria-label="Falar com o Serginho"
           >
-            Falar com o Serginho
+            🤖 Falar com o Serginho
           </a>
           <a
             href="/specialists"
-            style={sx.ctaSecondary}
+            style={sx.ctaPurple}
             role="button"
             aria-label="Explorar Especialistas"
           >
-            Explorar Especialistas
+            👥 Explorar Especialistas
           </a>
           <a
             href="/study"
-            style={sx.ctaSecondary}
+            style={sx.ctaGreen}
             role="button"
             aria-label="Abrir Study Lab"
           >
-            Abrir Study Lab
+            📚 Abrir Study Lab
           </a>
           <a
             href="/pricing"
-            style={sx.ctaSecondary}
+            style={sx.ctaOrange}
             role="button"
             aria-label="Ver Planos"
           >
-            Ver Planos
+            💳 Ver Planos
           </a>
         </div>
       </section>
@@ -196,7 +196,7 @@ const sx = {
   role: { margin: "2px 0 0", fontSize: 14, color: tone.soft },
   p: { margin: "12px 0", color: "#374151" },
 
-  ctaButton: {
+  ctaBlue: {
     display: "block",
     padding: "12px 20px",
     textAlign: "center",
@@ -204,21 +204,47 @@ const sx = {
     color: "#fff",
     fontWeight: 700,
     fontSize: 15,
-    background: tone.grad,
-    boxShadow: "0 4px 12px rgba(79,70,229,.2)",
+    background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+    boxShadow: "0 4px 12px rgba(59,130,246,.3)",
     textDecoration: "none",
     touchAction: "manipulation"
   },
-  ctaSecondary: {
+  ctaPurple: {
     display: "block",
     padding: "12px 20px",
     textAlign: "center",
     borderRadius: 12,
-    color: "#0f172a",
+    color: "#fff",
     fontWeight: 700,
     fontSize: 15,
-    background: "#f1f5f9",
-    border: "1px solid #e2e8f0",
+    background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    boxShadow: "0 4px 12px rgba(139,92,246,.3)",
+    textDecoration: "none",
+    touchAction: "manipulation"
+  },
+  ctaGreen: {
+    display: "block",
+    padding: "12px 20px",
+    textAlign: "center",
+    borderRadius: 12,
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 15,
+    background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+    boxShadow: "0 4px 12px rgba(16,185,129,.3)",
+    textDecoration: "none",
+    touchAction: "manipulation"
+  },
+  ctaOrange: {
+    display: "block",
+    padding: "12px 20px",
+    textAlign: "center",
+    borderRadius: 12,
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 15,
+    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    boxShadow: "0 4px 12px rgba(245,158,11,.3)",
     textDecoration: "none",
     touchAction: "manipulation"
   },
