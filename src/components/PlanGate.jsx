@@ -14,8 +14,13 @@ export default function PlanGate({
 
   if (loading) return <p style={{ padding: 16 }}>Verificando seu plano…</p>;
 
-  const ok = requirePlan === "premium" ? plan === "premium" : true;
-  if (ok) return children;
+  // Acesso gratuito liberado para todos durante fase de testes
+  // TODO: Reativar verificação quando sair da fase beta
+  // const ok = requirePlan === "premium" ? plan === "premium" : true;
+  // if (ok) return children;
+  
+  // Por enquanto, liberar acesso para todos
+  return children;
 
   if (forceRedirect) return <Navigate to="/plans" replace />; // mantém a rota certa
 

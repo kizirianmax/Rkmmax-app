@@ -14,6 +14,40 @@ import FeedbackButton from "../components/FeedbackButton.jsx";
 export default function Home() {
   return (
     <main style={sx.page} role="main" aria-label="Página inicial">
+      {/* Banner de Acesso Gratuito Beta */}
+      <div style={{
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        color: '#fff',
+        padding: '16px 24px',
+        borderRadius: '16px',
+        marginBottom: '24px',
+        textAlign: 'center',
+        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+      }}>
+        <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎉</div>
+        <h2 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 8px 0' }}>
+          Acesso Gratuito Durante a Fase Beta!
+        </h2>
+        <p style={{ margin: '0 0 12px 0', fontSize: '15px' }}>
+          Todos os 54 especialistas + Serginho + Study Lab - 100% grátis!
+        </p>
+        <a
+          href="/serginho"
+          style={{
+            display: 'inline-block',
+            padding: '10px 24px',
+            background: '#fff',
+            color: '#059669',
+            borderRadius: '12px',
+            fontWeight: 800,
+            textDecoration: 'none',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}
+        >
+          🚀 Começar Agora
+        </a>
+      </div>
+      
       {/* Header / Hero */}
       <header style={sx.hero} aria-labelledby="hero-title">
         <div style={sx.heroOverlay} aria-hidden />
