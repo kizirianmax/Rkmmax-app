@@ -19,7 +19,7 @@ export default function Settings() {
       <header style={styles.header}>
         <h1 style={styles.title}>⚙️ Configurações</h1>
         <p style={styles.subtitle}>
-          Conecte suas ferramentas favoritas para o KIZI ter acesso completo
+          Conecte suas ferramentas favoritas para o Serginho ter acesso completo
         </p>
       </header>
 
@@ -27,7 +27,7 @@ export default function Settings() {
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>🔌 Integrações</h2>
         <p style={styles.sectionDesc}>
-          Conecte serviços externos para expandir as capacidades do KIZI
+          Conecte serviços externos para expandir as capacidades do Serginho
         </p>
 
         <div style={styles.integrationsList}>
@@ -124,7 +124,7 @@ export default function Settings() {
       {/* Informações */}
       <section style={styles.infoSection}>
         <p style={styles.infoText}>
-          💡 <strong>Dica:</strong> Conecte suas ferramentas para o KIZI ter acesso completo 
+          💡 <strong>Dica:</strong> Conecte suas ferramentas para o Serginho ter acesso completo 
           aos seus dados e poder executar tarefas complexas automaticamente.
         </p>
       </section>
