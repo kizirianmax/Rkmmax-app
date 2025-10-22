@@ -17,6 +17,7 @@ import StudyLab from "./pages/StudyLab.jsx";
 import Specialists from "./pages/Specialists.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Help from "./pages/Help.jsx";
+import Settings from "./pages/Settings.jsx";
 
 // Página simples para retorno do Stripe (/success)
 function CheckoutSuccess() {
@@ -115,12 +116,15 @@ export default function App() {
         <Route path="/help" element={<Help />} />
         <Route path="/status" element={<Help />} />
 
+        {/* Settings */}
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/configuracoes" element={<Navigate to="/settings" replace />} />
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* Feedback Button */}
-      <FeedbackButton />
+      {/* Feedback Button removido - agora apenas na Home */}
     </BrowserRouter>
   );
 }
