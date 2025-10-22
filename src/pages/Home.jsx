@@ -177,7 +177,7 @@ const sx = {
   heroOverlay: {
     position: "absolute",
     inset: 0,
-    background: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)",
+    background: "linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.65) 100%)",
     borderRadius: 16
   },
   title: {
