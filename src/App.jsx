@@ -21,6 +21,7 @@ import Settings from "./pages/Settings.jsx";
 import Success from "./pages/Success.jsx";
 import Subscription from "./pages/Subscription.jsx";
 import Onboarding from "./components/Onboarding.jsx";
+import OptionalSignupBanner from "./components/OptionalSignupBanner.jsx";
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -46,6 +47,9 @@ export default function App() {
       {showOnboarding && (
         <Onboarding onComplete={() => setShowOnboarding(false)} />
       )}
+      
+      {/* Banner de cadastro opcional */}
+      <OptionalSignupBanner />
 
       <Routes>
         <Route path="/" element={<Home />} />
