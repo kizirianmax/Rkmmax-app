@@ -22,7 +22,7 @@ export default function PricingTable() {
 
   const handleCheckout = async (lookupKey) => {
     try {
-      const res = await fetch("/.netlify/functions/checkout", {
+      const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lookupKey }),
@@ -33,7 +33,7 @@ export default function PricingTable() {
       const { url } = await res.json();
       if (url) window.location.href = url;
     } catch (e) {
-      alert("Preço não configurado. Verifique as variáveis no Netlify.");
+      alert("Preço não configurado. Verifique as variáveis no Vercel.");
       console.error(e);
     }
   };
