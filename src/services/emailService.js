@@ -167,7 +167,7 @@ function generateWelcomeEmailHTML({ name, plan }) {
       <div class="benefit-item">
         <span class="benefit-icon">💬</span>
         <div class="benefit-text">
-          <strong>KIZI - Seu Assistente Pessoal</strong>
+          <strong>Serginho - Seu Assistente Pessoal</strong>
           <p>Disponível 24/7 para te ajudar com qualquer dúvida ou tarefa</p>
         </div>
       </div>
@@ -205,7 +205,7 @@ function generateWelcomeEmailHTML({ name, plan }) {
       </a>
       
       <a href="https://rkmmax-app.vercel.app/serginho" class="cta-button">
-        💬 Chat com KIZI
+        💬 Chat com Serginho
       </a>
       
       <a href="https://rkmmax-app.vercel.app/study" class="cta-button">
@@ -217,7 +217,7 @@ function generateWelcomeEmailHTML({ name, plan }) {
       <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">📋 Próximos Passos:</h3>
       <ol style="margin: 0; padding-left: 20px;">
         <li style="margin-bottom: 8px;">Explore os 54 especialistas e descubra qual se encaixa melhor nas suas necessidades</li>
-        <li style="margin-bottom: 8px;">Converse com KIZI para conhecer todos os recursos disponíveis</li>
+        <li style="margin-bottom: 8px;">Converse com Serginho para conhecer todos os recursos disponíveis</li>
         <li style="margin-bottom: 8px;">Configure suas preferências em <a href="https://rkmmax-app.vercel.app/settings">Configurações</a></li>
         <li style="margin-bottom: 8px;">Gerencie sua assinatura em <a href="https://rkmmax-app.vercel.app/subscription">Minha Assinatura</a></li>
       </ol>
@@ -256,7 +256,7 @@ O QUE VOCÊ GANHOU:
 🤖 54 Especialistas em IA
 Acesso ilimitado a todos os agentes especializados para qualquer tarefa
 
-💬 KIZI - Seu Assistente Pessoal
+💬 Serginho - Seu Assistente Pessoal
 Disponível 24/7 para te ajudar com qualquer dúvida ou tarefa
 
 📚 Study Lab Premium
@@ -271,13 +271,13 @@ Atendimento prioritário e suporte dedicado
 COMECE AGORA MESMO:
 
 🎯 Explorar Especialistas: https://rkmmax-app.vercel.app/agents
-💬 Chat com KIZI: https://rkmmax-app.vercel.app/serginho
+💬 Chat com Serginho: https://rkmmax-app.vercel.app/serginho
 📚 Study Lab: https://rkmmax-app.vercel.app/study
 
 PRÓXIMOS PASSOS:
 
 1. Explore os 54 especialistas e descubra qual se encaixa melhor nas suas necessidades
-2. Converse com KIZI para conhecer todos os recursos disponíveis
+2. Converse com Serginho para conhecer todos os recursos disponíveis
 3. Configure suas preferências em: https://rkmmax-app.vercel.app/settings
 4. Gerencie sua assinatura em: https://rkmmax-app.vercel.app/subscription
 

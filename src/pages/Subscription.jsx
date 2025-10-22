@@ -140,7 +140,7 @@ export default function Subscription() {
             <div className="feature-item">
               <span className="feature-icon">💬</span>
               <div>
-                <strong>KIZI - Assistente Pessoal</strong>
+                <strong>Serginho - Assistente Pessoal</strong>
                 <p>Disponível 24/7 para te ajudar</p>
               </div>
             </div>
@@ -252,7 +252,7 @@ export default function Subscription() {
             <Link to="/serginho" className="action-card">
               <span className="action-icon">💬</span>
               <div>
-                <strong>Chat com KIZI</strong>
+                <strong>Chat com Serginho</strong>
                 <p>Converse com seu assistente</p>
               </div>
             </Link>

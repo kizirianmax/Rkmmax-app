@@ -7,7 +7,7 @@ export default function Serginho() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Olá! Sou o KIZI, seu assistente pessoal de IA. Como posso ajudar você hoje?"
+      content: "Olá! Sou o Serginho, seu assistente pessoal de IA. Como posso ajudar você hoje?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -159,7 +159,7 @@ export default function Serginho() {
         <div className="header-content">
           <div className="avatar-large">🤖</div>
           <div className="header-info">
-            <h1>KIZI</h1>
+            <h1>Serginho</h1>
             <p>Assistente Pessoal • Online</p>
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function Serginho() {
           <div className="welcome-header">
             <div className="avatar-xl">🤖</div>
             <div>
-              <h2>KIZI — Assistente Pessoal</h2>
+              <h2>Serginho — Assistente Pessoal</h2>
               <p>Powered by Groq AI (Llama 3.3 70B)</p>
             </div>
           </div>

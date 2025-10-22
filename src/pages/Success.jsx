@@ -54,7 +54,7 @@ export default function Success() {
 
           <div className="benefit-card">
             <div className="benefit-icon">💬</div>
-            <h3>KIZI - Assistente Pessoal</h3>
+            <h3>Serginho - Assistente Pessoal</h3>
             <p>Seu copiloto inteligente disponível 24/7</p>
           </div>
 
@@ -99,7 +99,7 @@ export default function Success() {
             <Link to="/serginho" className="cta-secondary">
               <span className="cta-icon">💬</span>
               <div className="cta-content">
-                <strong>Conversar com KIZI</strong>
+                <strong>Conversar com Serginho</strong>
                 <small>Seu assistente pessoal está te esperando</small>
               </div>
             </Link>

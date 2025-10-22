@@ -7,7 +7,7 @@ export default function Serginho() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Olá! Sou o KIZI, seu assistente pessoal de IA. Como posso ajudar você hoje?"
+      content: "Olá! Sou o Serginho, seu orquestrador de IA. Como posso ajudar você hoje?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -196,8 +196,8 @@ export default function Serginho() {
         <div className="header-content">
           <div className="avatar-large">🤖</div>
           <div className="header-info">
-            <h1>KIZI</h1>
-            <p>Assistente Pessoal • Online</p>
+            <h1>Serginho</h1>
+            <p>Orquestrador de IA • Online</p>
           </div>
         </div>
       </div>
@@ -208,12 +208,12 @@ export default function Serginho() {
           <div className="welcome-header">
             <div className="avatar-xl">🤖</div>
             <div>
-              <h2>KIZI — Assistente Pessoal</h2>
-              <p>Powered by Groq AI (Llama 3.3 70B)</p>
+              <h2>Serginho — Orquestrador</h2>
+              <p>Agente especial e generalista</p>
             </div>
           </div>
           <p className="welcome-text">
-            Olá! Sou seu assistente pessoal de IA. Posso ajudar com qualquer coisa: responder perguntas, criar conteúdo, resolver problemas e muito mais. Pode me perguntar qualquer coisa! 💡
+            Orquestro todos os especialistas, supervisiono e articulo as interações para resolver qualquer tarefa. Pode me perguntar qualquer coisa! 💡
           </p>
         </div>
       </div>

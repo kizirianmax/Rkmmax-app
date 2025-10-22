@@ -24,8 +24,8 @@ export default function Onboarding({ onComplete }) {
       action: "Começar Tour"
     },
     {
-      title: "Conheça o KIZI 💬",
-      description: "Seu assistente pessoal de IA, disponível 24/7 para ajudar com qualquer coisa.",
+      title: "Conheça o Serginho 💬",
+      description: "Seu orquestrador de IA, disponível 24/7 para ajudar com qualquer coisa.",
       icon: "🤖",
       features: [
         "Responde perguntas instantaneamente",
@@ -64,7 +64,7 @@ export default function Onboarding({ onComplete }) {
       description: "Você está pronto para explorar tudo que o RKMMAX tem a oferecer.",
       icon: "🎊",
       features: [
-        "Chat com KIZI",
+          "Chat com Serginho",
         "Explorar Especialistas",
         "Acessar Study Lab",
         "Configurar Preferências"
