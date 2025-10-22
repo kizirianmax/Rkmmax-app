@@ -1,5 +1,6 @@
 // src/pages/Serginho.jsx
 import React, { useState, useRef, useEffect } from "react";
+import { sendMessageToGroq } from "../services/groqService";
 
 export default function Serginho() {
   const [messages, setMessages] = useState([
@@ -27,17 +28,28 @@ export default function Serginho() {
     setInput("");
     
     // Adicionar mensagem do usuário
-    setMessages(prev => [...prev, { role: "user", content: userMessage }]);
+    const newMessages = [...messages, { role: "user", content: userMessage }];
+    setMessages(newMessages);
     setIsLoading(true);
 
-    // Simular resposta (substituir por chamada real à API)
-    setTimeout(() => {
+    try {
+      // Chamar API Groq de verdade
+      const aiResponse = await sendMessageToGroq(newMessages);
+      
+      // Adicionar resposta da IA
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "Entendi sua solicitação! Estou analisando e vou orquestrar os especialistas necessários para resolver isso da melhor forma possível. 🤖"
+        content: aiResponse
       }]);
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente. 😔"
+      }]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
