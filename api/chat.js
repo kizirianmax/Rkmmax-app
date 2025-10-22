@@ -17,10 +17,17 @@ export default async function handler(req, res) {
     }
 
     // Pegar API key das variáveis de ambiente do Vercel
-    const GROQ_API_KEY = process.env.VITE_GROQ_API_KEY;
+    // Aceita múltiplos nomes possíveis
+    const GROQ_API_KEY = process.env.VITE_GROQ_API_KEY || 
+                         process.env.GROQ_API_KEY || 
+                         process.env.NEXT_PUBLIC_GROQ_API_KEY;
 
     if (!GROQ_API_KEY) {
-      return res.status(500).json({ error: 'Groq API key not configured' });
+      console.error('GROQ API KEY NOT FOUND. Available env vars:', Object.keys(process.env).filter(k => k.includes('GROQ')));
+      return res.status(500).json({ 
+        error: 'Groq API key not configured',
+        hint: 'Add GROQ_API_KEY to Vercel environment variables'
+      });
     }
 
     // System prompt personalizado para o KIZI
