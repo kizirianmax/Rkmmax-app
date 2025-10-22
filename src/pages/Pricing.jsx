@@ -22,6 +22,17 @@ const getLink = (key) => {
 };
 
 const PLANS = [
+  { key: "free", name: "Gratuito", price: "R$ 0,00/mês",
+    description: "Acesso completo durante a fase de testes beta.",
+    features: [
+      "✅ Todos os 54 especialistas",
+      "✅ Chat com Serginho ilimitado",
+      "✅ Study Lab completo",
+      "✅ Sem limite de uso",
+      "🎉 Fase Beta - Aproveite!"
+    ],
+    link: "/serginho", // Link direto para começar
+    isFree: true },
   { key: "basic", name: "Básico", price: "R$ 25,00/mês",
     description: "Acesso ao Serginho e funções essenciais.",
     features: ["Serginho (orquestrador)", "Limite diário de tokens", "Suporte inicial"],
@@ -53,18 +64,60 @@ const FAQ = [
 
 function PlanCard({ plan }) {
   const enabled = Boolean(plan.link);
+  const isFree = plan.isFree;
+  const borderColor = isFree ? '#10b981' : '#334155';
+  const bgGradient = isFree ? 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)' : 'transparent';
+  
   return (
-    <article style={{border:'1px solid #334155', borderRadius:16, padding:24, marginBottom:24}}>
-      <h2 style={{fontWeight:800, fontSize:24}}>{plan.name}</h2>
-      <p style={{margin:'6px 0'}}>{plan.price}</p>
-      <p style={{margin:'6px 0'}}>{plan.description}</p>
-      <ul style={{marginTop:12}}>{plan.features.map((f,i)=><li key={i}>{f}</li>)}</ul>
+    <article style={{
+      border: `2px solid ${borderColor}`,
+      borderRadius: 16,
+      padding: 24,
+      marginBottom: 24,
+      background: bgGradient,
+      position: 'relative'
+    }}>
+      {isFree && (
+        <div style={{
+          position: 'absolute',
+          top: -12,
+          right: 20,
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          color: '#fff',
+          padding: '4px 12px',
+          borderRadius: 999,
+          fontSize: 12,
+          fontWeight: 800
+        }}>
+          🎉 BETA GRATUITO
+        </div>
+      )}
+      <h2 style={{fontWeight:800, fontSize:24, color: isFree ? '#065f46' : 'inherit'}}>{plan.name}</h2>
+      <p style={{margin:'6px 0', fontSize: 20, fontWeight: 700, color: isFree ? '#047857' : 'inherit'}}>{plan.price}</p>
+      <p style={{margin:'6px 0', color: isFree ? '#065f46' : 'inherit'}}>{plan.description}</p>
+      <ul style={{marginTop:12}}>{plan.features.map((f,i)=><li key={i} style={{color: isFree ? '#065f46' : 'inherit'}}>{f}</li>)}</ul>
       <div style={{marginTop:16}}>
         {enabled ? (
-          <a href={plan.link} target="_blank" rel="noopener noreferrer"
-             style={{display:'inline-block', padding:'10px 16px', fontWeight:800, borderRadius:12, background:'#22d3ee', color:'#000', textDecoration:'none'}}>
-            Assinar
-          </a>
+          isFree ? (
+            <a href={plan.link}
+               style={{
+                 display:'inline-block',
+                 padding:'12px 24px',
+                 fontWeight:800,
+                 borderRadius:12,
+                 background:'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                 color:'#fff',
+                 textDecoration:'none',
+                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
+               }}>
+              🚀 Começar Agora Grátis
+            </a>
+          ) : (
+            <a href={plan.link} target="_blank" rel="noopener noreferrer"
+               style={{display:'inline-block', padding:'10px 16px', fontWeight:800, borderRadius:12, background:'#22d3ee', color:'#000', textDecoration:'none'}}>
+              Assinar
+            </a>
+          )
         ) : (
           <button disabled style={{padding:'10px 16px', fontWeight:800, borderRadius:12, background:'#475569', color:'#cbd5e1'}}>
             Indisponível
