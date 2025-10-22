@@ -94,6 +94,16 @@ export default async function handler(req, res) {
           currentPeriodEnd: sub?.current_period_end || null,
         });
 
+        // Enviar e-mail de boas-vindas
+        if (email) {
+          try {
+            await sendWelcomeEmail({ email, session });
+          } catch (emailError) {
+            console.error("❌ Erro ao enviar e-mail de boas-vindas:", emailError);
+            // Não falhar o webhook por causa do e-mail
+          }
+        }
+
         break;
       }
 
@@ -181,5 +191,87 @@ async function upsertSubscription({
   }
 
   console.log("✅ Subscription saved/updated:", email, status, priceId);
+}
+
+async function sendWelcomeEmail({ email, session }) {
+  if (!email) return;
+
+  console.log("📧 Enviando e-mail de boas-vindas para:", email);
+
+  // Extrair nome do cliente se disponível
+  const customerName = session?.customer_details?.name || null;
+  
+  // Determinar plano baseado no priceId ou metadata
+  let planName = "Premium";
+  const priceId = session?.metadata?.priceId || null;
+  if (priceId?.includes("basic")) planName = "Básico";
+  else if (priceId?.includes("inter")) planName = "Intermediário";
+
+  const emailHTML = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bem-vindo ao RKMMAX</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+  <div style="background: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+    <div style="text-align: center; margin-bottom: 32px;">
+      <div style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px;">RKMMAX</div>
+      <h1 style="font-size: 28px; font-weight: 800; color: #1e293b; margin-bottom: 16px;">Bem-vindo ao RKMMAX Premium! 🎉</h1>
+      <p style="font-size: 16px; color: #64748b;">
+        ${customerName ? `Olá ${customerName}! ` : ''}Sua assinatura foi ativada com sucesso!
+      </p>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; padding: 24px; margin-bottom: 32px;">
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">O que você ganhou:</h2>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        <li style="margin-bottom: 12px;">🤖 <strong>54 Especialistas em IA</strong></li>
+        <li style="margin-bottom: 12px;">💬 <strong>KIZI - Assistente Pessoal 24/7</strong></li>
+        <li style="margin-bottom: 12px;">📚 <strong>Study Lab Premium</strong></li>
+        <li style="margin-bottom: 12px;">⚡ <strong>Processamento Prioritário</strong></li>
+        <li style="margin-bottom: 12px;">💎 <strong>Suporte Premium</strong></li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 32px;">
+      <a href="https://rkmmax-app.vercel.app/agents" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%); color: #000; text-decoration: none; border-radius: 12px; font-weight: 700; margin: 8px;">
+        🎯 Explorar Especialistas
+      </a>
+      <a href="https://rkmmax-app.vercel.app/serginho" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: #fff; text-decoration: none; border-radius: 12px; font-weight: 700; margin: 8px;">
+        💬 Chat com KIZI
+      </a>
+    </div>
+
+    <div style="text-align: center; padding-top: 24px; border-top: 2px solid #e2e8f0; font-size: 14px; color: #64748b;">
+      <p>Precisa de ajuda? <a href="mailto:suporte@kizirianmax.site" style="color: #6366f1;">suporte@kizirianmax.site</a></p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  // TODO: Integrar com serviço de e-mail real (SendGrid, Resend, etc.)
+  // Por enquanto, apenas log
+  console.log("✅ E-mail de boas-vindas preparado para:", email);
+  
+  // Em produção, descomentar e configurar:
+  /*
+  const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email }] }],
+      from: { email: 'suporte@kizirianmax.site', name: 'RKMMAX' },
+      subject: 'Bem-vindo ao RKMMAX Premium! 🎉',
+      content: [{ type: 'text/html', value: emailHTML }]
+    })
+  });
+  */
 }
 

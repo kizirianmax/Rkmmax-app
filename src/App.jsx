@@ -18,74 +18,34 @@ import Specialists from "./pages/Specialists.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Help from "./pages/Help.jsx";
 import Settings from "./pages/Settings.jsx";
-
-// Página simples para retorno do Stripe (/success)
-function CheckoutSuccess() {
-  const [email, setEmail] = useState(
-    () =>
-      (typeof window !== "undefined" &&
-        window.localStorage.getItem("user_email")) ||
-      ""
-  );
-
-  const save = () => {
-    if (typeof window === "undefined") return;
-    const v = email.trim().toLowerCase();
-    if (v) {
-      window.localStorage.setItem("user_email", v);
-      alert("E-mail salvo! Agora você tem acesso Premium.");
-    }
-  };
-
-  return (
-    <div style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
-      <h2 style={{ fontSize: 22, marginBottom: 8 }}>Assinatura criada!</h2>
-      <p style={{ color: "#475569", marginBottom: 16 }}>
-        Obrigado pelo apoio. Seu acesso Premium foi ativado.
-      </p>
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <input
-          type="email"
-          placeholder="seu@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ flex: 1, padding: 10, borderRadius: 8, border: "1px solid #ddd" }}
-        />
-        <button onClick={save} style={{ padding: "10px 16px", borderRadius: 12 }}>
-          Salvar e-mail
-        </button>
-      </div>
-
-      <Link
-        to="/agents"
-        style={{
-          display: "inline-block",
-          padding: "10px 16px",
-          background: "#06b6d4",
-          color: "#000",
-          borderRadius: 12,
-          fontWeight: 700,
-          textDecoration: "none",
-        }}
-      >
-        Acessar Especialistas
-      </Link>
-    </div>
-  );
-}
+import Success from "./pages/Success.jsx";
+import Subscription from "./pages/Subscription.jsx";
+import Onboarding from "./components/Onboarding.jsx";
 
 export default function App() {
+  const [showOnboarding, setShowOnboarding] = React.useState(false);
+
   useEffect(() => {
     // Initialize observability tools
     initSentry();
     initAnalytics();
+
+    // Verificar se deve mostrar onboarding
+    const hasCompletedOnboarding = localStorage.getItem("onboarding_completed");
+    if (!hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
   }, []);
 
   return (
     <BrowserRouter>
       <BrandTitle />
       <Header />
+      
+      {/* Onboarding para novos usuários */}
+      {showOnboarding && (
+        <Onboarding onComplete={() => setShowOnboarding(false)} />
+      )}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -110,7 +70,7 @@ export default function App() {
         <Route path="/plans" element={<Navigate to="/pricing" replace />} />
 
         {/* Sucesso do Stripe */}
-        <Route path="/success" element={<CheckoutSuccess />} />
+        <Route path="/success" element={<Success />} />
 
         {/* Help & Status */}
         <Route path="/help" element={<Help />} />
@@ -119,6 +79,10 @@ export default function App() {
         {/* Settings */}
         <Route path="/settings" element={<Settings />} />
         <Route path="/configuracoes" element={<Navigate to="/settings" replace />} />
+
+        {/* Subscription Management */}
+        <Route path="/subscription" element={<Subscription />} />
+        <Route path="/assinatura" element={<Navigate to="/subscription" replace />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -18,7 +18,6 @@ export default function Serginho() {
   const mediaRecorderRef = useRef(null);
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
-  const cameraInputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -133,10 +132,6 @@ export default function Serginho() {
     imageInputRef.current?.click();
   };
 
-  const handleCameraCapture = () => {
-    cameraInputRef.current?.click();
-  };
-
   const handleFileSelect = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -150,42 +145,10 @@ export default function Serginho() {
   const handleImageSelect = (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setMessages(prev => [...prev, 
-          {
-            role: "user",
-            content: `🖼️ Imagem: ${file.name}`,
-            image: e.target.result
-          },
-          {
-            role: "assistant",
-            content: `Recebi sua imagem! A análise visual com IA será implementada em breve. Por enquanto, descreva o que tem na imagem e eu te ajudo! 😊`
-          }
-        ]);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCameraSelect = (event) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setMessages(prev => [...prev, 
-          {
-            role: "user",
-            content: `📸 Foto capturada`,
-            image: e.target.result
-          },
-          {
-            role: "assistant",
-            content: `Foto recebida! A análise visual com IA será implementada em breve. Por enquanto, descreva o que tem na foto e eu te ajudo! 😊`
-          }
-        ]);
-      };
-      reader.readAsDataURL(file);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `🖼️ Imagem "${file.name}" recebida! O upload de imagens ainda não está implementado, mas a interface está pronta. Em breve você poderá enviar fotos! 😊`
+      }]);
     }
   };
 
@@ -229,18 +192,6 @@ export default function Serginho() {
               <div className="message-avatar">🤖</div>
             )}
             <div className="message-bubble">
-              {msg.image && (
-                <img 
-                  src={msg.image} 
-                  alt="Imagem enviada" 
-                  className="message-image"
-                  style={{
-                    maxWidth: '100%',
-                    borderRadius: '12px',
-                    marginBottom: msg.content ? '8px' : '0'
-                  }}
-                />
-              )}
               {msg.content}
             </div>
           </div>
@@ -267,24 +218,17 @@ export default function Serginho() {
           <div className="action-buttons">
             <button
               className="action-btn"
-              onClick={handleCameraCapture}
-              title="Tirar foto"
-            >
-              📸
-            </button>
-            <button
-              className="action-btn"
-              onClick={handleImageAttach}
-              title="Enviar imagem da galeria"
-            >
-              🖼️
-            </button>
-            <button
-              className="action-btn"
               onClick={handleFileAttach}
               title="Anexar arquivo"
             >
               📎
+            </button>
+            <button
+              className="action-btn"
+              onClick={handleImageAttach}
+              title="Enviar imagem"
+            >
+              🖼️
             </button>
           </div>
 
@@ -333,14 +277,6 @@ export default function Serginho() {
         style={{ display: 'none' }}
         onChange={handleImageSelect}
         accept="image/*"
-      />
-      <input
-        ref={cameraInputRef}
-        type="file"
-        style={{ display: 'none' }}
-        onChange={handleCameraSelect}
-        accept="image/*"
-        capture="environment"
       />
     </div>
   );

@@ -1,0 +1,267 @@
+/* src/components/Onboarding.css */
+
+.onboarding-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.onboarding-container {
+  background: white;
+  border-radius: 24px;
+  max-width: 600px;
+  width: 100%;
+  padding: 48px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Progress Indicator */
+.onboarding-progress {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scale(1.2);
+}
+
+.progress-dot.completed {
+  background: #10b981;
+}
+
+/* Content */
+.onboarding-content {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.onboarding-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  animation: bounce 0.6s ease-out;
+}
+
+.onboarding-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.onboarding-description {
+  font-size: 18px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Features List */
+.onboarding-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.onboarding-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  font-size: 16px;
+  color: #475569;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.onboarding-features li:last-child {
+  border-bottom: none;
+}
+
+.feature-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Actions */
+.onboarding-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-skip,
+.btn-next {
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-skip {
+  background: #f8fafc;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+.btn-skip:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btn-next {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  min-width: 180px;
+}
+
+.btn-next:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+.btn-next:active {
+  transform: translateY(0);
+}
+
+/* Step Counter */
+.step-counter {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .onboarding-container {
+    padding: 32px 24px;
+  }
+
+  .onboarding-icon {
+    font-size: 64px;
+  }
+
+  .onboarding-title {
+    font-size: 24px;
+  }
+
+  .onboarding-description {
+    font-size: 16px;
+  }
+
+  .onboarding-features li {
+    font-size: 14px;
+  }
+
+  .btn-skip,
+  .btn-next {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .btn-next {
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .onboarding-overlay {
+    padding: 16px;
+  }
+
+  .onboarding-container {
+    padding: 24px 20px;
+  }
+
+  .onboarding-icon {
+    font-size: 56px;
+  }
+
+  .onboarding-title {
+    font-size: 22px;
+  }
+
+  .onboarding-actions {
+    flex-direction: column;
+  }
+
+  .btn-skip,
+  .btn-next {
+    width: 100%;
+  }
+}
+
