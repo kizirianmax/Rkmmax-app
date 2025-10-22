@@ -9,7 +9,7 @@ const LINKS = {
     prem:  null, // cai no basic
   },
   live: {
-    basic: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz",
+    basic: "https://buy.stripe.com/cNi8wPaZh7IjfIVeHz3oA0i",
     inter: process.env.REACT_APP_STRIPE_PAYMENT_LINK_INTERMEDIATE_BR || "",
     prem: process.env.REACT_APP_STRIPE_PAYMENT_LINK_PREMIUM_BR || "",
   },
