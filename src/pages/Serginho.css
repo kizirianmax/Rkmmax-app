@@ -464,3 +464,83 @@
   }
 }
 
+
+
+/* Welcome Card Compacto - Fixo no topo */
+.welcome-container-compact {
+  position: sticky;
+  top: 73px; /* Altura do header */
+  z-index: 9;
+  background: #f8fafc;
+  padding: 8px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.welcome-card-compact {
+  background: white;
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto;
+  border: 1px solid #e2e8f0;
+}
+
+.avatar-compact {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.welcome-info-compact h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 2px 0;
+  line-height: 1.2;
+}
+
+.welcome-info-compact p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Ajustar container de mensagens para não ficar atrás do card */
+.messages-container {
+  padding-top: 8px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .welcome-container-compact {
+    top: 65px;
+    padding: 6px 16px;
+  }
+  
+  .welcome-card-compact {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+  
+  .avatar-compact {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .welcome-info-compact h3 {
+    font-size: 14px;
+  }
+  
+  .welcome-info-compact p {
+    font-size: 12px;
+  }
+}
+

@@ -202,19 +202,14 @@ export default function Serginho() {
         </div>
       </div>
 
-      {/* Card de boas-vindas */}
-      <div className="welcome-container">
-        <div className="welcome-card">
-          <div className="welcome-header">
-            <img src="/avatars/serginho.png" alt="Serginho" className="avatar-xl" style={{borderRadius: '50%', objectFit: 'cover'}} />
-            <div>
-              <h2>Serginho — Orquestrador</h2>
-              <p>Agente especial e generalista</p>
-            </div>
+      {/* Card de boas-vindas - Compacto e fixo */}
+      <div className="welcome-container-compact">
+        <div className="welcome-card-compact">
+          <img src="/avatars/serginho.png" alt="Serginho" className="avatar-compact" />
+          <div className="welcome-info-compact">
+            <h3>Serginho — Orquestrador</h3>
+            <p>Orquestro todos os especialistas para resolver qualquer tarefa 💡</p>
           </div>
-          <p className="welcome-text">
-            Orquestro todos os especialistas, supervisiono e articulo as interações para resolver qualquer tarefa. Pode me perguntar qualquer coisa! 💡
-          </p>
         </div>
       </div>
 
