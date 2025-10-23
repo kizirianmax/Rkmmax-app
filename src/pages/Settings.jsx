@@ -1,5 +1,6 @@
 // src/pages/Settings.jsx
 import React, { useState } from "react";
+import SpecialistVisibilityManager from "../components/SpecialistVisibilityManager.jsx";
 
 export default function Settings() {
   const [connections, setConnections] = useState({
@@ -109,6 +110,11 @@ export default function Settings() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Visibilidade dos Especialistas */}
+      <section style={styles.section}>
+        <SpecialistVisibilityManager />
       </section>
 
       {/* Gerenciar Conectores */}

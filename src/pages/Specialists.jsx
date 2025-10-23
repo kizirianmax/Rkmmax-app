@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSpecialistVisibility } from '../hooks/useSpecialistVisibility.js';
 import { specialists, categories, getSpecialistsByCategory, getTotalSpecialists } from '../config/specialists';
 import { canUseSpecialist } from '../config/fairUse';
 
 function Specialists() {
   const navigate = useNavigate();
+  const { isVisible, getVisibleCount, getHiddenCount } = useSpecialistVisibility();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -16,7 +18,8 @@ function Specialists() {
     const matchesCategory = selectedCategory === 'all' || specialist.category === selectedCategory;
     const matchesSearch = specialist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          specialist.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesVisibility = isVisible(specialist.id);
+    return matchesCategory && matchesSearch && matchesVisibility;
   });
   
   return (
