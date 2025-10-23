@@ -194,7 +194,7 @@ export default function Serginho() {
       {/* Header fixo */}
       <div className="serginho-header">
         <div className="header-content">
-          <div className="avatar-large">🤖</div>
+          <img src="/avatars/serginho.png" alt="Serginho" className="avatar-large" style={{borderRadius: '50%', objectFit: 'cover'}} />
           <div className="header-info">
             <h1>Serginho</h1>
             <p>Orquestrador de IA • Online</p>
@@ -206,7 +206,7 @@ export default function Serginho() {
       <div className="welcome-container">
         <div className="welcome-card">
           <div className="welcome-header">
-            <div className="avatar-xl">🤖</div>
+            <img src="/avatars/serginho.png" alt="Serginho" className="avatar-xl" style={{borderRadius: '50%', objectFit: 'cover'}} />
             <div>
               <h2>Serginho — Orquestrador</h2>
               <p>Agente especial e generalista</p>
@@ -226,7 +226,7 @@ export default function Serginho() {
             className={`message ${msg.role === "user" ? "message-user" : "message-assistant"}`}
           >
             {msg.role === "assistant" && (
-              <div className="message-avatar">🤖</div>
+              <img src="/avatars/serginho.png" alt="Serginho" className="message-avatar" style={{borderRadius: '50%', objectFit: 'cover'}} />
             )}
             <div className="message-bubble">
               {msg.image && (
@@ -247,7 +247,7 @@ export default function Serginho() {
         ))}
         {isLoading && (
           <div className="message message-assistant">
-            <div className="message-avatar">🤖</div>
+            <img src="/avatars/serginho.png" alt="Serginho" className="message-avatar" style={{borderRadius: '50%', objectFit: 'cover'}} />
             <div className="message-bubble message-loading">
               <div className="typing-indicator">
                 <span></span>
