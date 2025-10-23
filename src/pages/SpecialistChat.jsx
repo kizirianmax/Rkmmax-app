@@ -104,7 +104,7 @@ export default function SpecialistChat() {
         </button>
         <div className="specialist-info">
           <img 
-            src={specialist.avatar || `/avatars/${specialist.id}.png`}
+            src={`${specialist.avatar || `/avatars/${specialist.id}.png`}?v=2`}
             alt={specialist.name}
             className="specialist-avatar-header"
             onError={(e) => { 
@@ -164,8 +164,9 @@ export default function SpecialistChat() {
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             className="send-button"
+            title="Enviar mensagem"
           >
-            {isLoading ? "..." : "Enviar"}
+            {isLoading ? "⏳" : "➤"}
           </button>
         </div>
       </div>

@@ -92,7 +92,7 @@ function Specialists() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <img 
-                    src={specialist.avatar || `/avatars/${specialist.id}.png`} 
+                    src={`${specialist.avatar || `/avatars/${specialist.id}.png`}?v=2`} 
                     alt={specialist.name}
                     className="w-14 h-14 rounded-xl object-cover shadow-md"
                     onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }}
