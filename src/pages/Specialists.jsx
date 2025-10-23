@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { specialists, categories, getSpecialistsByCategory, getTotalSpecialists } from '../config/specialists';
 import { canUseSpecialist } from '../config/fairUse';
 
 function Specialists() {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -80,7 +82,7 @@ function Specialists() {
             return (
               <div
                 key={specialist.id}
-                onClick={() => isAvailable && alert(`Iniciar conversa com ${specialist.name}`)}
+                onClick={() => isAvailable && navigate(`/specialist/${specialist.id}`)}
                 className={`bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all ${
                   !isAvailable ? 'opacity-50' : 'hover:-translate-y-1 cursor-pointer'
                 }`}
@@ -117,7 +119,7 @@ function Specialists() {
                     disabled={!isAvailable}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (isAvailable) alert(`Iniciar conversa com ${specialist.name}`);
+                      if (isAvailable) navigate(`/specialist/${specialist.id}`);
                     }}
                     className={`px-4 py-2 rounded-lg font-medium transition-all ${
                       isAvailable
@@ -150,7 +152,10 @@ function Specialists() {
           <p className="text-xl mb-8 opacity-90">
             Deixe o Serginho analisar sua tarefa e escolher automaticamente!
           </p>
-          <button className="px-8 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg hover:shadow-2xl transition-all">
+          <button 
+            onClick={() => navigate('/serginho')}
+            className="px-8 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg hover:shadow-2xl transition-all"
+          >
             Falar com o Serginho 🤖
           </button>
         </div>

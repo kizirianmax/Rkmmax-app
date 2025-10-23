@@ -1,0 +1,85 @@
+/* Estilos específicos para o chat com especialistas */
+
+.specialist-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 0 0 1rem 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-2px);
+}
+
+.specialist-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.specialist-avatar-header {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.specialist-emoji-header {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.specialist-info h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.specialist-info p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Ajustes para o emoji do assistente no chat */
+.assistant-emoji {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .specialist-header {
+    padding: 1rem;
+  }
+
+  .specialist-avatar-header {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .specialist-info h1 {
+    font-size: 1.25rem;
+  }
+
+  .specialist-info p {
+    font-size: 0.85rem;
+  }
+}
+

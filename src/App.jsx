@@ -15,6 +15,7 @@ import AgentsPage from "./pages/Agents.jsx";
 import Projects from "./pages/Projects.jsx";
 import StudyLab from "./pages/StudyLab.jsx";
 import Specialists from "./pages/Specialists.jsx";
+import SpecialistChat from "./pages/SpecialistChat.jsx";
 import Pricing from "./pages/Pricing.jsx";
 import Help from "./pages/Help.jsx";
 import Settings from "./pages/Settings.jsx";
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/study" element={<StudyLab />} />
         <Route path="/specialists" element={<Specialists />} />
+        <Route path="/specialist/:specialistId" element={<SpecialistChat />} />
         <Route path="/study-lab" element={<Navigate to="/study" replace />} />
 
         {/* Área Premium */}
