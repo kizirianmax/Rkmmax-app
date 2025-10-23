@@ -5,8 +5,8 @@ import "./Subscription.css";
 
 export default function Subscription() {
   const [userEmail, setUserEmail] = useState("");
-  const [plan, setPlan] = useState("premium");
-  const [billingCycle, setBillingCycle] = useState("monthly");
+  // const [plan, setPlan] = useState("premium"); // TODO: Implementar quando integrar com Stripe
+  // const [billingCycle, setBillingCycle] = useState("monthly"); // TODO: Implementar quando integrar com Stripe
   const [nextBillingDate, setNextBillingDate] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -226,14 +226,14 @@ export default function Subscription() {
               <div>Plano Premium - Mensal</div>
               <div>R$ 90,00</div>
               <div><span className="badge badge-paid">Pago</span></div>
-              <div><a href="#" className="link">Baixar PDF</a></div>
+              <div><button onClick={() => alert('Download de PDF em desenvolvimento')} className="link" style={{background: 'none', border: 'none', cursor: 'pointer'}}>Baixar PDF</button></div>
             </div>
             <div className="invoice-row">
               <div>{new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString("pt-BR")}</div>
               <div>Plano Premium - Mensal</div>
               <div>R$ 90,00</div>
               <div><span className="badge badge-paid">Pago</span></div>
-              <div><a href="#" className="link">Baixar PDF</a></div>
+              <div><button onClick={() => alert('Download de PDF em desenvolvimento')} className="link" style={{background: 'none', border: 'none', cursor: 'pointer'}}>Baixar PDF</button></div>
             </div>
           </div>
         </section>

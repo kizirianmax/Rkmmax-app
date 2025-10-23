@@ -13,7 +13,7 @@ const API_URL = '/api/chat';
  * @param {Object} options - Opções adicionais
  * @returns {Promise<string>} - Resposta do AI
  */
-export async function sendMessageToGroq(messages, options = {}) {
+export async function sendMessageToGroq(messages) {
   try {
     // Chamar API serverless do Vercel
     const response = await fetch(API_URL, {
@@ -94,9 +94,11 @@ export const GROQ_MODELS = {
   GPT_OSS_20B: 'openai/gpt-oss-20b',
 };
 
-export default {
+const groqService = {
   sendMessageToGroq,
   sendMessageToGroqStream,
   GROQ_MODELS,
 };
+
+export default groqService;
 

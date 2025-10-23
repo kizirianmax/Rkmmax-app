@@ -1,6 +1,6 @@
 // src/App.jsx
-import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { initSentry } from "./lib/sentry.js";
 import { initAnalytics } from "./lib/analytics.js";
 import FeedbackButton from "./components/FeedbackButton.jsx";
