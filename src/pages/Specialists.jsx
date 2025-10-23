@@ -94,10 +94,10 @@ function Specialists() {
                   <img 
                     src={specialist.avatar || `/avatars/${specialist.id}.png`} 
                     alt={specialist.name}
-                    className="w-16 h-16 rounded-2xl object-cover"
+                    className="w-14 h-14 rounded-xl object-cover shadow-md"
                     onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }}
                   />
-                  <div className="text-5xl" style={{display: 'none'}}>{specialist.emoji}</div>
+                  <div className="text-4xl" style={{display: 'none'}}>{specialist.emoji}</div>
                   {!isAvailable && (
                     <span className="px-3 py-1 bg-purple-100 text-purple-600 text-xs font-medium rounded-full">
                       Premium
@@ -124,13 +124,13 @@ function Specialists() {
                       e.stopPropagation();
                       if (isAvailable) navigate(`/specialist/${specialist.id}`);
                     }}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all transform ${
                       isAvailable
-                        ? 'bg-purple-600 text-white hover:bg-purple-700'
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 hover:shadow-lg hover:scale-105'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
                   >
-                    {isAvailable ? 'Conversar' : 'Bloqueado'}
+                    {isAvailable ? '💬 Conversar' : '🔒 Bloqueado'}
                   </button>
                 </div>
               </div>

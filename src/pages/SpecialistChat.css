@@ -33,11 +33,12 @@
 }
 
 .specialist-avatar-header {
-  width: 4rem;
-  height: 4rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 1rem;
   object-fit: cover;
   border: 3px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .specialist-emoji-header {
@@ -46,15 +47,17 @@
 }
 
 .specialist-info h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 800;
   margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .specialist-info p {
-  font-size: 0.9rem;
-  opacity: 0.9;
+  font-size: 1rem;
+  opacity: 0.95;
   margin: 0.25rem 0 0 0;
+  font-weight: 400;
 }
 
 /* Ajustes para o emoji do assistente no chat */
@@ -70,12 +73,12 @@
   }
 
   .specialist-avatar-header {
-    width: 3rem;
-    height: 3rem;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 
   .specialist-info h1 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
   .specialist-info p {
