@@ -10,12 +10,14 @@ export default function PricingTable() {
     plansJson.basic_br,
     plansJson.intermediate_br,
     plansJson.premium_br,
+    plansJson.ultra_br,
   ];
 
   const us = [
     plansJson.basic_us,
     plansJson.intermediate_us,
     plansJson.premium_us,
+    plansJson.ultra_us,
   ];
 
   const list = tab === "BR" ? br : us;
@@ -65,8 +67,9 @@ export default function PricingTable() {
             {p.billing === "monthly" ? "mês" : p.billing}
           </p>
           <ul>
-            <li>Assinatura mensal, cobrança automática</li>
-            <li>Códigos promocionais permitidos</li>
+            {p.features && p.features.map((feature, idx) => (
+              <li key={idx}>{feature}</li>
+            ))}
           </ul>
           <button
             className="btn"

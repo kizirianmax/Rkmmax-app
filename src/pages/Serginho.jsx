@@ -94,26 +94,37 @@ export default function Serginho() {
         // Parar todas as tracks do stream
         stream.getTracks().forEach(track => track.stop());
         
-        // Aqui você pode implementar a transcrição de áudio
-        // Por enquanto, apenas mostrar mensagem
-        setMessages(prev => [...prev, {
-          role: "assistant",
-          content: "🎤 Áudio gravado! A transcrição de voz ainda não está implementada, mas a gravação funciona perfeitamente. Em breve você poderá falar comigo! 😊"
-        }]);
-        
-        // TODO: Enviar audioBlob para API de transcrição (Whisper, Google Speech-to-Text, etc.)
-        /*
-        const formData = new FormData();
-        formData.append('audio', audioBlob, 'recording.wav');
-        
-        const response = await fetch('/api/transcribe', {
-          method: 'POST',
-          body: formData
-        });
-        
-        const { text } = await response.json();
-        setInput(text);
-        */
+        // Enviar áudio para API Whisper
+        try {
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'recording.wav');
+          
+          const response = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (!response.ok) {
+            throw new Error('Erro na transcrição');
+          }
+          
+          const { text } = await response.json();
+          
+          // Colocar texto transcrito no input
+          setInput(text);
+          
+          // Mostrar mensagem de sucesso
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: `🎤 Áudio transcrito: "${text}"`
+          }]);
+        } catch (error) {
+          console.error('Erro na transcrição:', error);
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: "❌ Erro ao transcrever áudio. Verifique se a API Whisper está configurada."
+          }]);
+        }
       };
       
       mediaRecorder.start();
@@ -147,43 +158,95 @@ export default function Serginho() {
     }
   };
 
-  const handleImageSelect = (event) => {
+  const handleImageSelect = async (event) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setMessages(prev => [...prev, 
-          {
-            role: "user",
-            content: `🖼️ Imagem: ${file.name}`,
-            image: e.target.result
-          },
-          {
-            role: "assistant",
-            content: `Recebi sua imagem! A análise visual com IA será implementada em breve. Por enquanto, descreva o que tem na imagem e eu te ajudo! 😊`
+      reader.onload = async (e) => {
+        const imageBase64 = e.target.result;
+        
+        // Mostrar imagem enviada
+        setMessages(prev => [...prev, {
+          role: "user",
+          content: `🖼️ Imagem: ${file.name}`,
+          image: imageBase64
+        }]);
+        
+        // Analisar imagem com GPT-4 Vision
+        setIsLoading(true);
+        try {
+          const response = await fetch('/api/vision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64 })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Erro na análise de imagem');
           }
-        ]);
+          
+          const { description } = await response.json();
+          
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: `👁️ **Análise da imagem:**\n\n${description}`
+          }]);
+        } catch (error) {
+          console.error('Erro na análise de imagem:', error);
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: "❌ Erro ao analisar imagem. Verifique se a API GPT-4 Vision está configurada."
+          }]);
+        } finally {
+          setIsLoading(false);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleCameraSelect = (event) => {
+  const handleCameraSelect = async (event) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setMessages(prev => [...prev, 
-          {
-            role: "user",
-            content: `📸 Foto capturada`,
-            image: e.target.result
-          },
-          {
-            role: "assistant",
-            content: `Foto recebida! A análise visual com IA será implementada em breve. Por enquanto, descreva o que tem na foto e eu te ajudo! 😊`
+      reader.onload = async (e) => {
+        const imageBase64 = e.target.result;
+        
+        // Mostrar foto capturada
+        setMessages(prev => [...prev, {
+          role: "user",
+          content: `📸 Foto capturada`,
+          image: imageBase64
+        }]);
+        
+        // Analisar foto com GPT-4 Vision
+        setIsLoading(true);
+        try {
+          const response = await fetch('/api/vision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64 })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Erro na análise de foto');
           }
-        ]);
+          
+          const { description } = await response.json();
+          
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: `👁️ **Análise da foto:**\n\n${description}`
+          }]);
+        } catch (error) {
+          console.error('Erro na análise de foto:', error);
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: "❌ Erro ao analisar foto. Verifique se a API GPT-4 Vision está configurada."
+          }]);
+        } finally {
+          setIsLoading(false);
+        }
       };
       reader.readAsDataURL(file);
     }

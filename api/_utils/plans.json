@@ -1,61 +1,134 @@
 {
   "basic_br": {
-    "name": "RKMMAX – Basic – BR",
-    "price": "R$ 14,90",
+    "name": "RKMMAX – Básico – BR",
+    "price": "R$ 25,00",
     "currency": "BRL",
-    "model": "gpt-5-nano",
-    "limit_tokens_per_day": 275000,
+    "features": [
+      "45 especialistas em IA",
+      "200 requisições/dia",
+      "Groq (Llama 3.3 70B)",
+      "Entrada de voz (Whisper)",
+      "Análise de imagens (GPT-4 Vision)"
+    ],
+    "limit_requests_per_day": 200,
     "billing": "monthly",
-    "lookup_key": "rkmmmax_basic_br"
+    "lookup_key": "rkmmax_basic_br"
   },
   "intermediate_br": {
     "name": "RKMMAX – Intermediário – BR",
     "price": "R$ 50,00",
     "currency": "BRL",
-    "model": "gpt-4.1-mini + voice (Whisper + TTS)",
-    "limit_tokens_per_day": 410000,
+    "features": [
+      "45 especialistas em IA",
+      "500 requisições/dia",
+      "Groq (Llama 3.3 70B)",
+      "Entrada de voz (Whisper)",
+      "Análise de imagens (GPT-4 Vision)"
+    ],
+    "limit_requests_per_day": 500,
     "billing": "monthly",
-    "lookup_key": "rkmmmax_intermediate_br"
+    "lookup_key": "rkmmax_intermediate_br"
   },
   "premium_br": {
     "name": "RKMMAX – Premium – BR",
     "price": "R$ 90,00",
     "currency": "BRL",
-    "models": {
-      "daily":   { "model": "gpt-4.1-mini",  "limit_tokens_per_day": 1200000 },
-      "advanced":{ "model": "gpt-5-standard","limit_tokens_per_month": 710000 }
-    },
+    "features": [
+      "45 especialistas em IA",
+      "200 requisições/dia",
+      "95% Groq + 5% Gemini Flash (10 req/dia)",
+      "Entrada de voz (Whisper)",
+      "Análise de imagens (GPT-4 Vision)",
+      "Modelos avançados"
+    ],
+    "limit_requests_per_day": 200,
+    "gemini_requests_per_day": 10,
     "billing": "monthly",
-    "lookup_key": "rkmmmax_premium_br"
+    "lookup_key": "rkmmax_premium_br"
+  },
+  "ultra_br": {
+    "name": "RKMMAX – Ultra – BR",
+    "price": "R$ 199,00",
+    "currency": "BRL",
+    "features": [
+      "45 especialistas em IA",
+      "400 requisições/dia",
+      "99% Groq + 1% Claude 3.5 Sonnet (4 req/dia)",
+      "Entrada de voz (Whisper)",
+      "Análise de imagens (GPT-4 Vision)",
+      "Modelos premium",
+      "Suporte prioritário"
+    ],
+    "limit_requests_per_day": 400,
+    "claude_requests_per_day": 4,
+    "billing": "monthly",
+    "lookup_key": "rkmmax_ultra_br"
   },
 
   "basic_us": {
     "name": "RKMMAX – Basic – US",
     "price": "$10.00",
     "currency": "USD",
-    "model": "gpt-5-nano",
-    "limit_tokens_per_day": 275000,
+    "features": [
+      "45 AI specialists",
+      "200 requests/day",
+      "Groq (Llama 3.3 70B)",
+      "Voice input (Whisper)",
+      "Image analysis (GPT-4 Vision)"
+    ],
+    "limit_requests_per_day": 200,
     "billing": "monthly",
-    "lookup_key": "rkmmmax_basic_us"
+    "lookup_key": "rkmmax_basic_us"
   },
   "intermediate_us": {
     "name": "RKMMAX – Intermediate – US",
     "price": "$20.00",
     "currency": "USD",
-    "model": "gpt-4.1-mini + voice (Whisper + TTS)",
-    "limit_tokens_per_day": 410000,
+    "features": [
+      "45 AI specialists",
+      "500 requests/day",
+      "Groq (Llama 3.3 70B)",
+      "Voice input (Whisper)",
+      "Image analysis (GPT-4 Vision)"
+    ],
+    "limit_requests_per_day": 500,
     "billing": "monthly",
-    "lookup_key": "rkmmmax_intermediate_us"
+    "lookup_key": "rkmmax_intermediate_us"
   },
   "premium_us": {
     "name": "RKMMAX – Premium – US",
     "price": "$30.00",
     "currency": "USD",
-    "models": {
-      "daily":   { "model": "gpt-4.1-mini",  "limit_tokens_per_day": 1200000 },
-      "advanced":{ "model": "gpt-5-standard","limit_tokens_per_month": 710000 }
-    },
+    "features": [
+      "45 AI specialists",
+      "200 requests/day",
+      "95% Groq + 5% Gemini Flash (10 req/day)",
+      "Voice input (Whisper)",
+      "Image analysis (GPT-4 Vision)",
+      "Advanced models"
+    ],
+    "limit_requests_per_day": 200,
+    "gemini_requests_per_day": 10,
     "billing": "monthly",
-    "lookup_key": "rkmmmax_premium_us"
+    "lookup_key": "rkmmax_premium_us"
+  },
+  "ultra_us": {
+    "name": "RKMMAX – Ultra – US",
+    "price": "$65.00",
+    "currency": "USD",
+    "features": [
+      "45 AI specialists",
+      "400 requests/day",
+      "99% Groq + 1% Claude 3.5 Sonnet (4 req/day)",
+      "Voice input (Whisper)",
+      "Image analysis (GPT-4 Vision)",
+      "Premium models",
+      "Priority support"
+    ],
+    "limit_requests_per_day": 400,
+    "claude_requests_per_day": 4,
+    "billing": "monthly",
+    "lookup_key": "rkmmax_ultra_us"
   }
 }
+
