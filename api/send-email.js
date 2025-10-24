@@ -1,13 +1,9 @@
 // api/send-email.js
+import { Resend } from 'resend';
 
 /**
- * Endpoint para enviar e-mails
- * 
- * Integração futura com:
- * - SendGrid
- * - Mailgun
- * - AWS SES
- * - Resend
+ * Endpoint para enviar e-mails via Resend
+ * Documentação: https://resend.com/docs
  */
 
 // CORS
@@ -33,6 +29,17 @@ export default async function handler(req, res) {
   }
 
   try {
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev'; // Email padrão do Resend
+
+    if (!RESEND_API_KEY) {
+      console.error('❌ RESEND_API_KEY não configurada');
+      return res.status(500).json({ 
+        ok: false, 
+        error: 'RESEND_API_KEY não configurada. Adicione no Vercel.' 
+      });
+    }
+
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const { to, subject, html, text, type } = body;
 
@@ -43,48 +50,39 @@ export default async function handler(req, res) {
       });
     }
 
-    // Log do e-mail (em produção, enviar via serviço real)
-    console.log('📧 Enviando e-mail:', {
+    // Inicializar Resend
+    const resend = new Resend(RESEND_API_KEY);
+
+    console.log('📧 Enviando e-mail via Resend:', {
       to,
       subject,
       type: type || 'generic',
       timestamp: new Date().toISOString()
     });
 
-    // TODO: Integrar com serviço de e-mail real
-    // Exemplo com SendGrid:
-    /*
-    const sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    
-    await sgMail.send({
-      to,
-      from: 'suporte@kizirianmax.site',
+    // Enviar e-mail
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: Array.isArray(to) ? to : [to],
       subject,
-      html,
-      text
+      html: html || text,
+      text: text || html?.replace(/<[^>]*>/g, '') // Fallback: remover HTML tags
     });
-    */
 
-    // Exemplo com Resend:
-    /*
-    const { Resend } = require('resend');
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
-    await resend.emails.send({
-      from: 'suporte@kizirianmax.site',
-      to,
-      subject,
-      html,
-      text
-    });
-    */
+    if (error) {
+      console.error('❌ Erro Resend:', error);
+      return res.status(400).json({ 
+        ok: false, 
+        error: error.message || 'Erro ao enviar e-mail' 
+      });
+    }
 
-    // Por enquanto, apenas simular sucesso
+    console.log('✅ E-mail enviado com sucesso:', data);
+
     return res.status(200).json({ 
       ok: true, 
-      message: 'Email sent successfully (simulated)',
-      emailId: `sim_${Date.now()}`,
+      message: 'Email sent successfully',
+      emailId: data.id,
       timestamp: new Date().toISOString()
     });
 

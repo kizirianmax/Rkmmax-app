@@ -25,15 +25,21 @@ export async function sendWelcomeEmail({ to, name, plan }) {
       text: generateWelcomeEmailText({ name, plan })
     };
 
-    // TODO: Integrar com serviço de e-mail real
-    // const response = await fetch('/api/send-email', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(emailData)
-    // });
+    // Enviar e-mail via API
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(emailData)
+    });
 
-    console.log('✅ E-mail de boas-vindas enviado com sucesso');
-    return { success: true };
+    const result = await response.json();
+
+    if (!result.ok) {
+      throw new Error(result.error || 'Erro ao enviar e-mail');
+    }
+
+    console.log('✅ E-mail de boas-vindas enviado com sucesso:', result.emailId);
+    return { success: true, emailId: result.emailId };
   } catch (error) {
     console.error('❌ Erro ao enviar e-mail:', error);
     return { success: false, error };

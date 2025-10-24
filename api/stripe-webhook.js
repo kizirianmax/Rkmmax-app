@@ -253,25 +253,32 @@ async function sendWelcomeEmail({ email, session }) {
 </html>
   `;
 
-  // TODO: Integrar com serviço de e-mail real (SendGrid, Resend, etc.)
-  // Por enquanto, apenas log
-  console.log("✅ E-mail de boas-vindas preparado para:", email);
-  
-  // Em produção, descomentar e configurar:
-  /*
-  const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      personalizations: [{ to: [{ email }] }],
-      from: { email: 'suporte@kizirianmax.site', name: 'RKMMAX' },
-      subject: 'Bem-vindo ao RKMMAX Premium! 🎉',
-      content: [{ type: 'text/html', value: emailHTML }]
-    })
-  });
-  */
+  // Enviar e-mail via API Resend
+  try {
+    const apiUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}/api/send-email`
+      : 'http://localhost:3000/api/send-email';
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: email,
+        subject: 'Bem-vindo ao RKMMAX Premium! 🎉',
+        html: emailHTML,
+        type: 'welcome'
+      })
+    });
+
+    const result = await response.json();
+    
+    if (result.ok) {
+      console.log("✅ E-mail de boas-vindas enviado com sucesso:", result.emailId);
+    } else {
+      console.error("❌ Erro ao enviar e-mail:", result.error);
+    }
+  } catch (error) {
+    console.error("❌ Erro ao enviar e-mail de boas-vindas:", error);
+  }
 }
 
