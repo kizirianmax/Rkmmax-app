@@ -31,13 +31,19 @@ function shouldUseFree() {
   return usageCounter.free < FREE_LIMIT_PER_DAY;
 }
 
+import { getSpecialistPrompt } from './specialist-prompts.js';
+
 /**
  * Faz requisição para Groq API
  */
-async function callGroqAPI(apiKey, messages) {
-  const systemPrompt = {
-    role: 'system',
-    content: `Você é o **Serginho**, o agente orquestrador de IA do sistema RKMMAX.
+async function callGroqAPI(apiKey, messages, specialistId = null, specialistData = null) {
+  // Usar prompt específico do especialista ou prompt padrão do Serginho
+  let promptContent;
+  
+  if (specialistId && specialistData) {
+    promptContent = getSpecialistPrompt(specialistId, specialistData);
+  } else {
+    promptContent = `Você é o **Serginho**, o agente orquestrador de IA do sistema RKMMAX.
 
 **Quem você é:**
 - Você é o **Serginho**, um dos 45 especialistas do RKMMAX
@@ -73,7 +79,12 @@ Profissional mas descontraído, como um colega de trabalho expert e confiável.
 
 **IMPORTANTE:** Sempre se apresente como "Serginho, o orquestrador" e nunca como "KIZI".
 
-Responda sempre em **Português Brasileiro** (pt-BR) a menos que seja solicitado outro idioma.`
+Responda sempre em **Português Brasileiro** (pt-BR) a menos que seja solicitado outro idioma.`;
+  }
+
+  const systemPrompt = {
+    role: 'system',
+    content: promptContent
   };
 
   const messagesWithSystem = [systemPrompt, ...messages];
