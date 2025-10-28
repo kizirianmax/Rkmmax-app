@@ -31,7 +31,24 @@ function shouldUseFree() {
   return usageCounter.free < FREE_LIMIT_PER_DAY;
 }
 
-import { getSpecialistPrompt } from './specialist-prompts.js';
+/**
+ * Gera prompt profissional para especialista
+ */
+function getSpecialistPrompt(specialistId, specialistData) {
+  return `Você é ${specialistData.name}, ${specialistData.description}.
+
+**REGRAS:**
+1. Responda APENAS sobre ${specialistData.category}
+2. Se fora da sua área, redirecione ao Serginho
+3. Seja um GÊNIO MUNDIAL
+4. Qualidade impecável
+
+${specialistData.systemPrompt}
+
+**Nível:** PhD/Gênio mundial
+**Tom:** Profissional
+**Idioma:** Português Brasileiro`;
+}
 
 /**
  * Faz requisição para Groq API
