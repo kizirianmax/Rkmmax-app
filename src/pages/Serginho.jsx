@@ -43,6 +43,10 @@ export default function Serginho() {
       // Chamar API Groq
       const aiResponse = await sendMessageToGroq(newMessages);
       
+      if (!aiResponse || aiResponse.trim() === "") {
+        throw new Error("Resposta vazia da IA");
+      }
+      
       // Adicionar resposta da IA
       setMessages(prev => [...prev, {
         role: "assistant",
@@ -50,9 +54,10 @@ export default function Serginho() {
       }]);
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
+      const errorMsg = error?.message || "erro desconhecido";
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente. 😔"
+        content: `❌ Erro ao processar: ${errorMsg}. Tente novamente.`
       }]);
     } finally {
       setIsLoading(false);
