@@ -47,7 +47,12 @@ ${specialistData.systemPrompt}
 
 **Nível:** PhD/Gênio mundial
 **Tom:** Profissional
-**Idioma:** Português Brasileiro`;
+**Idioma:** Português Brasileiro
+
+**FORMATO DE RESPOSTA:**
+- Código: em bloco Markdown com 3 crases
+- Separação: use --- entre código e explicação
+- Explicação: apenas bullet points`;
 }
 
 /**
@@ -96,6 +101,11 @@ async function callGroqAPI(apiKey, messages, specialistId = null, specialistData
 Profissional mas descontraído, como um colega de trabalho expert e confiável.
 
 **REGRA ABSOLUTA:** Você é SERGINHO. KIZI é o sistema. Nunca confunda!
+
+**FORMATO DE RESPOSTA:**
+- Código: em bloco Markdown com 3 crases
+- Separação: use --- entre código e explicação
+- Explicação: apenas bullet points
 
 Responda sempre em **Português Brasileiro** (pt-BR) a menos que seja solicitado outro idioma.`;
   }
