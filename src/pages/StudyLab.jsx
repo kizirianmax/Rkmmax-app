@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 
 export default function StudyLab() {
-  const [selectedTool, setSelectedTool] = useState(null);
 
   const tools = [
     {
