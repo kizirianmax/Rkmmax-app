@@ -21,11 +21,23 @@ export default async function handler(req, res) {
     }
 
     // Receber o áudio do FormData
-    const formData = await req.formData();
+    let formData;
+    try {
+      formData = await req.formData();
+    } catch (err) {
+      return res.status(400).json({ error: 'Erro ao processar FormData', details: err.message });
+    }
+    
     const audioFile = formData.get('audio');
 
-    if (!audioFile) {
-      return res.status(400).json({ error: 'Nenhum arquivo de áudio enviado' });
+    if (!audioFile || audioFile.size === 0) {
+      return res.status(400).json({ error: 'Áudio inválido ou vazio' });
+    }
+
+    // Validar tamanho do arquivo (máx 25MB)
+    const MAX_SIZE = 25 * 1024 * 1024;
+    if (audioFile.size > MAX_SIZE) {
+      return res.status(400).json({ error: 'Áudio muito grande (máximo 25MB)' });
     }
 
     // Criar FormData para enviar à API do Whisper

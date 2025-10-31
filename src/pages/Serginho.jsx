@@ -192,9 +192,11 @@ export default function Serginho() {
           
           const { description } = await response.json();
           
+          // Formatar resposta com padrão
+          const formatted = `👀 **Análise da imagem:**\n\n${description}`;
           setMessages(prev => [...prev, {
             role: "assistant",
-            content: `👁️ **Análise da imagem:**\n\n${description}`
+            content: formatted
           }]);
         } catch (error) {
           console.error('Erro na análise de imagem:', error);
@@ -239,9 +241,11 @@ export default function Serginho() {
           
           const { description } = await response.json();
           
+          // Formatar resposta com padrão
+          const formatted = `👀 **Análise da foto:**\n\n${description}`;
           setMessages(prev => [...prev, {
             role: "assistant",
-            content: `👁️ **Análise da foto:**\n\n${description}`
+            content: formatted
           }]);
         } catch (error) {
           console.error('Erro na análise de foto:', error);

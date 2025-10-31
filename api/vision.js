@@ -22,8 +22,8 @@ export default async function handler(req, res) {
 
     const { imageBase64, prompt } = req.body;
 
-    if (!imageBase64) {
-      return res.status(400).json({ error: 'Nenhuma imagem enviada' });
+    if (!imageBase64 || (typeof imageBase64 === 'string' && imageBase64.trim() === '')) {
+      return res.status(400).json({ error: 'Imagem inválida ou vazia' });
     }
 
     // Prompt padrão se não fornecido
