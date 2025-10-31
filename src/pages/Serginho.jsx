@@ -335,16 +335,18 @@ export default function Serginho() {
             <button
               className="action-btn"
               onClick={handleCameraCapture}
-              title="Tirar foto"
+              disabled={true}
+              title="Recurso em desenvolvimento"
             >
               📸
             </button>
             <button
               className="action-btn"
               onClick={handleImageAttach}
-              title="Enviar imagem da galeria"
+              disabled={true}
+              title="Recurso em desenvolvimento"
             >
-              🖼️
+              🗸️
             </button>
             <button
               className="action-btn"
@@ -366,13 +368,14 @@ export default function Serginho() {
             className="message-input"
           />
 
-          {/* Botão de voz */}
+          {/* Botão de voz - DESATIVADO */}
           <button
             className={`voice-btn ${isRecording ? 'recording' : ''}`}
             onClick={handleVoiceInput}
-            title={isRecording ? "Parar gravação" : "Gravar áudio"}
+            disabled={true}
+            title="Recurso em desenvolvimento"
           >
-            🎤
+            🎙
           </button>
 
           {/* Botão de enviar */}

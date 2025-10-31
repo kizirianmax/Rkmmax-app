@@ -132,10 +132,16 @@ Responda sempre em **Português Brasileiro** (pt-BR) a menos que seja solicitado
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const error = new Error(errorData.error?.message || 'Error calling Groq API');
+    let errorData = {};
+    try {
+      errorData = await response.json();
+    } catch (e) {
+      errorData = { error: { message: `HTTP ${response.status}` } };
+    }
+    console.error('Groq API Error:', { status: response.status, errorData });
+    const errorMsg = errorData.error?.message || `Erro Groq (${response.status})`;
+    const error = new Error(errorMsg);
     error.status = response.status;
-    error.data = errorData;
     throw error;
   }
 
