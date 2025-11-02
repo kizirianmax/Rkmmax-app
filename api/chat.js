@@ -12,31 +12,6 @@ let usageCounter = {
 
 const FREE_LIMIT_PER_DAY = 14400; // Groq tier free
 
-// Modelos de IA por plano (variáveis de ambiente)
-const MODELS = {
-  basic: process.env.MODEL_BASIC || 'Gemini Flash',
-  intermediate: process.env.MODEL_INTERMEDIATE || 'Gemini Pro',
-  premium: process.env.MODEL_PREMIUM || 'Gemini Premium',
-  ultra: process.env.MODEL_ULTRA || 'Gemini ULTRA',
-};
-
-// Limites de tokens diários por plano (variáveis de ambiente)
-const TOKEN_LIMITS = {
-  basic: parseInt(process.env.LIMIT_BASIC_TOKENS_DAILY || '3500'),
-  intermediate: parseInt(process.env.LIMIT_INTERMEDIATE_TOKENS_DAILY || '4700'),
-  premium: parseInt(process.env.LIMIT_PREMIUM_TOKENS_DAILY || '7200'),
-  ultra: parseInt(process.env.LIMIT_ULTRA_TOKENS_DAILY || '9000'),
-};
-
-// Hardware priority (variáveis de ambiente)
-const HARDWARE_PRIORITY = {
-  premium: process.env.HARDWARE_PREMIUM_PRIORITY || 'GROQ',
-  ultra: process.env.HARDWARE_ULTRA_PRIORITY || 'GROQ',
-};
-
-// Fallback model para contingência GROQ (variável de ambiente)
-const GROQ_FALLBACK_MODEL = process.env.GROQ_FALLBACK_MODEL || 'Gemini Flash';
-
 /**
  * Reseta contador se for um novo dia
  */
