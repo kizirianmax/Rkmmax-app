@@ -155,7 +155,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages } = req.body;
+    const { messages, specialistId = null, specialistData = null } = req.body;
 
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Messages array is required' });
@@ -187,7 +187,7 @@ export default async function handler(req, res) {
 
     try {
       // Tenta fazer a requisição
-      const data = await callGroqAPI(apiKey, messages);
+      const data = await callGroqAPI(apiKey, messages, specialistId, specialistData);
       
       // Sucesso! Incrementa contador
       resetCounterIfNewDay();
@@ -213,7 +213,7 @@ export default async function handler(req, res) {
         console.warn('[Fallback] Tier FREE esgotado, tentando tier PAGO...');
         
         try {
-          const data = await callGroqAPI(GROQ_API_KEY_PAID, messages);
+          const data = await callGroqAPI(GROQ_API_KEY_PAID, messages, specialistId, specialistData);
           
           // Sucesso no tier PAGO! Incrementa contador
           resetCounterIfNewDay();
