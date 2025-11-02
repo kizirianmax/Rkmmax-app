@@ -23,6 +23,11 @@ import Success from "./pages/Success.jsx";
 import Subscription from "./pages/Subscription.jsx";
 import Onboarding from "./components/Onboarding.jsx";
 import OptionalSignupBanner from "./components/OptionalSignupBanner.jsx";
+import Footer from "./components/Footer.jsx";
+import ConsentBanner from "./components/ConsentBanner.jsx";
+import Privacy from "./pages/Privacy.jsx";
+import Terms from "./pages/Terms.jsx";
+import Refund from "./pages/Refund.jsx";
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -51,6 +56,9 @@ export default function App() {
       
       {/* Banner de cadastro opcional */}
       <OptionalSignupBanner />
+      
+      {/* Banner de consentimento GDPR/LGPD */}
+      <ConsentBanner />
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -90,11 +98,17 @@ export default function App() {
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/assinatura" element={<Navigate to="/subscription" replace />} />
 
+        {/* Políticas */}
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/refund" element={<Refund />} />
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* Feedback Button removido - agora apenas na Home */}
+      {/* Footer */}
+      <Footer />
     </BrowserRouter>
   );
 }
