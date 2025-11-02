@@ -1,132 +1,138 @@
 {
   "basic_br": {
     "name": "RKMMAX – Básico – BR",
-    "price": "R$ 25,00",
+    "price": "R$ 50,00",
     "currency": "BRL",
     "features": [
-      "45 especialistas em IA",
-      "200 requisições/dia",
-      "Groq (Llama 3.3 70B)",
-      "Entrada de voz (Whisper)",
-      "Análise de imagens (GPT-4 Vision)"
+      "55 especialistas em IA",
+      "UX Completa (Voz/Imagem)",
+      "Turbo Gratuito (Cache/Flash)",
+      "3.500 tokens/dia"
     ],
-    "limit_requests_per_day": 200,
+    "limit_tokens_per_day": 3500,
+    "primary_model": "Gemini Flash",
     "billing": "monthly",
     "lookup_key": "rkmmax_basic_br"
   },
   "intermediate_br": {
-    "name": "RKMMAX – Intermediário – BR",
-    "price": "R$ 50,00",
+    "name": "RKMMAX – Intermediário (Estudante) – BR",
+    "price": "R$ 25,00 (c/ cupom de 50%)",
+    "original_price": "R$ 50,00",
     "currency": "BRL",
     "features": [
-      "45 especialistas em IA",
-      "500 requisições/dia",
-      "Groq (Llama 3.3 70B)",
-      "Entrada de voz (Whisper)",
-      "Análise de imagens (GPT-4 Vision)"
+      "55 especialistas em IA",
+      "Alto Volume de Uso e Raciocínio",
+      "Gemini Pro",
+      "Subsidiado pelos planos Premium/ULTRA",
+      "4.700 tokens/dia"
     ],
-    "limit_requests_per_day": 500,
+    "limit_tokens_per_day": 4700,
+    "primary_model": "Gemini Pro",
+    "discount_coupon": "ESTUDANTE50",
     "billing": "monthly",
     "lookup_key": "rkmmax_intermediate_br"
   },
   "premium_br": {
     "name": "RKMMAX – Premium – BR",
-    "price": "R$ 90,00",
+    "price": "R$ 120,00",
     "currency": "BRL",
     "features": [
-      "45 especialistas em IA",
-      "200 requisições/dia",
-      "95% Groq + 5% Gemini Flash (10 req/dia)",
-      "Entrada de voz (Whisper)",
-      "Análise de imagens (GPT-4 Vision)",
-      "Modelos avançados"
+      "55 especialistas em IA",
+      "Hyper-Velocidade (Motor GROQ)",
+      "Raciocínio de Alto Nível (Gemini Premium)",
+      "7.200 tokens/dia",
+      "Voz e Imagem inclusos"
     ],
-    "limit_requests_per_day": 200,
-    "gemini_requests_per_day": 10,
+    "limit_tokens_per_day": 7200,
+    "primary_model": "GROQ + Gemini Premium",
     "billing": "monthly",
     "lookup_key": "rkmmax_premium_br"
   },
   "ultra_br": {
-    "name": "RKMMAX – Ultra – BR",
-    "price": "R$ 199,00",
+    "name": "RKMMAX – ULTRA – BR",
+    "price": "R$ 150,00",
     "currency": "BRL",
     "features": [
-      "45 especialistas em IA",
-      "400 requisições/dia",
-      "99% Groq + 1% Claude 3.5 Sonnet (4 req/dia)",
-      "Entrada de voz (Whisper)",
-      "Análise de imagens (GPT-4 Vision)",
-      "Modelos premium",
+      "55 especialistas em IA",
+      "Blindagem de Conformidade Global (LGPD/GDPR/SLA)",
+      "GROQ Ilimitado",
+      "9.000 tokens/dia (Não Bloqueia)",
+      "Voz e Imagem inclusos",
       "Suporte prioritário"
     ],
-    "limit_requests_per_day": 400,
-    "claude_requests_per_day": 4,
+    "limit_tokens_per_day": 9000,
+    "hard_limit": false,
+    "primary_model": "GROQ + Gemini ULTRA",
+    "compliance": ["LGPD", "GDPR", "SLA"],
     "billing": "monthly",
     "lookup_key": "rkmmax_ultra_br"
   },
 
   "basic_us": {
     "name": "RKMMAX – Basic – US",
-    "price": "$10.00",
+    "price": "$20.00",
     "currency": "USD",
     "features": [
-      "45 AI specialists",
-      "200 requests/day",
-      "Groq (Llama 3.3 70B)",
-      "Voice input (Whisper)",
-      "Image analysis (GPT-4 Vision)"
+      "55 AI specialists",
+      "Complete UX (Voice/Image)",
+      "Free Turbo (Cache/Flash)",
+      "3.500 tokens/day"
     ],
-    "limit_requests_per_day": 200,
+    "limit_tokens_per_day": 3500,
+    "primary_model": "Gemini Flash",
     "billing": "monthly",
     "lookup_key": "rkmmax_basic_us"
   },
   "intermediate_us": {
-    "name": "RKMMAX – Intermediate – US",
-    "price": "$20.00",
+    "name": "RKMMAX – Intermediate (Student) – US",
+    "price": "$10.00 (w/ 50% coupon)",
+    "original_price": "$20.00",
     "currency": "USD",
     "features": [
-      "45 AI specialists",
-      "500 requests/day",
-      "Groq (Llama 3.3 70B)",
-      "Voice input (Whisper)",
-      "Image analysis (GPT-4 Vision)"
+      "55 AI specialists",
+      "High Volume Use and Reasoning",
+      "Gemini Pro",
+      "Subsidized by Premium/ULTRA plans",
+      "4.700 tokens/day"
     ],
-    "limit_requests_per_day": 500,
+    "limit_tokens_per_day": 4700,
+    "primary_model": "Gemini Pro",
+    "discount_coupon": "STUDENT50",
     "billing": "monthly",
     "lookup_key": "rkmmax_intermediate_us"
   },
   "premium_us": {
     "name": "RKMMAX – Premium – US",
-    "price": "$30.00",
+    "price": "$48.00",
     "currency": "USD",
     "features": [
-      "45 AI specialists",
-      "200 requests/day",
-      "95% Groq + 5% Gemini Flash (10 req/day)",
-      "Voice input (Whisper)",
-      "Image analysis (GPT-4 Vision)",
-      "Advanced models"
+      "55 AI specialists",
+      "Hyper-Speed (GROQ Engine)",
+      "Advanced Reasoning (Gemini Premium)",
+      "7.200 tokens/day",
+      "Voice and Image included"
     ],
-    "limit_requests_per_day": 200,
-    "gemini_requests_per_day": 10,
+    "limit_tokens_per_day": 7200,
+    "primary_model": "GROQ + Gemini Premium",
     "billing": "monthly",
     "lookup_key": "rkmmax_premium_us"
   },
   "ultra_us": {
-    "name": "RKMMAX – Ultra – US",
-    "price": "$65.00",
+    "name": "RKMMAX – ULTRA – US",
+    "price": "$60.00",
     "currency": "USD",
     "features": [
-      "45 AI specialists",
-      "400 requests/day",
-      "99% Groq + 1% Claude 3.5 Sonnet (4 req/day)",
-      "Voice input (Whisper)",
-      "Image analysis (GPT-4 Vision)",
-      "Premium models",
+      "55 AI specialists",
+      "Global Compliance Shield (LGPD/GDPR/SLA)",
+      "Unlimited GROQ",
+      "9.000 tokens/day (No Blocking)",
+      "Voice and Image included",
       "Priority support"
     ],
-    "limit_requests_per_day": 400,
-    "claude_requests_per_day": 4,
+    "limit_tokens_per_day": 9000,
+    "hard_limit": false,
+    "primary_model": "GROQ + Gemini ULTRA",
+    "compliance": ["LGPD", "GDPR", "SLA"],
     "billing": "monthly",
     "lookup_key": "rkmmax_ultra_us"
   }
