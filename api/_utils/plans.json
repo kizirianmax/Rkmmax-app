@@ -16,8 +16,8 @@
   },
   "intermediate_br": {
     "name": "RKMMAX – Intermediário (Estudante) – BR",
-    "price": "R$ 25,00 (c/ cupom de 50%)",
-    "original_price": "R$ 50,00",
+    "price": "R$ 50,00 (c/ cupom de 50%)",
+    "original_price": "R$ 100,00",
     "currency": "BRL",
     "features": [
       "55 especialistas em IA",
@@ -85,8 +85,8 @@
   },
   "intermediate_us": {
     "name": "RKMMAX – Intermediate (Student) – US",
-    "price": "$10.00 (w/ 50% coupon)",
-    "original_price": "$20.00",
+    "price": "$20.00 (w/ 50% coupon)",
+    "original_price": "$40.00",
     "currency": "USD",
     "features": [
       "55 AI specialists",
