@@ -18,6 +18,9 @@ LIMIT_ULTRA_TOKENS_DAILY=9000
 # CONFIGURAÇÃO DE ACESSO (Para o Serginho priorizar)
 HARDWARE_PREMIUM_PRIORITY=GROQ
 HARDWARE_ULTRA_PRIORITY=GROQ
+
+# CONTINGÊNCIA GROQ (Para fallback em caso de limite)
+GROQ_FALLBACK_MODEL=Gemini Flash
 ```
 
 ## Instruções:

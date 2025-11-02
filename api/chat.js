@@ -34,6 +34,9 @@ const HARDWARE_PRIORITY = {
   ultra: process.env.HARDWARE_ULTRA_PRIORITY || 'GROQ',
 };
 
+// Fallback model para contingência GROQ (variável de ambiente)
+const GROQ_FALLBACK_MODEL = process.env.GROQ_FALLBACK_MODEL || 'Gemini Flash';
+
 /**
  * Reseta contador se for um novo dia
  */
