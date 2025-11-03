@@ -219,17 +219,31 @@ export default async function handler(req, res) {
     }
 
     // Pegar credenciais do Google Cloud
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-    const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY?.trim();
+    const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID?.trim();
+
+    // Debug: log das variáveis
+    console.log('Environment variables check:', {
+      hasApiKey: !!GEMINI_API_KEY,
+      hasProjectId: !!GOOGLE_CLOUD_PROJECT_ID,
+      apiKeyLength: GEMINI_API_KEY?.length || 0,
+      projectIdValue: GOOGLE_CLOUD_PROJECT_ID || 'undefined'
+    });
 
     if (!GEMINI_API_KEY || !GOOGLE_CLOUD_PROJECT_ID) {
       console.error('Gemini credentials not found:', {
         hasApiKey: !!GEMINI_API_KEY,
-        hasProjectId: !!GOOGLE_CLOUD_PROJECT_ID
+        hasProjectId: !!GOOGLE_CLOUD_PROJECT_ID,
+        apiKeyLength: GEMINI_API_KEY?.length || 0,
+        projectIdValue: GOOGLE_CLOUD_PROJECT_ID || 'undefined'
       });
       return res.status(500).json({ 
         error: 'Gemini API credentials not configured',
-        hint: 'Add GEMINI_API_KEY and GOOGLE_CLOUD_PROJECT_ID to Vercel environment variables'
+        hint: 'Add GEMINI_API_KEY and GOOGLE_CLOUD_PROJECT_ID to Vercel environment variables',
+        debug: {
+          hasApiKey: !!GEMINI_API_KEY,
+          hasProjectId: !!GOOGLE_CLOUD_PROJECT_ID
+        }
       });
     }
 
