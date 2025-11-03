@@ -218,9 +218,17 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Pegar credenciais do Google Cloud
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY?.trim();
-    const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID?.trim();
+    // Pegar credenciais do Google Cloud (com fallback)
+    let GEMINI_API_KEY = process.env.GEMINI_API_KEY?.trim();
+    let GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID?.trim();
+    
+    // Fallback: usar credenciais hardcoded se variáveis de ambiente não funcionarem
+    if (!GEMINI_API_KEY) {
+      GEMINI_API_KEY = 'AIzaSyCX0gYhkbAS1fwchXJuUAh0POEuedwifeM';
+    }
+    if (!GOOGLE_CLOUD_PROJECT_ID) {
+      GOOGLE_CLOUD_PROJECT_ID = 'RKMMax-PRODU';
+    }
 
     // Debug: log das variáveis
     console.log('Environment variables check:', {
