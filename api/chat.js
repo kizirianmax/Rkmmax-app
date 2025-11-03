@@ -3,6 +3,33 @@
  * Com fallback automático FREE → PAGO quando atingir limites
  */
 
+/**
+ * Formata resposta para garantir espaçamento adequado
+ */
+function formatResponse(text) {
+  if (!text) return text;
+  
+  // Remover espaços extras no início e fim
+  text = text.trim();
+  
+  // Substituir múltiplas quebras de linha por duas
+  text = text.replace(/\n{3,}/g, '\n\n');
+  
+  // Adicionar quebra de linha após pontos finais seguidos de maiúscula (novo parágrafo)
+  text = text.replace(/([.!?])\s+([A-Z])/g, '$1\n\n$2');
+  
+  // Garantir quebra de linha após asteriscos (fim de negrito)
+  text = text.replace(/(\*\*)\s+(?=[A-Z])/g, '$1\n\n');
+  
+  // Adicionar quebra de linha antes de bullet points se não houver
+  text = text.replace(/([^\n])\n([-*]\s)/g, '$1\n\n$2');
+  
+  // Adicionar quebra de linha após bullet points
+  text = text.replace(/([-*]\s[^\n]+)\n(?![-*]\s|\n)/g, '$1\n');
+  
+  return text;
+}
+
 // Contador de uso (em memória - resetado diariamente)
 let usageCounter = {
   free: 0,
@@ -222,7 +249,10 @@ export default async function handler(req, res) {
       resetCounterIfNewDay();
       usageCounter[tier]++;
       
-      const aiResponse = data.choices[0].message.content;
+      let aiResponse = data.choices[0].message.content;
+      
+      // Formatar resposta para garantir espaçamento
+      aiResponse = formatResponse(aiResponse);
 
       return res.status(200).json({ 
         response: aiResponse,
@@ -250,7 +280,10 @@ export default async function handler(req, res) {
           tier = 'paid';
           fallbackOccurred = true;
           
-          const aiResponse = data.choices[0].message.content;
+          let aiResponse = data.choices[0].message.content;
+          
+          // Formatar resposta para garantir espaçamento
+          aiResponse = formatResponse(aiResponse);
 
           return res.status(200).json({ 
             response: aiResponse,
