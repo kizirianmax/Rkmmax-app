@@ -1,6 +1,6 @@
 /**
- * Vercel Serverless Function para chamar Groq API
- * Com fallback automático FREE → PAGO quando atingir limites
+ * Vercel Serverless Function para chamar Google Gemini API
+ * Sem AI Gateway - direto com credenciais do Google Cloud
  */
 
 /**
@@ -28,34 +28,6 @@ function formatResponse(text) {
   text = text.replace(/([-*]\s[^\n]+)\n(?![-*]\s|\n)/g, '$1\n');
   
   return text;
-}
-
-// Contador de uso (em memória - resetado diariamente)
-let usageCounter = {
-  free: 0,
-  paid: 0,
-  lastReset: new Date().toDateString(),
-};
-
-const FREE_LIMIT_PER_DAY = 14400; // Groq tier free
-
-/**
- * Reseta contador se for um novo dia
- */
-function resetCounterIfNewDay() {
-  const today = new Date().toDateString();
-  if (usageCounter.lastReset !== today) {
-    usageCounter = { free: 0, paid: 0, lastReset: today };
-    console.log('[Fallback] Contador resetado para novo dia');
-  }
-}
-
-/**
- * Verifica se deve usar tier FREE ou PAGO
- */
-function shouldUseFree() {
-  resetCounterIfNewDay();
-  return usageCounter.free < FREE_LIMIT_PER_DAY;
 }
 
 /**
@@ -104,9 +76,9 @@ Qual é a sua próxima dúvida?
 }
 
 /**
- * Faz requisição para Groq API
+ * Faz requisição para Google Gemini API
  */
-async function callGroqAPI(apiKey, messages, specialistId = null, specialistData = null) {
+async function callGeminiAPI(apiKey, projectId, messages, specialistId = null, specialistData = null) {
   // Usar prompt específico do especialista ou prompt padrão do Serginho
   let promptContent;
   
@@ -166,25 +138,39 @@ Profissional mas descontraído, como um colega de trabalho expert e confiável.
 Responda sempre em **Português Brasileiro** (pt-BR) a menos que seja solicitado outro idioma.`;
   }
 
-  const systemPrompt = {
-    role: 'system',
-    content: promptContent
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/projects/${projectId}/locations/global/publishers/google/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+  const requestBody = {
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          {
+            text: promptContent
+          }
+        ]
+      },
+      ...messages.map(msg => ({
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [
+          {
+            text: msg.content
+          }
+        ]
+      }))
+    ],
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 2000,
+    }
   };
 
-  const messagesWithSystem = [systemPrompt, ...messages];
-
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: messagesWithSystem,
-      temperature: 0.7,
-      max_tokens: 2000,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
@@ -194,14 +180,29 @@ Responda sempre em **Português Brasileiro** (pt-BR) a menos que seja solicitado
     } catch (e) {
       errorData = { error: { message: `HTTP ${response.status}` } };
     }
-    console.error('Groq API Error:', { status: response.status, errorData });
-    const errorMsg = errorData.error?.message || `Erro Groq (${response.status})`;
+    console.error('Gemini API Error:', { status: response.status, errorData });
+    const errorMsg = errorData.error?.message || `Erro Gemini (${response.status})`;
     const error = new Error(errorMsg);
     error.status = response.status;
     throw error;
   }
 
-  return await response.json();
+  const data = await response.json();
+  
+  // Extrair conteúdo da resposta Gemini
+  if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+    return {
+      choices: [
+        {
+          message: {
+            content: data.candidates[0].content.parts[0].text
+          }
+        }
+      ]
+    };
+  }
+  
+  throw new Error('Resposta inválida do Gemini API');
 }
 
 export default async function handler(req, res) {
@@ -217,37 +218,24 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Pegar API keys das variáveis de ambiente
-    const GROQ_API_KEY_FREE = process.env.GROQ_API_KEY_FREE || 
-                              process.env.VITE_GROQ_API_KEY || 
-                              process.env.GROQ_API_KEY || 
-                              process.env.NEXT_PUBLIC_GROQ_API_KEY;
+    // Pegar credenciais do Google Cloud
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
 
-    const GROQ_API_KEY_PAID = process.env.GROQ_API_KEY_PAID || GROQ_API_KEY_FREE;
-
-    if (!GROQ_API_KEY_FREE) {
-      console.error('GROQ API KEY NOT FOUND. Available env vars:', Object.keys(process.env).filter(k => k.includes('GROQ')));
+    if (!GEMINI_API_KEY || !GOOGLE_CLOUD_PROJECT_ID) {
+      console.error('Gemini credentials not found:', {
+        hasApiKey: !!GEMINI_API_KEY,
+        hasProjectId: !!GOOGLE_CLOUD_PROJECT_ID
+      });
       return res.status(500).json({ 
-        error: 'Groq API key not configured',
-        hint: 'Add GROQ_API_KEY to Vercel environment variables'
+        error: 'Gemini API credentials not configured',
+        hint: 'Add GEMINI_API_KEY and GOOGLE_CLOUD_PROJECT_ID to Vercel environment variables'
       });
     }
 
-    // Decide qual tier usar
-    const useFree = shouldUseFree();
-    const apiKey = useFree ? GROQ_API_KEY_FREE : GROQ_API_KEY_PAID;
-    let tier = useFree ? 'free' : 'paid';
-    let fallbackOccurred = false;
-
-    console.log(`[Fallback] Tentando tier ${tier.toUpperCase()} (free: ${usageCounter.free}/${FREE_LIMIT_PER_DAY})`);
-
     try {
-      // Tenta fazer a requisição
-      const data = await callGroqAPI(apiKey, messages, specialistId, specialistData);
-      
-      // Sucesso! Incrementa contador
-      resetCounterIfNewDay();
-      usageCounter[tier]++;
+      // Chamar Gemini API
+      const data = await callGeminiAPI(GEMINI_API_KEY, GOOGLE_CLOUD_PROJECT_ID, messages, specialistId, specialistData);
       
       let aiResponse = data.choices[0].message.content;
       
@@ -256,61 +244,13 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ 
         response: aiResponse,
-        tier,
-        fallback: false,
-        usage: {
-          free: usageCounter.free,
-          paid: usageCounter.paid,
-          freeLimit: FREE_LIMIT_PER_DAY,
-          percentUsed: (usageCounter.free / FREE_LIMIT_PER_DAY * 100).toFixed(1),
-        },
+        model: 'gemini-2.0-flash'
       });
 
     } catch (error) {
-      // Se falhou no tier FREE por limite (429), tenta PAGO
-      if (useFree && error.status === 429) {
-        console.warn('[Fallback] Tier FREE esgotado, tentando tier PAGO...');
-        
-        try {
-          const data = await callGroqAPI(GROQ_API_KEY_PAID, messages, specialistId, specialistData);
-          
-          // Sucesso no tier PAGO! Incrementa contador
-          resetCounterIfNewDay();
-          usageCounter.paid++;
-          tier = 'paid';
-          fallbackOccurred = true;
-          
-          let aiResponse = data.choices[0].message.content;
-          
-          // Formatar resposta para garantir espaçamento
-          aiResponse = formatResponse(aiResponse);
-
-          return res.status(200).json({ 
-            response: aiResponse,
-            tier: 'paid',
-            fallback: true,
-            usage: {
-              free: usageCounter.free,
-              paid: usageCounter.paid,
-              freeLimit: FREE_LIMIT_PER_DAY,
-              percentUsed: (usageCounter.free / FREE_LIMIT_PER_DAY * 100).toFixed(1),
-            },
-          });
-
-        } catch (paidError) {
-          console.error('[Fallback] Tier PAGO também falhou:', paidError);
-          return res.status(paidError.status || 500).json({ 
-            error: paidError.message || 'Error calling Groq API (paid tier)',
-            tier: 'paid',
-            fallback: true,
-          });
-        }
-      }
-
-      // Erro não relacionado a limite, propaga
+      console.error('Error calling Gemini API:', error);
       return res.status(error.status || 500).json({ 
-        error: error.message || 'Error calling Groq API',
-        tier,
+        error: error.message || 'Error calling Gemini API'
       });
     }
 
