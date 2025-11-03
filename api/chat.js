@@ -63,26 +63,35 @@ async function handler(req, res) {
     // Ler resposta como texto primeiro
     const responseText = await response.text();
     console.log('Gemini raw response (first 500 chars):', responseText.substring(0, 500));
+    console.log('Gemini response status code:', response.status);
+    console.log('Gemini response ok:', response.ok);
 
+    // IMPORTANTE: Verificar status ANTES de tentar fazer parse de JSON
     if (!response.ok) {
-      console.error('Gemini API error:', { status: response.status, errorText: responseText });
-      return res.status(response.status).json({ 
-        error: `Gemini API error: ${response.status}`,
-        details: responseText.substring(0, 200)
+      console.error('Gemini API HTTP error:', { 
+        status: response.status,
+        statusText: response.statusText,
+        errorText: responseText.substring(0, 500)
+      });
+      return res.status(500).json({ 
+        error: `Gemini API returned HTTP ${response.status}`,
+        details: responseText.substring(0, 200),
+        httpStatus: response.status
       });
     }
 
-    // Tentar fazer parse de JSON
+    // Agora sim, tentar fazer parse de JSON (só se status foi OK)
     let data;
     try {
       data = JSON.parse(responseText);
     } catch (parseError) {
       console.error('Failed to parse Gemini response as JSON:', { 
         error: parseError.message,
-        responseText: responseText.substring(0, 500)
+        responseText: responseText.substring(0, 500),
+        status: response.status
       });
       return res.status(500).json({ 
-        error: 'Invalid JSON response from Gemini API',
+        error: 'Invalid JSON response from Gemini API (status was 200 but response is not JSON)',
         details: responseText.substring(0, 200)
       });
     }
