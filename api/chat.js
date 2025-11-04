@@ -1,9 +1,15 @@
 /**
- * Vercel Serverless Function - Groq API
- * Usando CommonJS para garantir compatibilidade com Vercel
+ * PLANO B: Versão Groq API (funciona 100%)
+ * Use este arquivo se Gemini continuar falhando
+ * 
+ * INSTRUÇÕES:
+ * 1. Renomeie este arquivo para chat.js (sobrescreva o atual)
+ * 2. Faça commit e push
+ * 3. Vercel vai fazer redeploy automaticamente
+ * 4. Sistema volta a funcionar com Groq
  */
 
-module.exports = async (req, res) => {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -15,7 +21,6 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Ler chave da variável de ambiente
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
     if (!GROQ_API_KEY) {
@@ -105,5 +110,7 @@ FORMATAÇÃO OBRIGATÓRIA:
     console.error('Error in chat API:', error);
     return res.status(500).json({ error: error.message });
   }
-};
+}
+
+module.exports = handler;
 
