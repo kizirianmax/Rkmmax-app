@@ -16,8 +16,15 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Credenciais Gemini
-    const GEMINI_API_KEY = 'AIzaSyDk_QRL3pKDChIsEUglDB2IXKsgyJLZ6Cs';
+    // Credenciais Gemini - SEMPRE usar variável de ambiente
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    
+    if (!GEMINI_API_KEY) {
+      return res.status(500).json({ 
+        error: 'GEMINI_API_KEY environment variable not configured',
+        hint: 'Configure GEMINI_API_KEY in Vercel Settings → Environment Variables'
+      });
+    }
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -74,7 +81,7 @@ async function handler(req, res) {
       });
       return res.status(500).json({ 
         error: `Gemini API returned HTTP ${response.status}`,
-        details: responseText.substring(0, 200),
+        details: responseText.substring(0, 100),
         httpStatus: response.status
       });
     }
@@ -90,8 +97,8 @@ async function handler(req, res) {
         status: response.status
       });
       return res.status(500).json({ 
-        error: 'Invalid JSON response from Gemini API (status was 200 but response is not JSON)',
-        details: responseText.substring(0, 200)
+        error: 'Invalid JSON response from Gemini API',
+        details: responseText.substring(0, 100)
       });
     }
     
@@ -109,15 +116,13 @@ async function handler(req, res) {
     
     console.error('Invalid Gemini response structure:', data);
     return res.status(500).json({ 
-      error: 'Invalid response from Gemini API',
-      received: JSON.stringify(data).substring(0, 200)
+      error: 'Invalid response from Gemini API'
     });
 
   } catch (error) {
     console.error('Error in chat API:', error);
     return res.status(500).json({ 
-      error: error.message,
-      stack: error.stack
+      error: 'Internal server error'
     });
   }
 }
