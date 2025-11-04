@@ -1,9 +1,9 @@
 /**
  * Vercel Serverless Function para chamar Google Gemini API
- * Versão minimalista para teste
+ * Usando ES Modules (compatível com package.json "type": "module")
  */
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   // Apenas POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    // Teste 1: Verificar se a chave existe
+    // Obter chave da variável de ambiente
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ 
@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Teste 2: Fazer chamada simples à API
+    // Chamar Gemini API
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
