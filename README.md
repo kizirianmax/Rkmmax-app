@@ -11,6 +11,11 @@
 
 ## 🎯 O Que é RKMMAX?
 
+**Empresa:** Roberto Kiziriam Max Desenvolvimento de Programas ME LTDA  
+**CNPJ:** 03.492.481/0001-40  
+**Sócio-Proprietário:** Roberto Kiziriam Max  
+**Status:** ATIVA (desde 03/11/2025)
+
 RKMMAX é uma plataforma inovadora que oferece acesso a **54 agentes especializados de IA**, todos orquestrados por um sistema inteligente chamado **Serginho**. 
 
 Diferentemente de chatbots tradicionais que oferecem apenas um agente generalista, o RKMMAX disponibiliza dezenas de especialistas dedicados em áreas como:
@@ -457,9 +462,14 @@ Este é um software proprietário. O código-fonte está disponível apenas para
 
 ## 📞 Contato
 
-- **Website:** https://rkmmax-app.vercel.app
+**Sócio-Proprietário:** Roberto Kiziriam Max  
+**CNPJ:** 03.492.481/0001-40  
+**Email:** ROBERTO@KIZIRIANMAX.SITE  
+**Telefone:** (11) 9107-3704  
+**Endereço:** Av Santa Monica, 593, APT 33 BLOCO 15 A - Jardim Santa Monica - São Paulo - SP
+
+- **Website:** https://kizirianmax.site
 - **GitHub:** https://github.com/kizirianmax/Rkmmax-app
-- **Email:** roberto@kizirianmax.site (em configuração)
 - **Suporte:** Via chat na plataforma ou botão "🐛 Feedback"
 
 ---
