@@ -1,19 +1,8 @@
 {
   "version": 2,
-  "functions": {
-    "api/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
   "buildCommand": "npm run build",
-  "env": {
-    "GEMINI_API_KEY": "@GEMINI_API_KEY"
-  },
   "outputDirectory": "build",
-  "public": true,
   "framework": "create-react-app",
-  "regions": ["iad1"],
   "trailingSlash": false,
   "rewrites": [
     {
