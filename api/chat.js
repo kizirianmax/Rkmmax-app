@@ -1,6 +1,6 @@
 /**
  * Vercel Serverless Function para chamar Google Gemini API
- * Versão simplificada para debug
+ * Versão com diagnóstico completo
  */
 
 async function handler(req, res) {
@@ -20,14 +20,29 @@ async function handler(req, res) {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
     // Debug: verificar se variável foi carregada
+    console.log('=== GEMINI API DEBUG ===');
     console.log('GEMINI_API_KEY present:', !!GEMINI_API_KEY);
     console.log('GEMINI_API_KEY length:', GEMINI_API_KEY ? GEMINI_API_KEY.length : 0);
+    console.log('GEMINI_API_KEY type:', typeof GEMINI_API_KEY);
+    console.log('All env vars count:', Object.keys(process.env).length);
     
     if (!GEMINI_API_KEY) {
       console.error('GEMINI_API_KEY is not configured');
       return res.status(500).json({ 
         error: 'GEMINI_API_KEY environment variable not configured',
-        hint: 'Configure GEMINI_API_KEY in Vercel Settings → Environment Variables'
+        hint: 'Configure GEMINI_API_KEY in Vercel Settings → Environment Variables',
+        debug: {
+          envVarsPresent: Object.keys(process.env).length > 0
+        }
+      });
+    }
+
+    // Validar formato da chave
+    if (!GEMINI_API_KEY.startsWith('AIza')) {
+      console.error('GEMINI_API_KEY has invalid format');
+      return res.status(500).json({ 
+        error: 'GEMINI_API_KEY has invalid format',
+        hint: 'Key should start with "AIza"'
       });
     }
 
@@ -83,16 +98,14 @@ async function handler(req, res) {
 
     // Ler resposta como texto primeiro
     const responseText = await response.text();
-    console.log('Gemini raw response (first 500 chars):', responseText.substring(0, 500));
-    console.log('Gemini response status code:', response.status);
-    console.log('Gemini response ok:', response.ok);
+    console.log('Gemini raw response (first 200 chars):', responseText.substring(0, 200));
 
     // IMPORTANTE: Verificar status ANTES de tentar fazer parse de JSON
     if (!response.ok) {
       console.error('Gemini API HTTP error:', { 
         status: response.status,
         statusText: response.statusText,
-        errorText: responseText.substring(0, 500)
+        errorText: responseText.substring(0, 200)
       });
       return res.status(500).json({ 
         error: `Gemini API returned HTTP ${response.status}`,
@@ -108,7 +121,7 @@ async function handler(req, res) {
     } catch (parseError) {
       console.error('Failed to parse Gemini response as JSON:', { 
         error: parseError.message,
-        responseText: responseText.substring(0, 500),
+        responseText: responseText.substring(0, 200),
         status: response.status
       });
       return res.status(500).json({ 
@@ -117,27 +130,34 @@ async function handler(req, res) {
       });
     }
     
-    console.log('Gemini response:', JSON.stringify(data).substring(0, 200));
+    console.log('Gemini response parsed successfully');
 
     // Extrair conteúdo da resposta
     if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
       const aiResponse = data.candidates[0].content.parts[0].text;
       
+      console.log('Success: Returning AI response');
       return res.status(200).json({ 
         response: aiResponse,
         model: 'gemini-2.5-flash'
       });
     }
     
-    console.error('Invalid Gemini response structure:', data);
+    console.error('Invalid Gemini response structure:', JSON.stringify(data).substring(0, 200));
     return res.status(500).json({ 
-      error: 'Invalid response from Gemini API'
+      error: 'Invalid response from Gemini API',
+      debug: {
+        hasCandidates: !!data.candidates,
+        candidatesLength: data.candidates ? data.candidates.length : 0
+      }
     });
 
   } catch (error) {
     console.error('Error in chat API:', error);
+    console.error('Error stack:', error.stack);
     return res.status(500).json({ 
-      error: 'Internal server error'
+      error: 'Internal server error',
+      message: error.message
     });
   }
 }
