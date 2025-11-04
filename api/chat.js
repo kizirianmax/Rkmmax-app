@@ -17,10 +17,9 @@ async function handler(req, res) {
     }
 
     // Credenciais Gemini
-    const GEMINI_API_KEY = 'AIzaSyCX0gYhkbAS1fwchXJuUAh0POEuedwifeM';
-    const GOOGLE_CLOUD_PROJECT_ID = 'RKMMax-PRODU';
+    const GEMINI_API_KEY = 'AIzaSyDk_QRL3pKDChIsEUglDB2IXKsgyJLZ6Cs';
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/projects/${GOOGLE_CLOUD_PROJECT_ID}/locations/global/publishers/google/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     // Construir request para Gemini
     const requestBody = {
@@ -104,7 +103,7 @@ async function handler(req, res) {
       
       return res.status(200).json({ 
         response: aiResponse,
-        model: 'gemini-2.0-flash'
+        model: 'gemini-2.5-flash'
       });
     }
     
