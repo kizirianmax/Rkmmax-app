@@ -1,10 +1,9 @@
 /**
  * Vercel Serverless Function - Groq API
- * Usando Groq com 14.700 tokens gratuitos por dia
- * Mantém todas as configurações de compliance (GDPR, LGPD, etc)
+ * Usando CommonJS para garantir compatibilidade com Vercel
  */
 
-export default async (req, res) => {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -16,6 +15,7 @@ export default async (req, res) => {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
+    // Ler chave da variável de ambiente
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
     if (!GROQ_API_KEY) {
