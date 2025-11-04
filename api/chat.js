@@ -19,7 +19,12 @@ async function handler(req, res) {
     // Credenciais Gemini - SEMPRE usar variável de ambiente
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
+    // Debug: verificar se variável foi carregada
+    console.log('GEMINI_API_KEY present:', !!GEMINI_API_KEY);
+    console.log('GEMINI_API_KEY length:', GEMINI_API_KEY ? GEMINI_API_KEY.length : 0);
+    
     if (!GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY is not configured');
       return res.status(500).json({ 
         error: 'GEMINI_API_KEY environment variable not configured',
         hint: 'Configure GEMINI_API_KEY in Vercel Settings → Environment Variables'
@@ -54,15 +59,25 @@ async function handler(req, res) {
       }
     };
 
-    console.log('Calling Gemini API with endpoint:', endpoint);
+    console.log('Calling Gemini API...');
+    console.log('API Key starts with:', GEMINI_API_KEY.substring(0, 10) + '...');
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+    } catch (fetchError) {
+      console.error('Fetch error:', fetchError.message);
+      return res.status(500).json({ 
+        error: 'Failed to call Gemini API',
+        details: fetchError.message
+      });
+    }
 
     console.log('Gemini response status:', response.status);
 
