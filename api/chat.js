@@ -77,7 +77,7 @@ FORMATAÇÃO OBRIGATÓRIA:
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          system: {
+          systemInstruction: {
             parts: [{ text: systemPrompt }]
           },
           contents: geminiMessages,
