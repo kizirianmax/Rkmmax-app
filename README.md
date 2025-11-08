@@ -12,7 +12,7 @@
 ## 🎯 O Que é RKMMAX?
 
 **Empresa:** Roberto Kiziriam Max Desenvolvimento de Programas ME LTDA  
-**CNPJ:** 03.492.481/0001-40  
+**CNPJ:** 63.492.481/0001-10  
 **Sócio-Proprietário:** Roberto Kiziriam Max  
 **Status:** ATIVA (desde 03/11/2025)
 
@@ -463,7 +463,7 @@ Este é um software proprietário. O código-fonte está disponível apenas para
 ## 📞 Contato
 
 **Sócio-Proprietário:** Roberto Kiziriam Max  
-**CNPJ:** 03.492.481/0001-40  
+**CNPJ:** 63.492.481/0001-10  
 **Email:** ROBERTO@KIZIRIANMAX.SITE  
 **Telefone:** (11) 9107-3704  
 **Endereço:** Av Santa Monica, 593, APT 33 BLOCO 15 A - Jardim Santa Monica - São Paulo - SP
