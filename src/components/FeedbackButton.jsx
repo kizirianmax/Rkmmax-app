@@ -73,6 +73,7 @@ export default function FeedbackButton() {
   if (!isOpen) {
     return (
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
         style={{
           position: "fixed",
@@ -91,7 +92,6 @@ export default function FeedbackButton() {
           minHeight: 48,
           touchAction: "manipulation",
         }}
-        role="button"
         aria-label="Reportar problema ou dar feedback"
       >
         🐛 Feedback

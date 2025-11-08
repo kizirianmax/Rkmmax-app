@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { initSentry } from "./lib/sentry.js";
 import { initAnalytics } from "./lib/analytics.js";
-import FeedbackButton from "./components/FeedbackButton.jsx";
+
 
 import Header from "./components/Header.jsx";
 import BrandTitle from "./components/BrandTitle.jsx";
