@@ -1,0 +1,11 @@
+{
+  "buildCommand": "CI=false npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm ci",
+  "env": {
+    "CI": "false"
+  },
+  "envPrefix": "REACT_APP_",
+  "framework": "react"
+}
+
