@@ -31,16 +31,16 @@ export default function Footer() {
         <div className="footer-section">
           <h3>CONFORMIDADE</h3>
           <ul>
-            <li>✓ GDPR (UE)</li>
-            <li>✓ LGPD (Brasil)</li>
-            <li>✓ Google Play Store</li>
+            <li><span>✓ GDPR (UE)</span></li>
+            <li><span>✓ LGPD (Brasil)</span></li>
+            <li><span>✓ Google Play Store</span></li>
           </ul>
         </div>
       </div>
 
       <div className="footer-bottom">
         <p>&copy; 2025 RKMMAX. Todos os direitos reservados.</p>
-        <p className="footer-cnpj">CNPJ: [Aguardando configuração]</p>
+        <p className="footer-cnpj">CNPJ: 63.492.481/0001-10</p>
       </div>
     </footer>
   );
