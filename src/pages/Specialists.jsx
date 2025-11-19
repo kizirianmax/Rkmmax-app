@@ -94,7 +94,7 @@ function Specialists() {
                   <img 
                     src={`${specialist.avatar || `/avatars/${specialist.id}.png`}?v=2`} 
                     alt={specialist.name}
-                    className="w-14 h-14 rounded-xl object-cover shadow-md"
+                    className="w-10 h-10 rounded-xl object-cover shadow-md"
                     onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }}
                   />
                   <div className="text-4xl" style={{display: 'none'}}>{specialist.emoji}</div>
@@ -124,10 +124,10 @@ function Specialists() {
                       e.stopPropagation();
                       if (isAvailable) navigate(`/specialist/${specialist.id}`);
                     }}
-                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all transform ${
+                    className={`px-8 py-3 rounded-xl font-bold text-base transition-all transform shadow-md ${
                       isAvailable
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 hover:shadow-lg hover:scale-105'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:scale-105'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                   >
                     {isAvailable ? '💬 Conversar' : '🔒 Bloqueado'}
