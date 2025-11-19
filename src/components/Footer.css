@@ -13,6 +13,9 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 30px;
   margin-bottom: 30px;
+  background: #1e3a8a;
+  padding: 30px;
+  border-radius: 8px;
 }
 
 .footer-section h3 {
@@ -22,11 +25,12 @@
   margin-bottom: 15px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-top: 0;
 }
 
 .footer-section p {
   font-size: 14px;
-  color: #000000;
+  color: #ffffff;
   line-height: 1.6;
   margin: 0;
 }
@@ -40,11 +44,11 @@
 .footer-section li {
   margin-bottom: 10px;
   font-size: 14px;
-  color: #000000;
+  color: #ffffff;
 }
 
 .footer-section a {
-  color: #000000;
+  color: #ffffff;
   text-decoration: none;
   transition: color 0.2s ease;
 }
