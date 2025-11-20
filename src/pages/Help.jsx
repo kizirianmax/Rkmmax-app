@@ -101,8 +101,8 @@ export default function Help() {
         <ul style={{ lineHeight: 1.8 }}>
           <li>
             📧 E-mail:{" "}
-            <a href="mailto:support@rkmmax.com" style={{ color: "#6366f1" }}>
-              support@rkmmax.com
+            <a href="mailto:roberto@kizirianmax.site" style={{ color: "#6366f1" }}>
+              roberto@kizirianmax.site
             </a>
           </li>
           <li>

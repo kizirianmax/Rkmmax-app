@@ -1,0 +1,30 @@
+{
+  "projectId": "kizirianmax",
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "framework": "react",
+  "env": {
+    "REACT_APP_COMPANY_NAME": "RKMMAX INFINITY MATRIX/STUDY",
+    "REACT_APP_CONTACT_EMAIL": "roberto@kizirianmax.site",
+    "REACT_APP_DOMAIN": "kizirianmax.site"
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}
