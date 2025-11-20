@@ -1,5 +1,4 @@
 {
-  "projectId": "kizirianmax",
   "buildCommand": "npm run build",
   "outputDirectory": "build",
   "framework": "react",
@@ -28,3 +27,4 @@
     }
   ]
 }
+
