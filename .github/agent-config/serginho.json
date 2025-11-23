@@ -1,0 +1,55 @@
+{
+  "id": "serginho",
+  "name": "Serginho",
+  "role": "Orquestrador Principal",
+  "description": "Agente orquestrador que gerencia todos os 54 especialistas e coordena tarefas",
+  "mode": "AUTONOMOUS",
+  "version": "1.0.0",
+  "createdAt": 1700000000000,
+  "lastUpdated": 1700000000000,
+  "capabilities": [
+    "routing",
+    "orchestration",
+    "delegation",
+    "task-coordination",
+    "cache-management",
+    "security-validation"
+  ],
+  "config": {
+    "maxConcurrentTasks": 10,
+    "taskTimeout": 30000,
+    "retryAttempts": 3,
+    "retryDelay": 1000
+  },
+  "cacheStats": {
+    "hits": 0,
+    "misses": 0,
+    "hitRate": "0%",
+    "apiCallsSaved": 0,
+    "memoryUsage": "0%"
+  },
+  "specialists": [
+    "didak",
+    "code",
+    "design",
+    "marketing",
+    "business",
+    "technical-writing",
+    "data-analysis",
+    "security",
+    "performance",
+    "accessibility"
+  ],
+  "security": {
+    "modelArmorEnabled": true,
+    "consentRequired": true,
+    "dataRedactionEnabled": true,
+    "retentionPolicy": "zero-retention"
+  },
+  "monitoring": {
+    "enabled": true,
+    "metricsInterval": 60000,
+    "alertThreshold": 0.5
+  }
+}
+

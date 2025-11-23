@@ -1,0 +1,126 @@
+{
+  "version": "1.0.0",
+  "description": "Configuração de Especialistas - Escalável para número ilimitado",
+  "specialists": [
+    {
+      "id": "didak",
+      "name": "Didak",
+      "role": "Especialista em Didática",
+      "description": "Ensino, metodologias de aprendizado e design curricular",
+      "capabilities": ["teaching", "curriculum-design", "assessment", "pedagogy"],
+      "category": "education",
+      "mode": "MANUAL",
+      "tags": ["ensino", "educação", "aprendizado"]
+    },
+    {
+      "id": "code",
+      "name": "Code Master",
+      "role": "Especialista em Programação",
+      "description": "Desenvolvimento de software, debugging e arquitetura",
+      "capabilities": ["code", "debugging", "architecture", "refactoring"],
+      "category": "technical",
+      "mode": "AUTONOMOUS",
+      "tags": ["javascript", "python", "java", "programação"]
+    },
+    {
+      "id": "design",
+      "name": "Design Pro",
+      "role": "Especialista em Design",
+      "description": "UI/UX, design visual e experiência do usuário",
+      "capabilities": ["design", "ui", "ux", "prototyping"],
+      "category": "creative",
+      "mode": "MANUAL",
+      "tags": ["design", "ui", "ux", "visual"]
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing Guru",
+      "role": "Especialista em Marketing",
+      "description": "Estratégia de marketing, vendas e posicionamento",
+      "capabilities": ["marketing", "sales", "strategy", "branding"],
+      "category": "business",
+      "mode": "AUTONOMOUS",
+      "tags": ["marketing", "vendas", "estratégia", "negócio"]
+    },
+    {
+      "id": "data",
+      "name": "Data Analyst",
+      "role": "Especialista em Análise de Dados",
+      "description": "Análise, visualização e insights de dados",
+      "capabilities": ["data-analysis", "statistics", "visualization", "sql"],
+      "category": "technical",
+      "mode": "AUTONOMOUS",
+      "tags": ["dados", "análise", "estatística", "sql"]
+    },
+    {
+      "id": "security",
+      "name": "Security Expert",
+      "role": "Especialista em Segurança",
+      "description": "Segurança da informação, criptografia e compliance",
+      "capabilities": ["security", "encryption", "compliance", "penetration-testing"],
+      "category": "technical",
+      "mode": "MANUAL",
+      "tags": ["segurança", "criptografia", "compliance", "vulnerabilidade"]
+    },
+    {
+      "id": "performance",
+      "name": "Performance Tuner",
+      "role": "Especialista em Performance",
+      "description": "Otimização, benchmarking e profiling de sistemas",
+      "capabilities": ["performance", "optimization", "profiling", "monitoring"],
+      "category": "technical",
+      "mode": "AUTONOMOUS",
+      "tags": ["performance", "otimização", "velocidade", "benchmarking"]
+    },
+    {
+      "id": "accessibility",
+      "name": "A11y Specialist",
+      "role": "Especialista em Acessibilidade",
+      "description": "WCAG, design inclusivo e acessibilidade web",
+      "capabilities": ["accessibility", "wcag", "inclusive-design", "testing"],
+      "category": "technical",
+      "mode": "MANUAL",
+      "tags": ["acessibilidade", "wcag", "a11y", "inclusão"]
+    },
+    {
+      "id": "writing",
+      "name": "Tech Writer",
+      "role": "Especialista em Escrita Técnica",
+      "description": "Documentação, conteúdo técnico e copywriting",
+      "capabilities": ["technical-writing", "documentation", "content", "editing"],
+      "category": "creative",
+      "mode": "MANUAL",
+      "tags": ["documentação", "escrita", "conteúdo", "copywriting"]
+    },
+    {
+      "id": "business",
+      "name": "Business Analyst",
+      "role": "Especialista em Negócios",
+      "description": "Análise de negócios, estratégia e planejamento",
+      "capabilities": ["business", "analysis", "strategy", "planning"],
+      "category": "business",
+      "mode": "AUTONOMOUS",
+      "tags": ["negócio", "estratégia", "análise", "planejamento"]
+    }
+  ],
+  "categories": [
+    "education",
+    "technical",
+    "creative",
+    "business"
+  ],
+  "capabilities": [
+    "teaching",
+    "code",
+    "design",
+    "marketing",
+    "data-analysis",
+    "security",
+    "performance",
+    "accessibility",
+    "technical-writing",
+    "business"
+  ],
+  "notes": "Este arquivo é escalável. Adicione novos especialistas aqui sem modificar código."
+}
+

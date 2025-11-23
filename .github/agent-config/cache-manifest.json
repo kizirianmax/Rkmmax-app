@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "lastSync": 1700000000000,
+  "globalHitRate": "0%",
+  "estimatedSavings": 0,
+  "totalAgents": 55,
+  "agents": {
+    "serginho": {
+      "hits": 0,
+      "misses": 0,
+      "hitRate": "0%",
+      "apiCallsSaved": 0,
+      "memoryUsage": "0%"
+    }
+  },
+  "cacheConfig": {
+    "maxMemory": 512,
+    "ttlConfig": {
+      "specialist-response": 86400,
+      "general-knowledge": 25200,
+      "user-context": 3600,
+      "real-time-data": 300,
+      "system-config": 2592000
+    },
+    "evictionPolicy": "LRU-with-priority",
+    "similarityThreshold": 0.85
+  },
+  "security": {
+    "modelArmorEnabled": true,
+    "filterCategories": [
+      "promptInjection",
+      "sensitiveData",
+      "sqlInjection",
+      "codeExecution",
+      "jailbreak"
+    ]
+  },
+  "economics": {
+    "costPerAPICall": 0.01,
+    "estimatedAnnualSavings": 13722,
+    "hitRateTarget": 0.7,
+    "costReductionTarget": 0.65
+  }
+}
+
