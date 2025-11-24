@@ -1,10 +1,11 @@
 /**
- * HYBRID SYSTEM - GITHUB INTEGRATION API
- * Processa requisições que envolvem análise de repositórios GitHub
- * Lê repo + executa tarefa conforme solicitado
+ * HYBRID SYSTEM - GITHUB INTEGRATION API (REAL EXECUTION)
+ * Executa tarefas REAIS em repositórios GitHub
+ * Tipo Manus: lê repo + executa tarefa + retorna resultado
  */
 
 const GitHubService = require('../src/services/githubService');
+const TaskExecutor = require('../src/services/taskExecutor');
 
 // Cache global do sistema
 let HybridAgentSystem = null;
@@ -52,6 +53,38 @@ async function initializeSystem() {
     }
   } catch (error) {
     console.error('❌ Erro ao inicializar sistema:', error);
+    throw error;
+  }
+}
+
+/**
+ * Chamar IA para gerar conteúdo
+ */
+async function callAI(prompt, mode = 'MANUAL') {
+  try {
+    // Usar o chat API existente
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + process.env.GEMINI_API_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 4000,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  } catch (error) {
+    console.error('Erro ao chamar IA:', error);
     throw error;
   }
 }
@@ -132,7 +165,7 @@ async function handleGitHubAnalyze(req, res) {
 }
 
 /**
- * Processar requisição com GitHub + Tarefa
+ * PROCESSAR REQUISIÇÃO COM GITHUB + TAREFA (EXECUÇÃO REAL)
  * POST /api/hybrid-github/process
  * 
  * Body:
@@ -152,8 +185,16 @@ async function handleGitHubProcess(req, res) {
       });
     }
 
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`🚀 INICIANDO EXECUÇÃO DE TAREFA`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`📦 Repositório: ${githubUrl}`);
+    console.log(`📝 Tarefa: ${task}`);
+    console.log(`🎮 Modo: ${mode}`);
+    console.log(`${'='.repeat(60)}\n`);
+
     // 1. Analisar repositório
-    console.log(`📖 Analisando repositório: ${githubUrl}`);
+    console.log(`📖 [1/4] Analisando repositório...`);
     const githubService = new GitHubService(process.env.GITHUB_TOKEN);
     const repoAnalysis = await githubService.analyzeRepository(githubUrl);
 
@@ -164,51 +205,84 @@ async function handleGitHubProcess(req, res) {
       });
     }
 
-    // 2. Preparar contexto para o sistema híbrido
-    const repoContext = repoAnalysis.repository;
-    const fullPrompt = `
-Repositório: ${repoContext.info.name}
-URL: ${repoContext.info.url}
-Descrição: ${repoContext.info.description || 'N/A'}
-Linguagem: ${repoContext.info.language || 'N/A'}
-Stars: ${repoContext.info.stars}
+    const repoData = repoAnalysis.repository;
+    console.log(`✅ Repositório analisado: ${repoData.info.name}`);
+    console.log(`   - Descrição: ${repoData.info.description}`);
+    console.log(`   - Linguagem: ${repoData.info.language}`);
+    console.log(`   - Stars: ${repoData.info.stars}\n`);
 
-README:
-${repoContext.readme ? repoContext.readme.substring(0, 1000) : 'Não encontrado'}
+    // 2. Gerar prompt para IA
+    console.log(`🤖 [2/4] Gerando conteúdo com IA...`);
+    const aiPrompt = `
+Você é um especialista em desenvolvimento de software. Analise este repositório e execute a seguinte tarefa:
 
-Arquivos principais:
-${repoContext.mainFiles.map(f => `- ${f.name}`).join('\n')}
+**Repositório:** ${repoData.info.name}
+**Descrição:** ${repoData.info.description}
+**Linguagem:** ${repoData.info.language}
+**URL:** ${repoData.info.url}
 
-Tarefa do usuário: ${task}
+**README (primeiras 500 chars):**
+${repoData.readme ? repoData.readme.substring(0, 500) : 'Não encontrado'}
 
-Por favor, analise o repositório e execute a tarefa solicitada.
+**Arquivos principais:**
+${repoData.mainFiles.map(f => `- ${f.name}`).join('\n')}
+
+**Tarefa do usuário:** ${task}
+
+Por favor, execute a tarefa de forma profissional e completa. Retorne o resultado pronto para usar.
 `;
 
-    // 3. Processar através do sistema híbrido
-    const system = await initializeSystem();
-    
-    const response = await system.process(fullPrompt, {
-      mode: mode.toUpperCase(),
-      context: 'github',
-      repository: `${repoContext.owner}/${repoContext.repo}`,
-      timestamp: Date.now(),
-    });
+    let aiResponse = '';
+    try {
+      aiResponse = await callAI(aiPrompt, mode);
+      console.log(`✅ Conteúdo gerado pela IA\n`);
+    } catch (error) {
+      console.warn(`⚠️ Erro ao chamar IA, usando gerador local\n`);
+    }
+
+    // 3. Executar tarefa
+    console.log(`⚙️ [3/4] Executando tarefa...`);
+    const taskExecutor = new TaskExecutor(process.env.GITHUB_TOKEN);
+    const executionResult = await taskExecutor.executeTask(repoData, task, aiResponse);
+
+    if (!executionResult.success) {
+      return res.status(500).json({
+        error: 'Erro ao executar tarefa',
+        details: executionResult.error,
+      });
+    }
+
+    console.log(`✅ Tarefa executada: ${executionResult.taskType}`);
+    console.log(`   - Arquivo: ${executionResult.result.filename}`);
+    console.log(`   - Tamanho: ${executionResult.result.content.length} caracteres\n`);
 
     // 4. Retornar resultado
+    console.log(`📤 [4/4] Retornando resultado...`);
+    console.log(`${'='.repeat(60)}\n`);
+
     res.status(200).json({
       success: true,
       repository: {
-        owner: repoContext.owner,
-        repo: repoContext.repo,
-        url: repoContext.info.url,
+        owner: repoData.owner,
+        repo: repoData.repo,
+        url: repoData.info.url,
+        name: repoData.info.name,
+        description: repoData.info.description,
       },
       task,
       mode,
-      response,
+      execution: {
+        taskType: executionResult.taskType,
+        filename: executionResult.result.filename,
+        content: executionResult.result.content,
+        description: executionResult.result.description,
+        size: executionResult.result.content.length,
+      },
+      aiGenerated: aiResponse.length > 0,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Erro ao processar GitHub:', error);
+    console.error('❌ Erro ao processar GitHub:', error);
     res.status(500).json({
       error: 'Erro ao processar requisição',
       message: error.message,
