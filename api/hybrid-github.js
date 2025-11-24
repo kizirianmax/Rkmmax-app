@@ -2,10 +2,12 @@
  * HYBRID SYSTEM - GITHUB INTEGRATION API (REAL EXECUTION)
  * Executa tarefas REAIS em repositórios GitHub
  * Tipo Manus: lê repo + executa tarefa + retorna resultado
+ * SEGURANÇA: Bloqueia planos, limites e dados sensíveis para TODOS
  */
 
 const GitHubService = require('../src/services/githubService');
 const TaskExecutor = require('../src/services/taskExecutor');
+const SecurityFilter = require('../src/services/securityFilter');
 
 // Cache global do sistema
 let HybridAgentSystem = null;
@@ -166,6 +168,7 @@ async function handleGitHubAnalyze(req, res) {
 
 /**
  * PROCESSAR REQUISIÇÃO COM GITHUB + TAREFA (EXECUÇÃO REAL)
+ * COM VALIDAÇÃO DE SEGURANÇA
  * POST /api/hybrid-github/process
  * 
  * Body:
@@ -185,12 +188,28 @@ async function handleGitHubProcess(req, res) {
       });
     }
 
+    // VALIDAR SEGURANÇA - BLOQUEIO GLOBAL PARA TODOS
+    const securityFilter = new SecurityFilter();
+    const validation = securityFilter.validateRequest(githubUrl, task, mode);
+
+    if (!validation.valid) {
+      securityFilter.logBlockedAttempt(githubUrl, task, validation.error);
+      return res.status(403).json({
+        error: 'Operação bloqueada por razões de segurança',
+        reason: validation.error,
+        blocked: true,
+        severity: validation.severity || 'HIGH',
+        message: securityFilter.getBlockedMessage(),
+      });
+    }
+
     console.log(`\n${'='.repeat(60)}`);
     console.log(`🚀 INICIANDO EXECUÇÃO DE TAREFA`);
     console.log(`${'='.repeat(60)}`);
     console.log(`📦 Repositório: ${githubUrl}`);
     console.log(`📝 Tarefa: ${task}`);
     console.log(`🎮 Modo: ${mode}`);
+    console.log(`✅ Validação de segurança: PASSOU`);
     console.log(`${'='.repeat(60)}\n`);
 
     // 1. Analisar repositório
@@ -279,6 +298,10 @@ Por favor, execute a tarefa de forma profissional e completa. Retorne o resultad
         size: executionResult.result.content.length,
       },
       aiGenerated: aiResponse.length > 0,
+      security: {
+        validated: true,
+        blocked_operations: ['modify_plan', 'change_limit', 'access_billing'],
+      },
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
