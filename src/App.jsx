@@ -28,6 +28,7 @@ import ConsentBanner from "./components/ConsentBanner.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Terms from "./pages/Terms.jsx";
 import Refund from "./pages/Refund.jsx";
+import HybridAgent from "./pages/HybridAgent.jsx";
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -97,6 +98,10 @@ export default function App() {
         {/* Subscription Management */}
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/assinatura" element={<Navigate to="/subscription" replace />} />
+
+        {/* Sistema Híbrido */}
+        <Route path="/hybrid" element={<HybridAgent />} />
+        <Route path="/agent" element={<HybridAgent />} />
 
         {/* Políticas */}
         <Route path="/privacy" element={<Privacy />} />
