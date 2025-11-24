@@ -2,30 +2,32 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * HybridAgent - Sistema Híbrido Inteligente RKMMAX v2.0.0
- * Modo Manual: Usuário controla tudo
- * Modo Autônomo: Sistema executa tarefas automaticamente
+ * HYBRID AGENT PAGE
+ * Interface tipo Manus para o Sistema Híbrido RKMMAX v2.0.0
+ * Com suporte a análise de repositórios GitHub
  */
 export default function HybridAgent() {
-  const [mode, setMode] = useState('manual'); // 'manual' ou 'autonomous'
+  const [mode, setMode] = useState('manual');
   const [input, setInput] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
   const [messages, setMessages] = useState([
     {
       id: 1,
       type: 'system',
-      content: 'Bem-vindo ao RKMMAX Híbrido v2.0.0 - Sistema Inteligente de Agentes',
+      content: '🤖 Bem-vindo ao RKMMAX Híbrido v2.0.0 - Sistema Inteligente de Agentes',
       timestamp: new Date(),
     },
     {
       id: 2,
       type: 'agent',
       agent: 'Serginho',
-      content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso trabalhar em modo manual (você controla) ou autônomo (eu executo). Como posso ajudar?',
+      content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso trabalhar com repositórios GitHub! Cole a URL do seu repo e descreva a tarefa que deseja executar.',
       timestamp: new Date(),
     },
   ]);
   const [loading, setLoading] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState('Serginho');
+  const [showGithubInput, setShowGithubInput] = useState(false);
   const messagesEndRef = useRef(null);
 
   const agents = [
@@ -47,7 +49,12 @@ export default function HybridAgent() {
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
-    // Adicionar mensagem do usuário
+    // Se há URL do GitHub, processar com análise de repo
+    if (githubUrl.trim()) {
+      return handleGitHubProcess();
+    }
+
+    // Caso contrário, processar normalmente
     const userMessage = {
       id: messages.length + 1,
       type: 'user',
@@ -56,30 +63,147 @@ export default function HybridAgent() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const userInput = input;
     setInput('');
     setLoading(true);
 
     try {
-      // Simular resposta do agente
-      setTimeout(() => {
-        const agentResponse = {
-          id: messages.length + 2,
-          type: 'agent',
+      const response = await fetch('/api/hybrid/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: userInput,
+          mode: mode.toUpperCase(),
           agent: selectedAgent,
-          content: `[${mode.toUpperCase()}] Processando: "${input}"...`,
-          timestamp: new Date(),
-          metadata: {
-            mode,
-            agent: selectedAgent,
+          context: {
             timestamp: new Date().toISOString(),
           },
-        };
+        }),
+      });
 
-        setMessages((prev) => [...prev, agentResponse]);
-        setLoading(false);
-      }, 1000);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      let responseText = 'Processado com sucesso';
+      if (data.response) {
+        if (typeof data.response === 'string') {
+          responseText = data.response;
+        } else if (data.response.response) {
+          responseText = data.response.response;
+        } else if (data.response.message) {
+          responseText = data.response.message;
+        }
+      }
+
+      const agentResponse = {
+        id: messages.length + 2,
+        type: 'agent',
+        agent: selectedAgent,
+        content: responseText,
+        timestamp: new Date(),
+        metadata: {
+          mode,
+          agent: selectedAgent,
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      setMessages((prev) => [...prev, agentResponse]);
     } catch (error) {
       console.error('Erro ao processar mensagem:', error);
+      const errorMessage = {
+        id: messages.length + 2,
+        type: 'error',
+        content: `❌ Erro: ${error.message}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGitHubProcess = async () => {
+    if (!githubUrl.trim() || !input.trim()) {
+      alert('Por favor, preencha a URL do GitHub e a tarefa');
+      return;
+    }
+
+    const userMessage = {
+      id: messages.length + 1,
+      type: 'user',
+      content: `📦 GitHub: ${githubUrl}\n📝 Tarefa: ${input}`,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    const userInput = input;
+    const userGithubUrl = githubUrl;
+    setInput('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/hybrid-github/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          githubUrl: userGithubUrl,
+          task: userInput,
+          mode: mode.toUpperCase(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      let responseText = 'Processado com sucesso';
+      if (data.response) {
+        if (typeof data.response === 'string') {
+          responseText = data.response;
+        } else if (data.response.response) {
+          responseText = data.response.response;
+        } else if (data.response.message) {
+          responseText = data.response.message;
+        }
+      }
+
+      const agentResponse = {
+        id: messages.length + 2,
+        type: 'agent',
+        agent: selectedAgent,
+        content: responseText,
+        timestamp: new Date(),
+        metadata: {
+          mode,
+          agent: selectedAgent,
+          repository: `${data.repository.owner}/${data.repository.repo}`,
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      setMessages((prev) => [...prev, agentResponse]);
+    } catch (error) {
+      console.error('Erro ao processar GitHub:', error);
+      const errorMessage = {
+        id: messages.length + 2,
+        type: 'error',
+        content: `❌ Erro: ${error.message}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
     }
   };
@@ -90,7 +214,7 @@ export default function HybridAgent() {
       <div className="hybrid-header">
         <div className="header-content">
           <h1>🤖 RKMMAX Híbrido</h1>
-          <p>v2.0.0 - Sistema Inteligente de Agentes</p>
+          <p>v2.0.0 - Sistema Inteligente de Agentes + GitHub</p>
         </div>
         <div className="mode-badge">
           {mode === 'manual' ? '🎮 Manual' : '⚡ Autônomo'}
@@ -138,13 +262,28 @@ export default function HybridAgent() {
             </div>
           </div>
 
+          {/* GitHub Toggle */}
+          <div className="sidebar-section">
+            <h3>GitHub</h3>
+            <button
+              onClick={() => setShowGithubInput(!showGithubInput)}
+              className="mode-btn"
+              style={{ width: '100%' }}
+            >
+              {showGithubInput ? '✅ Ativo' : '📦 Adicionar Repo'}
+            </button>
+          </div>
+
           {/* Info */}
           <div className="sidebar-section info-box">
             <p>
-              <strong>Manual:</strong> Você controla cada ação.
+              <strong>Manual:</strong> Você controla.
             </p>
             <p>
-              <strong>Autônomo:</strong> Sistema executa automaticamente.
+              <strong>Autônomo:</strong> Sistema executa.
+            </p>
+            <p>
+              <strong>GitHub:</strong> Lê seu repo.
             </p>
           </div>
         </aside>
@@ -162,6 +301,11 @@ export default function HybridAgent() {
                   <p className="message-agent">{message.agent}</p>
                 )}
                 <p className="message-content">{message.content}</p>
+                {message.metadata?.repository && (
+                  <p className="message-meta">
+                    📦 {message.metadata.repository}
+                  </p>
+                )}
                 {message.metadata?.mode && (
                   <p className="message-meta">
                     {message.metadata.mode.toUpperCase()}
@@ -181,6 +325,19 @@ export default function HybridAgent() {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* GitHub Input */}
+          {showGithubInput && (
+            <div className="github-input-area">
+              <input
+                type="text"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/usuario/repositorio"
+                className="github-input"
+              />
+            </div>
+          )}
+
           {/* Input Area */}
           <div className="input-area">
             <div className="input-wrapper">
@@ -193,7 +350,11 @@ export default function HybridAgent() {
                     handleSendMessage();
                   }
                 }}
-                placeholder="Descreva a tarefa que deseja executar... (Shift+Enter para nova linha)"
+                placeholder={
+                  showGithubInput
+                    ? "Descreva a tarefa para o repositório... (Shift+Enter para nova linha)"
+                    : "Descreva a tarefa que deseja executar... (Shift+Enter para nova linha)"
+                }
                 disabled={loading}
                 className="message-input"
                 rows="2"
