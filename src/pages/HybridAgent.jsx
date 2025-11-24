@@ -62,7 +62,7 @@ export default function HybridAgent() {
 
     try {
       // Chamar /api/chat que funciona
-      const response = await fetch('/api/chat', {
+      const response = await fetch('https://kizirianmax.site/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
