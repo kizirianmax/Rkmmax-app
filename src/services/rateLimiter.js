@@ -1,31 +1,51 @@
 /**
- * RATE LIMITER
- * Sistema de limites para Manual e Otimizado
- * Manual: mais lento, menos créditos, mais requisições
- * Otimizado: mais rápido, mais créditos, menos requisições
+ * RATE LIMITER - SISTEMA DE CRÉDITOS
+ * Plano Básico = 400 créditos/mês
+ * Manual: 1 crédito por requisição
+ * Otimizado: 5 créditos por requisição
+ * Usuário escolhe qual modo usar
  */
 
 class RateLimiter {
   constructor() {
     // Armazenar em memória (em produção usar Redis)
-    this.requests = {};
-    this.limits = {
-      manual: {
-        requestsPerDay: 100,
-        requestsPerHour: 20,
-        speed: 'slow', // Mais lento
-        creditCost: 1, // 1 crédito por requisição
+    this.users = {};
+    
+    // Configuração de planos
+    this.plans = {
+      basic: {
+        name: 'Básico',
+        creditsPerMonth: 400,
+        description: 'Plano básico com 400 créditos/mês',
       },
-      optimized: {
-        requestsPerDay: 50,
-        requestsPerHour: 10,
-        speed: 'fast', // Mais rápido
-        creditCost: 5, // 5 créditos por requisição (gasta mais rápido)
+      pro: {
+        name: 'Pro',
+        creditsPerMonth: 2000,
+        description: 'Plano Pro com 2000 créditos/mês',
+      },
+      enterprise: {
+        name: 'Enterprise',
+        creditsPerMonth: 10000,
+        description: 'Plano Enterprise com 10000 créditos/mês',
       },
     };
 
-    // Limpar dados a cada hora
-    this.cleanupInterval = setInterval(() => this.cleanup(), 3600000);
+    // Custo de créditos por modo
+    this.modeCosts = {
+      manual: {
+        creditCost: 1,
+        speed: 'slow',
+        description: 'Modo manual - mais lento, 1 crédito por requisição',
+      },
+      optimized: {
+        creditCost: 5,
+        speed: 'fast',
+        description: 'Modo otimizado - mais rápido, 5 créditos por requisição',
+      },
+    };
+
+    // Limpar dados a cada mês
+    this.cleanupInterval = setInterval(() => this.cleanup(), 2592000000); // 30 dias
   }
 
   /**
@@ -36,171 +56,186 @@ class RateLimiter {
   }
 
   /**
-   * Obter chave de tempo (hora)
+   * Obter chave do mês
    */
-  getHourKey() {
+  getMonthKey() {
     const now = new Date();
-    return `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}`;
+    return `${now.getFullYear()}-${now.getMonth()}`;
   }
 
   /**
-   * Obter chave de tempo (dia)
+   * Criar usuário com plano
    */
-  getDayKey() {
-    const now = new Date();
-    return `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  createUser(userId, plan = 'basic') {
+    const userKey = this.getUserKey(userId);
+    const monthKey = this.getMonthKey();
+    const planConfig = this.plans[plan] || this.plans.basic;
+
+    this.users[userKey] = {
+      plan,
+      creditsPerMonth: planConfig.creditsPerMonth,
+      monthly: {
+        [monthKey]: {
+          creditsUsed: 0,
+          creditsRemaining: planConfig.creditsPerMonth,
+          requests: [],
+          createdAt: new Date().toISOString(),
+        },
+      },
+    };
+
+    return this.users[userKey];
+  }
+
+  /**
+   * Obter ou criar usuário
+   */
+  getOrCreateUser(userId, plan = 'basic') {
+    const userKey = this.getUserKey(userId);
+    
+    if (!this.users[userKey]) {
+      return this.createUser(userId, plan);
+    }
+
+    // Verificar se precisa resetar o mês
+    const monthKey = this.getMonthKey();
+    if (!this.users[userKey].monthly[monthKey]) {
+      const planConfig = this.plans[this.users[userKey].plan] || this.plans.basic;
+      this.users[userKey].monthly[monthKey] = {
+        creditsUsed: 0,
+        creditsRemaining: planConfig.creditsPerMonth,
+        requests: [],
+        createdAt: new Date().toISOString(),
+      };
+    }
+
+    return this.users[userKey];
   }
 
   /**
    * Verificar se pode fazer requisição
    */
-  canMakeRequest(userId, mode = 'manual') {
+  canMakeRequest(userId, mode = 'manual', plan = 'basic') {
     const userKey = this.getUserKey(userId);
-    const hourKey = this.getHourKey();
-    const dayKey = this.getDayKey();
-    const modeConfig = this.limits[mode.toLowerCase()] || this.limits.manual;
+    const monthKey = this.getMonthKey();
+    const user = this.getOrCreateUser(userId, plan);
+    const monthData = user.monthly[monthKey];
+    const modeCost = this.modeCosts[mode.toLowerCase()] || this.modeCosts.manual;
 
-    // Inicializar usuário se não existir
-    if (!this.requests[userKey]) {
-      this.requests[userKey] = {
-        daily: {},
-        hourly: {},
-      };
-    }
-
-    // Contar requisições do dia
-    const dailyCount = this.requests[userKey].daily[dayKey] || 0;
-    if (dailyCount >= modeConfig.requestsPerDay) {
+    // Verificar se tem créditos suficientes
+    if (monthData.creditsRemaining < modeCost.creditCost) {
       return {
         allowed: false,
-        reason: `Limite diário atingido (${modeConfig.requestsPerDay} requisições)`,
-        limit: modeConfig.requestsPerDay,
-        current: dailyCount,
-        resetIn: this.getTimeUntilMidnight(),
-      };
-    }
-
-    // Contar requisições da hora
-    const hourlyCount = this.requests[userKey].hourly[hourKey] || 0;
-    if (hourlyCount >= modeConfig.requestsPerHour) {
-      return {
-        allowed: false,
-        reason: `Limite horário atingido (${modeConfig.requestsPerHour} requisições)`,
-        limit: modeConfig.requestsPerHour,
-        current: hourlyCount,
-        resetIn: this.getTimeUntilNextHour(),
+        reason: `Créditos insuficientes (precisa de ${modeCost.creditCost}, tem ${monthData.creditsRemaining})`,
+        creditsNeeded: modeCost.creditCost,
+        creditsRemaining: monthData.creditsRemaining,
+        resetIn: this.getTimeUntilNextMonth(),
       };
     }
 
     return {
       allowed: true,
       reason: 'Requisição permitida',
-      dailyRemaining: modeConfig.requestsPerDay - dailyCount - 1,
-      hourlyRemaining: modeConfig.requestsPerHour - hourlyCount - 1,
+      creditsRemaining: monthData.creditsRemaining,
+      creditCost: modeCost.creditCost,
+      mode: mode.toLowerCase(),
     };
   }
 
   /**
-   * Registrar requisição
+   * Registrar requisição e descontar créditos
    */
-  recordRequest(userId, mode = 'manual') {
+  recordRequest(userId, mode = 'manual', plan = 'basic') {
     const userKey = this.getUserKey(userId);
-    const hourKey = this.getHourKey();
-    const dayKey = this.getDayKey();
+    const monthKey = this.getMonthKey();
+    const user = this.getOrCreateUser(userId, plan);
+    const monthData = user.monthly[monthKey];
+    const modeCost = this.modeCosts[mode.toLowerCase()] || this.modeCosts.manual;
 
-    if (!this.requests[userKey]) {
-      this.requests[userKey] = {
-        daily: {},
-        hourly: {},
-      };
-    }
+    // Descontar créditos
+    monthData.creditsUsed += modeCost.creditCost;
+    monthData.creditsRemaining -= modeCost.creditCost;
 
-    // Incrementar contadores
-    this.requests[userKey].daily[dayKey] = (this.requests[userKey].daily[dayKey] || 0) + 1;
-    this.requests[userKey].hourly[hourKey] = (this.requests[userKey].hourly[hourKey] || 0) + 1;
-
-    const modeConfig = this.limits[mode.toLowerCase()] || this.limits.manual;
+    // Registrar requisição
+    monthData.requests.push({
+      mode: mode.toLowerCase(),
+      creditCost: modeCost.creditCost,
+      timestamp: new Date().toISOString(),
+    });
 
     return {
       recorded: true,
-      creditCost: modeConfig.creditCost,
-      dailyUsed: this.requests[userKey].daily[dayKey],
-      hourlyUsed: this.requests[userKey].hourly[hourKey],
+      creditCost: modeCost.creditCost,
+      creditsUsed: monthData.creditsUsed,
+      creditsRemaining: monthData.creditsRemaining,
+      totalCredits: user.creditsPerMonth,
+      percentageUsed: Math.round((monthData.creditsUsed / user.creditsPerMonth) * 100),
     };
   }
 
   /**
    * Obter uso atual
    */
-  getCurrentUsage(userId, mode = 'manual') {
+  getCurrentUsage(userId, plan = 'basic') {
     const userKey = this.getUserKey(userId);
-    const hourKey = this.getHourKey();
-    const dayKey = this.getDayKey();
-    const modeConfig = this.limits[mode.toLowerCase()] || this.limits.manual;
-
-    if (!this.requests[userKey]) {
-      return {
-        daily: 0,
-        hourly: 0,
-        dailyLimit: modeConfig.requestsPerDay,
-        hourlyLimit: modeConfig.requestsPerHour,
-        dailyRemaining: modeConfig.requestsPerDay,
-        hourlyRemaining: modeConfig.requestsPerHour,
-      };
-    }
-
-    const dailyUsed = this.requests[userKey].daily[dayKey] || 0;
-    const hourlyUsed = this.requests[userKey].hourly[hourKey] || 0;
+    const monthKey = this.getMonthKey();
+    const user = this.getOrCreateUser(userId, plan);
+    const monthData = user.monthly[monthKey];
+    const planConfig = this.plans[plan] || this.plans.basic;
 
     return {
-      daily: dailyUsed,
-      hourly: hourlyUsed,
-      dailyLimit: modeConfig.requestsPerDay,
-      hourlyLimit: modeConfig.requestsPerHour,
-      dailyRemaining: Math.max(0, modeConfig.requestsPerDay - dailyUsed),
-      hourlyRemaining: Math.max(0, modeConfig.requestsPerHour - hourlyUsed),
-      dailyPercentage: Math.round((dailyUsed / modeConfig.requestsPerDay) * 100),
-      hourlyPercentage: Math.round((hourlyUsed / modeConfig.requestsPerHour) * 100),
+      plan: user.plan,
+      creditsUsed: monthData.creditsUsed,
+      creditsRemaining: monthData.creditsRemaining,
+      totalCredits: planConfig.creditsPerMonth,
+      percentageUsed: Math.round((monthData.creditsUsed / planConfig.creditsPerMonth) * 100),
+      requestCount: monthData.requests.length,
+      month: monthKey,
+      resetIn: this.getTimeUntilNextMonth(),
     };
   }
 
   /**
-   * Obter configuração de modo
+   * Obter informações do plano
    */
-  getModeConfig(mode = 'manual') {
-    return this.limits[mode.toLowerCase()] || this.limits.manual;
+  getPlanInfo(plan = 'basic') {
+    const planConfig = this.plans[plan] || this.plans.basic;
+    const manualCost = this.modeCosts.manual.creditCost;
+    const optimizedCost = this.modeCosts.optimized.creditCost;
+
+    return {
+      plan: planConfig.name,
+      creditsPerMonth: planConfig.creditsPerMonth,
+      description: planConfig.description,
+      modes: {
+        manual: {
+          creditCost: manualCost,
+          requestsPerMonth: Math.floor(planConfig.creditsPerMonth / manualCost),
+          speed: 'lento',
+          description: `${Math.floor(planConfig.creditsPerMonth / manualCost)} requisições/mês`,
+        },
+        optimized: {
+          creditCost: optimizedCost,
+          requestsPerMonth: Math.floor(planConfig.creditsPerMonth / optimizedCost),
+          speed: 'rápido',
+          description: `${Math.floor(planConfig.creditsPerMonth / optimizedCost)} requisições/mês`,
+        },
+      },
+    };
   }
 
   /**
-   * Obter tempo até meia-noite
+   * Obter tempo até próximo mês
    */
-  getTimeUntilMidnight() {
+  getTimeUntilNextMonth() {
     const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-    const diff = tomorrow - now;
-    const hours = Math.floor(diff / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
+    const diff = nextMonth - now;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
 
-    return `${hours}h ${minutes}m`;
-  }
-
-  /**
-   * Obter tempo até próxima hora
-   */
-  getTimeUntilNextHour() {
-    const now = new Date();
-    const nextHour = new Date(now);
-    nextHour.setHours(nextHour.getHours() + 1);
-    nextHour.setMinutes(0, 0, 0);
-
-    const diff = nextHour - now;
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-
-    return `${minutes}m ${seconds}s`;
+    return `${days}d ${hours}h`;
   }
 
   /**
@@ -208,43 +243,44 @@ class RateLimiter {
    */
   cleanup() {
     const now = new Date();
-    const currentDay = this.getDayKey();
-    const currentHour = this.getHourKey();
+    const currentMonth = this.getMonthKey();
 
-    for (const userKey in this.requests) {
-      // Remover dados de dias antigos
-      for (const dayKey in this.requests[userKey].daily) {
-        if (dayKey !== currentDay) {
-          delete this.requests[userKey].daily[dayKey];
-        }
-      }
-
-      // Remover dados de horas antigas
-      for (const hourKey in this.requests[userKey].hourly) {
-        if (hourKey !== currentHour) {
-          delete this.requests[userKey].hourly[hourKey];
-        }
+    for (const userKey in this.users) {
+      const user = this.users[userKey];
+      
+      // Remover dados de meses antigos (manter últimos 3 meses)
+      const months = Object.keys(user.monthly).sort().reverse();
+      if (months.length > 3) {
+        const toDelete = months.slice(3);
+        toDelete.forEach(month => delete user.monthly[month]);
       }
 
       // Remover usuário se vazio
-      if (
-        Object.keys(this.requests[userKey].daily).length === 0 &&
-        Object.keys(this.requests[userKey].hourly).length === 0
-      ) {
-        delete this.requests[userKey];
+      if (Object.keys(user.monthly).length === 0) {
+        delete this.users[userKey];
       }
     }
   }
 
   /**
-   * Reset de limites (admin only)
+   * Reset de créditos (admin only)
    */
-  resetUserLimits(userId) {
+  resetUserCredits(userId) {
     const userKey = this.getUserKey(userId);
-    if (this.requests[userKey]) {
-      delete this.requests[userKey];
+    if (this.users[userKey]) {
+      const monthKey = this.getMonthKey();
+      const planConfig = this.plans[this.users[userKey].plan] || this.plans.basic;
+      
+      this.users[userKey].monthly[monthKey] = {
+        creditsUsed: 0,
+        creditsRemaining: planConfig.creditsPerMonth,
+        requests: [],
+        createdAt: new Date().toISOString(),
+      };
+      
+      return { reset: true };
     }
-    return { reset: true };
+    return { reset: false };
   }
 
   /**

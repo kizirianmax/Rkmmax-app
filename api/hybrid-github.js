@@ -204,19 +204,21 @@ async function handleGitHubProcess(req, res) {
       });
     }
 
-    // VERIFICAR RATE LIMIT
+    // VERIFICAR CRÉDITOS (SISTEMA DE PLANO)
     const limiter = getLimiter();
     const userId = req.headers['x-user-id'] || 'anonymous';
-    const canMakeRequest = limiter.canMakeRequest(userId, mode);
+    const userPlan = req.headers['x-user-plan'] || 'basic';
+    const canMakeRequest = limiter.canMakeRequest(userId, mode, userPlan);
 
     if (!canMakeRequest.allowed) {
       return res.status(429).json({
-        error: 'Limite de requisições atingido',
+        error: 'Créditos insuficientes',
         reason: canMakeRequest.reason,
-        limit: canMakeRequest.limit,
-        current: canMakeRequest.current,
+        creditsNeeded: canMakeRequest.creditsNeeded,
+        creditsRemaining: canMakeRequest.creditsRemaining,
         resetIn: canMakeRequest.resetIn,
         mode: mode.toLowerCase(),
+        plan: userPlan,
       });
     }
 
@@ -226,8 +228,9 @@ async function handleGitHubProcess(req, res) {
     console.log(`📦 Repositório: ${githubUrl}`);
     console.log(`📝 Tarefa: ${task}`);
     console.log(`🎮 Modo: ${mode}`);
+    console.log(`💳 Plano: ${userPlan}`);
     console.log(`✅ Validação de segurança: PASSOU`);
-    console.log(`✅ Rate limit: PASSOU (${canMakeRequest.dailyRemaining} requisições restantes hoje)`);
+    console.log(`✅ Créditos: PASSOU (${canMakeRequest.creditsRemaining} créditos restantes)`);
     console.log(`${'='.repeat(60)}\n`);
 
     // 1. Analisar repositório
@@ -295,8 +298,9 @@ Por favor, execute a tarefa de forma profissional e completa. Retorne o resultad
 
     // 4. Registrar requisição e retornar resultado
     console.log(`📤 [4/4] Retornando resultado...`);
-    const recordedRequest = limiter.recordRequest(userId, mode);
+    const recordedRequest = limiter.recordRequest(userId, mode, userPlan);
     console.log(`💾 Requisição registrada: ${recordedRequest.creditCost} créditos`);
+    console.log(`📊 Uso: ${recordedRequest.creditsUsed}/${recordedRequest.totalCredits} créditos (${recordedRequest.percentageUsed}%)`);
     console.log(`${'='.repeat(60)}\n`);
 
     res.status(200).json({
@@ -322,13 +326,14 @@ Por favor, execute a tarefa de forma profissional e completa. Retorne o resultad
         validated: true,
         blocked_operations: ['modify_plan', 'change_limit', 'access_billing'],
       },
-      rateLimit: {
+      credits: {
         creditCost: recordedRequest.creditCost,
-        dailyUsed: recordedRequest.dailyUsed,
-        hourlyUsed: recordedRequest.hourlyUsed,
-        dailyRemaining: canMakeRequest.dailyRemaining,
-        hourlyRemaining: canMakeRequest.hourlyRemaining,
+        creditsUsed: recordedRequest.creditsUsed,
+        creditsRemaining: recordedRequest.creditsRemaining,
+        totalCredits: recordedRequest.totalCredits,
+        percentageUsed: recordedRequest.percentageUsed,
         mode: mode.toLowerCase(),
+        plan: userPlan,
       },
       timestamp: new Date().toISOString(),
     });
