@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
  * HYBRID AGENT PAGE
  * Interface tipo Manus para o Sistema Híbrido RKMMAX v2.0.0
- * Com suporte a análise de repositórios GitHub
+ * Usa /api/chat que funciona no Vercel
  */
 export default function HybridAgent() {
   const [mode, setMode] = useState('manual');
   const [input, setInput] = useState('');
-  const [githubUrl, setGithubUrl] = useState('');
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -21,13 +20,12 @@ export default function HybridAgent() {
       id: 2,
       type: 'agent',
       agent: 'Serginho',
-      content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso trabalhar com repositórios GitHub! Cole a URL do seu repo e descreva a tarefa que deseja executar.',
+      content: 'Olá! Sou Serginho, seu orquestrador de IA. Descreva a tarefa que deseja executar e eu faço!',
       timestamp: new Date(),
     },
   ]);
   const [loading, setLoading] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState('Serginho');
-  const [showGithubInput, setShowGithubInput] = useState(false);
   const messagesEndRef = useRef(null);
 
   const agents = [
@@ -49,12 +47,7 @@ export default function HybridAgent() {
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
-    // Se há URL do GitHub, processar com análise de repo
-    if (githubUrl.trim()) {
-      return handleGitHubProcess();
-    }
-
-    // Caso contrário, processar normalmente
+    // Adicionar mensagem do usuário
     const userMessage = {
       id: messages.length + 1,
       type: 'user',
@@ -68,55 +61,49 @@ export default function HybridAgent() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/hybrid/process', {
+      // Chamar /api/chat que funciona
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: userInput,
+          messages: [
+            ...messages.map(msg => ({
+              role: msg.type === 'user' ? 'user' : 'assistant',
+              content: msg.content,
+            })),
+            {
+              role: 'user',
+              content: userInput,
+            },
+          ],
+          specialist: selectedAgent,
           mode: mode.toUpperCase(),
-          agent: selectedAgent,
-          context: {
-            timestamp: new Date().toISOString(),
-          },
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `API error: ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
+      const aiResponse = data.response || data.message || 'Sem resposta';
 
-      let responseText = 'Processado com sucesso';
-      if (data.response) {
-        if (typeof data.response === 'string') {
-          responseText = data.response;
-        } else if (data.response.response) {
-          responseText = data.response.response;
-        } else if (data.response.message) {
-          responseText = data.response.message;
-        }
-      }
-
-      const agentResponse = {
+      // Adicionar resposta do agente
+      const agentMessage = {
         id: messages.length + 2,
         type: 'agent',
         agent: selectedAgent,
-        content: responseText,
+        content: aiResponse,
         timestamp: new Date(),
-        metadata: {
-          mode,
-          agent: selectedAgent,
-          timestamp: new Date().toISOString(),
-        },
+        model: data.model,
+        provider: data.provider,
       };
 
-      setMessages((prev) => [...prev, agentResponse]);
+      setMessages((prev) => [...prev, agentMessage]);
     } catch (error) {
-      console.error('Erro ao processar mensagem:', error);
+      console.error('Erro:', error);
       const errorMessage = {
         id: messages.length + 2,
         type: 'error',
@@ -129,246 +116,111 @@ export default function HybridAgent() {
     }
   };
 
-  const handleGitHubProcess = async () => {
-    if (!githubUrl.trim() || !input.trim()) {
-      alert('Por favor, preencha a URL do GitHub e a tarefa');
-      return;
-    }
-
-    const userMessage = {
-      id: messages.length + 1,
-      type: 'user',
-      content: `📦 GitHub: ${githubUrl}\n📝 Tarefa: ${input}`,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    const userInput = input;
-    const userGithubUrl = githubUrl;
-    setInput('');
-    setLoading(true);
-
-    try {
-      const response = await fetch('/api/hybrid-github/process', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          githubUrl: userGithubUrl,
-          task: userInput,
-          mode: mode.toUpperCase(),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      let responseText = 'Processado com sucesso';
-      if (data.response) {
-        if (typeof data.response === 'string') {
-          responseText = data.response;
-        } else if (data.response.response) {
-          responseText = data.response.response;
-        } else if (data.response.message) {
-          responseText = data.response.message;
-        }
-      }
-
-      const agentResponse = {
-        id: messages.length + 2,
-        type: 'agent',
-        agent: selectedAgent,
-        content: responseText,
-        timestamp: new Date(),
-        metadata: {
-          mode,
-          agent: selectedAgent,
-          repository: `${data.repository.owner}/${data.repository.repo}`,
-          timestamp: new Date().toISOString(),
-        },
-      };
-
-      setMessages((prev) => [...prev, agentResponse]);
-    } catch (error) {
-      console.error('Erro ao processar GitHub:', error);
-      const errorMessage = {
-        id: messages.length + 2,
-        type: 'error',
-        content: `❌ Erro: ${error.message}`,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setLoading(false);
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
   return (
     <div className="hybrid-agent-container">
-      {/* Header */}
-      <div className="hybrid-header">
-        <div className="header-content">
-          <h1>🤖 RKMMAX Híbrido</h1>
-          <p>v2.0.0 - Sistema Inteligente de Agentes + GitHub</p>
+      {/* Sidebar - Agentes */}
+      <div className="hybrid-sidebar">
+        <div className="sidebar-section">
+          <h3>AGENTES DISPONÍVEIS</h3>
+          <div className="agents-list">
+            {agents.map((agent) => (
+              <button
+                key={agent.id}
+                className={`agent-button ${selectedAgent === agent.name ? 'active' : ''}`}
+                onClick={() => setSelectedAgent(agent.name)}
+              >
+                <span className="agent-icon">{agent.icon}</span>
+                <div className="agent-info">
+                  <div className="agent-name">{agent.name}</div>
+                  <div className="agent-role">{agent.role}</div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="mode-badge">
-          {mode === 'manual' ? '🎮 Manual' : '⚡ Autônomo'}
+
+        {/* Modo */}
+        <div className="sidebar-section">
+          <h3>MODO</h3>
+          <div className="mode-buttons">
+            <button
+              className={`mode-btn ${mode === 'manual' ? 'active' : ''}`}
+              onClick={() => setMode('manual')}
+            >
+              🎮 Manual
+            </button>
+            <button
+              className={`mode-btn ${mode === 'optimized' ? 'active' : ''}`}
+              onClick={() => setMode('optimized')}
+            >
+              ⚡ Otimizado
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Main - Chat */}
       <div className="hybrid-main">
-        {/* Sidebar - Agentes */}
-        <aside className="hybrid-sidebar">
-          <div className="sidebar-section">
-            <h3>Agentes Disponíveis</h3>
-            <div className="agents-list">
-              {agents.map((agent) => (
-                <button
-                  key={agent.id}
-                  onClick={() => setSelectedAgent(agent.name)}
-                  className={`agent-btn ${selectedAgent === agent.name ? 'active' : ''}`}
-                >
-                  <span className="agent-icon">{agent.icon}</span>
-                  <div className="agent-info">
-                    <p className="agent-name">{agent.name}</p>
-                    <p className="agent-role">{agent.role}</p>
-                  </div>
-                </button>
-              ))}
+        {/* Header */}
+        <div className="hybrid-header">
+          <h1>🤖 RKMMAX Híbrido v2.0.0</h1>
+          <p>Sistema Inteligente de Agentes</p>
+        </div>
+
+        {/* Messages */}
+        <div className="hybrid-messages">
+          {messages.map((msg) => (
+            <div key={msg.id} className={`message message-${msg.type}`}>
+              {msg.type === 'agent' && (
+                <div className="message-agent">
+                  <span className="agent-badge">{msg.agent}</span>
+                </div>
+              )}
+              <div className="message-content">{msg.content}</div>
+              {msg.model && (
+                <div className="message-meta">
+                  {msg.model} • {msg.provider}
+                </div>
+              )}
             </div>
-          </div>
-
-          {/* Mode Toggle */}
-          <div className="sidebar-section">
-            <h3>Modo</h3>
-            <div className="mode-buttons">
-              <button
-                onClick={() => setMode('manual')}
-                className={`mode-btn ${mode === 'manual' ? 'active' : ''}`}
-              >
-                🎮 Manual
-              </button>
-              <button
-                onClick={() => setMode('autonomous')}
-                className={`mode-btn ${mode === 'autonomous' ? 'active' : ''}`}
-              >
-                ⚡ Autônomo
-              </button>
-            </div>
-          </div>
-
-          {/* GitHub Toggle */}
-          <div className="sidebar-section">
-            <h3>GitHub</h3>
-            <button
-              onClick={() => setShowGithubInput(!showGithubInput)}
-              className="mode-btn"
-              style={{ width: '100%' }}
-            >
-              {showGithubInput ? '✅ Ativo' : '📦 Adicionar Repo'}
-            </button>
-          </div>
-
-          {/* Info */}
-          <div className="sidebar-section info-box">
-            <p>
-              <strong>Manual:</strong> Você controla.
-            </p>
-            <p>
-              <strong>Autônomo:</strong> Sistema executa.
-            </p>
-            <p>
-              <strong>GitHub:</strong> Lê seu repo.
-            </p>
-          </div>
-        </aside>
-
-        {/* Main Chat Area */}
-        <main className="hybrid-chat">
-          {/* Messages */}
-          <div className="messages-container">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`message message-${message.type}`}
-              >
-                {message.agent && (
-                  <p className="message-agent">{message.agent}</p>
-                )}
-                <p className="message-content">{message.content}</p>
-                {message.metadata?.repository && (
-                  <p className="message-meta">
-                    📦 {message.metadata.repository}
-                  </p>
-                )}
-                {message.metadata?.mode && (
-                  <p className="message-meta">
-                    {message.metadata.mode.toUpperCase()}
-                  </p>
-                )}
+          ))}
+          {loading && (
+            <div className="message message-loading">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
               </div>
-            ))}
-            {loading && (
-              <div className="message message-system">
-                <p className="message-content">
-                  <span className="typing-indicator">
-                    <span></span><span></span><span></span>
-                  </span>
-                </p>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* GitHub Input */}
-          {showGithubInput && (
-            <div className="github-input-area">
-              <input
-                type="text"
-                value={githubUrl}
-                onChange={(e) => setGithubUrl(e.target.value)}
-                placeholder="https://github.com/usuario/repositorio"
-                className="github-input"
-              />
             </div>
           )}
+          <div ref={messagesEndRef} />
+        </div>
 
-          {/* Input Area */}
-          <div className="input-area">
-            <div className="input-wrapper">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                placeholder={
-                  showGithubInput
-                    ? "Descreva a tarefa para o repositório... (Shift+Enter para nova linha)"
-                    : "Descreva a tarefa que deseja executar... (Shift+Enter para nova linha)"
-                }
-                disabled={loading}
-                className="message-input"
-                rows="2"
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={loading || !input.trim()}
-                className="send-btn"
-              >
-                {loading ? '⏳' : '➤'}
-              </button>
-            </div>
-          </div>
-        </main>
+        {/* Input */}
+        <div className="hybrid-input-area">
+          <textarea
+            className="hybrid-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Descreva a tarefa que deseja executar... (Shift+Enter para nova linha)"
+            disabled={loading}
+          />
+          <button
+            className="hybrid-send-btn"
+            onClick={handleSendMessage}
+            disabled={loading || !input.trim()}
+          >
+            {loading ? '⏳ Processando...' : '📤 Enviar'}
+          </button>
+        </div>
       </div>
     </div>
   );
