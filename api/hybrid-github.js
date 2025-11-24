@@ -8,6 +8,7 @@
 const GitHubService = require('../src/services/githubService');
 const TaskExecutor = require('../src/services/taskExecutor');
 const SecurityFilter = require('../src/services/securityFilter');
+const { getLimiter } = require('../src/services/rateLimiter');
 
 // Cache global do sistema
 let HybridAgentSystem = null;
@@ -203,6 +204,22 @@ async function handleGitHubProcess(req, res) {
       });
     }
 
+    // VERIFICAR RATE LIMIT
+    const limiter = getLimiter();
+    const userId = req.headers['x-user-id'] || 'anonymous';
+    const canMakeRequest = limiter.canMakeRequest(userId, mode);
+
+    if (!canMakeRequest.allowed) {
+      return res.status(429).json({
+        error: 'Limite de requisições atingido',
+        reason: canMakeRequest.reason,
+        limit: canMakeRequest.limit,
+        current: canMakeRequest.current,
+        resetIn: canMakeRequest.resetIn,
+        mode: mode.toLowerCase(),
+      });
+    }
+
     console.log(`\n${'='.repeat(60)}`);
     console.log(`🚀 INICIANDO EXECUÇÃO DE TAREFA`);
     console.log(`${'='.repeat(60)}`);
@@ -210,6 +227,7 @@ async function handleGitHubProcess(req, res) {
     console.log(`📝 Tarefa: ${task}`);
     console.log(`🎮 Modo: ${mode}`);
     console.log(`✅ Validação de segurança: PASSOU`);
+    console.log(`✅ Rate limit: PASSOU (${canMakeRequest.dailyRemaining} requisições restantes hoje)`);
     console.log(`${'='.repeat(60)}\n`);
 
     // 1. Analisar repositório
@@ -275,8 +293,10 @@ Por favor, execute a tarefa de forma profissional e completa. Retorne o resultad
     console.log(`   - Arquivo: ${executionResult.result.filename}`);
     console.log(`   - Tamanho: ${executionResult.result.content.length} caracteres\n`);
 
-    // 4. Retornar resultado
+    // 4. Registrar requisição e retornar resultado
     console.log(`📤 [4/4] Retornando resultado...`);
+    const recordedRequest = limiter.recordRequest(userId, mode);
+    console.log(`💾 Requisição registrada: ${recordedRequest.creditCost} créditos`);
     console.log(`${'='.repeat(60)}\n`);
 
     res.status(200).json({
@@ -301,6 +321,14 @@ Por favor, execute a tarefa de forma profissional e completa. Retorne o resultad
       security: {
         validated: true,
         blocked_operations: ['modify_plan', 'change_limit', 'access_billing'],
+      },
+      rateLimit: {
+        creditCost: recordedRequest.creditCost,
+        dailyUsed: recordedRequest.dailyUsed,
+        hourlyUsed: recordedRequest.hourlyUsed,
+        dailyRemaining: canMakeRequest.dailyRemaining,
+        hourlyRemaining: canMakeRequest.hourlyRemaining,
+        mode: mode.toLowerCase(),
       },
       timestamp: new Date().toISOString(),
     });
