@@ -38,9 +38,9 @@ class RateLimiter {
         description: 'Modo manual - mais lento, 1 crédito por requisição',
       },
       optimized: {
-        creditCost: 2,
+        creditCost: 0.5,
         speed: 'fast',
-        description: 'Modo otimizado - mais rápido, 2 créditos por requisição',
+        description: 'Modo otimizado - MUITO econômico, 0.5 crédito por requisição',
       },
     };
 
