@@ -1,12 +1,6 @@
 /**
- * PLANO B: Versão Groq API (funciona 100%)
- * Use este arquivo se Gemini continuar falhando
- * 
- * INSTRUÇÕES:
- * 1. Renomeie este arquivo para chat.js (sobrescreva o atual)
- * 2. Faça commit e push
- * 3. Vercel vai fazer redeploy automaticamente
- * 4. Sistema volta a funcionar com Groq
+ * RKMMAX Chat API - Google Gemini
+ * Orquestrador de IA com 54 especialistas
  */
 
 async function handler(req, res) {
@@ -21,12 +15,12 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
 
-    const GROQ_API_KEY = process.env.GROQ_API_KEY;
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-    if (!GROQ_API_KEY) {
+    if (!GEMINI_API_KEY) {
       return res.status(500).json({ 
-        error: 'Groq API key not configured',
-        hint: 'Add GROQ_API_KEY to Vercel environment variables'
+        error: 'Gemini API key not configured',
+        hint: 'Add GEMINI_API_KEY to Vercel environment variables'
       });
     }
 
@@ -68,42 +62,56 @@ FORMATAÇÃO OBRIGATÓRIA:
 - Nunca junte palavras`;
     }
 
-    // Chamar Groq API
-    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'mixtral-8x7b-32768',
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          ...messages
-        ],
-        temperature: 0.7,
-        max_tokens: 2000,
-      }),
-    });
+    // Converter mensagens para formato Gemini
+    const geminiMessages = messages.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    }));
 
-    if (!groqResponse.ok) {
-      const errorData = await groqResponse.json();
-      console.error('Groq API error:', errorData);
-      return res.status(groqResponse.status).json({ 
-        error: 'Error calling Groq API',
+    // Chamar Gemini API
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }]
+          },
+          contents: geminiMessages,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2000,
+          },
+        }),
+      }
+    );
+
+    if (!geminiResponse.ok) {
+      const errorData = await geminiResponse.json();
+      console.error('Gemini API error:', errorData);
+      return res.status(geminiResponse.status).json({ 
+        error: 'Error calling Gemini API',
         details: errorData.error?.message || 'Unknown error'
       });
     }
 
-    const data = await groqResponse.json();
-    const aiResponse = data.choices[0].message.content;
+    const data = await geminiResponse.json();
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      return res.status(500).json({ 
+        error: 'Invalid response from Gemini API',
+        details: 'No content in response'
+      });
+    }
+
+    const aiResponse = data.candidates[0].content.parts[0].text;
 
     return res.status(200).json({ 
       response: aiResponse,
-      model: 'mixtral-8x7b-32768'
+      model: 'gemini-2.0-flash'
     });
 
   } catch (error) {
