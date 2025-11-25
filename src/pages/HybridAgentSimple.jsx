@@ -45,8 +45,14 @@ export default function HybridAgentSimple() {
 
   const callGeminiDirect = async (prompt) => {
     try {
+      // Usar variável de ambiente ou localStorage
+      const apiKey = process.env.REACT_APP_GEMINI_KEY || localStorage.getItem('gemini_key');
+      if (!apiKey) {
+        throw new Error('API Key não configurada. Configure REACT_APP_GEMINI_KEY');
+      }
+      
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDyWJaABfXHWjKxT0pP0L0F0F0F0F0F0F0`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
