@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * HYBRID AGENT - VERSÃO SIMPLES
- * Sem dependências de API, tudo funciona localmente
+ * HYBRID AGENT - VERSÃO DEMO
+ * Simula respostas sem gastar créditos
+ * Quando tiver créditos, integra com Gemini real
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -35,6 +36,15 @@ export default function HybridAgentSimple() {
     { id: 'designer', name: 'Designer', role: 'Visual', icon: '🎨' },
   ];
 
+  // Respostas simuladas por agente
+  const agentResponses = {
+    'Serginho': 'Entendido! Vou orquestrar essa tarefa para você. Deixa comigo! 🚀',
+    'Pesquisador': 'Vou analisar profundamente esse tema e trazer insights valiosos. 📊',
+    'Escritor': 'Vou criar um conteúdo de qualidade, bem estruturado e envolvente. ✍️',
+    'Dev': 'Vou desenvolver uma solução robusta e bem otimizada. 💻',
+    'Designer': 'Vou criar algo visualmente impressionante e funcional. 🎨',
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -42,43 +52,6 @@ export default function HybridAgentSimple() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const callGeminiDirect = async (prompt) => {
-    try {
-      // Usar variável de ambiente ou localStorage
-      const apiKey = process.env.REACT_APP_GEMINI_KEY || localStorage.getItem('gemini_key');
-      if (!apiKey) {
-        throw new Error('API Key não configurada. Configure REACT_APP_GEMINI_KEY');
-      }
-      
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 2000,
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Gemini error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sem resposta';
-    } catch (error) {
-      console.error('Erro ao chamar Gemini:', error);
-      throw error;
-    }
-  };
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -96,36 +69,22 @@ export default function HybridAgentSimple() {
     setInput('');
     setLoading(true);
 
-    try {
-      console.log('📤 Enviando para Gemini:', userInput);
+    // Simular delay de processamento
+    setTimeout(() => {
+      const response = agentResponses[selectedAgent] || 'Tarefa recebida com sucesso!';
       
-      // Chamar Gemini direto
-      const aiResponse = await callGeminiDirect(userInput);
-
-      console.log('✅ Resposta recebida:', aiResponse);
-
       // Adicionar resposta do agente
       const agentMessage = {
         id: messages.length + 2,
         type: 'agent',
         agent: selectedAgent,
-        content: aiResponse,
+        content: `${response}\n\n📝 Sua solicitação: "${userInput}"\n\n⚡ Modo: ${mode === 'manual' ? 'Manual (1 crédito)' : 'Otimizado (0.5 crédito)'}\n💾 Créditos: Sistema pronto para usar quando ativar.`,
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, agentMessage]);
-    } catch (error) {
-      console.error('❌ Erro:', error);
-      const errorMessage = {
-        id: messages.length + 2,
-        type: 'error',
-        content: `❌ Erro: ${error.message}`,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
       setLoading(false);
-    }
+    }, 1500);
   };
 
   const handleKeyPress = (e) => {
@@ -174,6 +133,16 @@ export default function HybridAgentSimple() {
             >
               ⚡ Otimizado
             </button>
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="sidebar-section">
+          <h3>INFO</h3>
+          <div className="info-box">
+            <p>📊 <strong>Sistema Demo</strong></p>
+            <p>Respostas simuladas até ativar créditos.</p>
+            <p>🚀 Pronto para integração real!</p>
           </div>
         </div>
       </div>
