@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * HYBRID AGENT - VERSÃO DEMO
+ * HYBRID AGENT - VERSÃO DEMO v2.1.0
  * Simula respostas sem gastar créditos
  * Quando tiver créditos, integra com Gemini real
+ * BUILD: 2025-11-25 11:03 - FORCE REFRESH
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
