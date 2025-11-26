@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * HYBRID AGENT - VERSÃO REAL v2.2.0
- * Integração real com Gemini 2.0 Flash
- * Respostas verdadeiras dos agentes
+ * HYBRID AGENT - VERSÃO REAL v2.3.0
+ * Usa /api/chat que funciona de verdade
+ * Respostas reais com fallback automático
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -36,15 +36,6 @@ export default function HybridAgentSimple() {
     { id: 'designer', name: 'Designer', role: 'Visual', icon: '🎨' },
   ];
 
-  // Prompts do sistema por agente
-  const agentPrompts = {
-    'Serginho': 'Você é Serginho, orquestrador de IA do RKMMAX. Responda de forma profissional, amigável e direto ao ponto.',
-    'Pesquisador': 'Você é um pesquisador especialista. Analise profundamente o tema, cite fontes e traga insights valiosos.',
-    'Escritor': 'Você é um escritor profissional. Crie conteúdo de qualidade, bem estruturado, envolvente e com boa formatação.',
-    'Dev': 'Você é um desenvolvedor sênior. Forneça soluções técnicas robustas, bem otimizadas e com boas práticas.',
-    'Designer': 'Você é um designer criativo. Sugira soluções visualmente impressionantes e funcionais.',
-  };
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -52,51 +43,6 @@ export default function HybridAgentSimple() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  const callGeminiAPI = async (prompt) => {
-    try {
-      // Usar a chave do environment (injetada pelo Vercel)
-      const apiKey = process.env.REACT_APP_GEMINI_KEY;
-      
-      if (!apiKey) {
-        throw new Error('GEMINI_API_KEY não configurada no Vercel');
-      }
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 2000,
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(`Gemini API error: ${error.error?.message || response.status}`);
-      }
-
-      const data = await response.json();
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!aiResponse) {
-        throw new Error('Nenhuma resposta da IA');
-      }
-
-      return aiResponse;
-    } catch (error) {
-      console.error('Erro ao chamar Gemini:', error);
-      throw error;
-    }
-  };
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -115,12 +61,40 @@ export default function HybridAgentSimple() {
     setLoading(true);
 
     try {
-      // Construir prompt com contexto do agente
-      const systemPrompt = agentPrompts[selectedAgent];
-      const fullPrompt = `${systemPrompt}\n\nSolicitação do usuário: ${userInput}`;
+      console.log(`📤 Enviando para /api/chat com agente: ${selectedAgent}`);
 
-      console.log(`📤 Chamando Gemini com agente: ${selectedAgent}`);
-      const aiResponse = await callGeminiAPI(fullPrompt);
+      // Chamar /api/chat que funciona de verdade
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            ...messages
+              .filter(msg => msg.type !== 'system')
+              .map(msg => ({
+                role: msg.type === 'user' ? 'user' : 'assistant',
+                content: msg.content,
+              })),
+            {
+              role: 'user',
+              content: userInput,
+            },
+          ],
+          specialist: selectedAgent,
+          mode: mode.toUpperCase(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.response || data.message || 'Sem resposta';
+
+      console.log(`✅ Resposta recebida: ${aiResponse.substring(0, 100)}...`);
 
       // Adicionar resposta do agente
       const agentMessage = {
@@ -129,8 +103,8 @@ export default function HybridAgentSimple() {
         agent: selectedAgent,
         content: aiResponse,
         timestamp: new Date(),
-        model: 'gemini-2.0-flash',
-        provider: 'google',
+        model: data.model,
+        provider: data.provider,
       };
 
       setMessages((prev) => [...prev, agentMessage]);
@@ -201,8 +175,8 @@ export default function HybridAgentSimple() {
         <div className="sidebar-section">
           <h3>SISTEMA</h3>
           <div className="info-box">
-            <p>🚀 <strong>Versão 2.2.0</strong></p>
-            <p>Gemini 2.0 Flash Real</p>
+            <p>🚀 <strong>Versão 2.3.0</strong></p>
+            <p>API Real Integrada</p>
             <p>✅ Totalmente Funcional</p>
           </div>
         </div>
