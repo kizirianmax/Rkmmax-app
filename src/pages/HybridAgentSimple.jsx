@@ -2,10 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * HYBRID AGENT - VERSÃO DEMO v2.1.0
- * Simula respostas sem gastar créditos
- * Quando tiver créditos, integra com Gemini real
- * BUILD: 2025-11-25 11:03 - FORCE REFRESH
+ * HYBRID AGENT - VERSÃO REAL v2.2.0
+ * Integração real com Gemini 2.0 Flash
+ * Respostas verdadeiras dos agentes
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -37,13 +36,13 @@ export default function HybridAgentSimple() {
     { id: 'designer', name: 'Designer', role: 'Visual', icon: '🎨' },
   ];
 
-  // Respostas simuladas por agente
-  const agentResponses = {
-    'Serginho': 'Entendido! Vou orquestrar essa tarefa para você. Deixa comigo! 🚀',
-    'Pesquisador': 'Vou analisar profundamente esse tema e trazer insights valiosos. 📊',
-    'Escritor': 'Vou criar um conteúdo de qualidade, bem estruturado e envolvente. ✍️',
-    'Dev': 'Vou desenvolver uma solução robusta e bem otimizada. 💻',
-    'Designer': 'Vou criar algo visualmente impressionante e funcional. 🎨',
+  // Prompts do sistema por agente
+  const agentPrompts = {
+    'Serginho': 'Você é Serginho, orquestrador de IA do RKMMAX. Responda de forma profissional, amigável e direto ao ponto.',
+    'Pesquisador': 'Você é um pesquisador especialista. Analise profundamente o tema, cite fontes e traga insights valiosos.',
+    'Escritor': 'Você é um escritor profissional. Crie conteúdo de qualidade, bem estruturado, envolvente e com boa formatação.',
+    'Dev': 'Você é um desenvolvedor sênior. Forneça soluções técnicas robustas, bem otimizadas e com boas práticas.',
+    'Designer': 'Você é um designer criativo. Sugira soluções visualmente impressionantes e funcionais.',
   };
 
   const scrollToBottom = () => {
@@ -53,6 +52,51 @@ export default function HybridAgentSimple() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const callGeminiAPI = async (prompt) => {
+    try {
+      // Usar a chave do environment (injetada pelo Vercel)
+      const apiKey = process.env.REACT_APP_GEMINI_KEY;
+      
+      if (!apiKey) {
+        throw new Error('GEMINI_API_KEY não configurada no Vercel');
+      }
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 2000,
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Gemini API error: ${error.error?.message || response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!aiResponse) {
+        throw new Error('Nenhuma resposta da IA');
+      }
+
+      return aiResponse;
+    } catch (error) {
+      console.error('Erro ao chamar Gemini:', error);
+      throw error;
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -70,22 +114,38 @@ export default function HybridAgentSimple() {
     setInput('');
     setLoading(true);
 
-    // Simular delay de processamento
-    setTimeout(() => {
-      const response = agentResponses[selectedAgent] || 'Tarefa recebida com sucesso!';
-      
+    try {
+      // Construir prompt com contexto do agente
+      const systemPrompt = agentPrompts[selectedAgent];
+      const fullPrompt = `${systemPrompt}\n\nSolicitação do usuário: ${userInput}`;
+
+      console.log(`📤 Chamando Gemini com agente: ${selectedAgent}`);
+      const aiResponse = await callGeminiAPI(fullPrompt);
+
       // Adicionar resposta do agente
       const agentMessage = {
         id: messages.length + 2,
         type: 'agent',
         agent: selectedAgent,
-        content: `${response}\n\n📝 Sua solicitação: "${userInput}"\n\n⚡ Modo: ${mode === 'manual' ? 'Manual (1 crédito)' : 'Otimizado (0.5 crédito)'}\n💾 Créditos: Sistema pronto para usar quando ativar.`,
+        content: aiResponse,
         timestamp: new Date(),
+        model: 'gemini-2.0-flash',
+        provider: 'google',
       };
 
       setMessages((prev) => [...prev, agentMessage]);
+    } catch (error) {
+      console.error('❌ Erro:', error);
+      const errorMessage = {
+        id: messages.length + 2,
+        type: 'error',
+        content: `❌ Erro: ${error.message}`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -139,11 +199,11 @@ export default function HybridAgentSimple() {
 
         {/* Info */}
         <div className="sidebar-section">
-          <h3>INFO</h3>
+          <h3>SISTEMA</h3>
           <div className="info-box">
-            <p>📊 <strong>Sistema Demo</strong></p>
-            <p>Respostas simuladas até ativar créditos.</p>
-            <p>🚀 Pronto para integração real!</p>
+            <p>🚀 <strong>Versão 2.2.0</strong></p>
+            <p>Gemini 2.0 Flash Real</p>
+            <p>✅ Totalmente Funcional</p>
           </div>
         </div>
       </div>
@@ -166,6 +226,11 @@ export default function HybridAgentSimple() {
                 </div>
               )}
               <div className="message-content">{msg.content}</div>
+              {msg.model && (
+                <div className="message-meta">
+                  {msg.model} • {msg.provider}
+                </div>
+              )}
             </div>
           ))}
           {loading && (
@@ -202,4 +267,3 @@ export default function HybridAgentSimple() {
     </div>
   );
 }
-
