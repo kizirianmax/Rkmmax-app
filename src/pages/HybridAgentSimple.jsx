@@ -62,10 +62,10 @@ export default function HybridAgentSimple() {
     setLoading(true);
 
     try {
-      console.log(`📤 Enviando para /api/chat com agente: ${selectedAgent}`);
+      console.log(`📤 Enviando para /api/google-ai (SDK oficial) com agente: ${selectedAgent}`);
 
-      // Chamar /api/chat que funciona de verdade
-      const response = await fetch('/api/chat', {
+      // Chamar /api/google-ai que usa SDK oficial do Google
+      const response = await fetch('/api/google-ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,9 +176,9 @@ export default function HybridAgentSimple() {
         <div className="sidebar-section">
           <h3>SISTEMA</h3>
           <div className="info-box">
-            <p>🚀 <strong>Versão 2.4.0</strong></p>
-            <p>Gemini 2.0 Flash + GROQ + Gemini Pro</p>
-            <p>✅ Fallback Automático Ativo</p>
+            <p>🚀 <strong>Versão 2.5.0</strong></p>
+            <p>Google AI SDK Oficial</p>
+            <p>✅ Gemini 2.0 Flash + Pro</p>
           </div>
         </div>
       </div>
