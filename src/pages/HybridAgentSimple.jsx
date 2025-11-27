@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * HYBRID AGENT - VERSÃO REAL v2.3.0
+ * HYBRID AGENT - VERSÃO REAL v2.4.0
  * Usa /api/chat que funciona de verdade
- * Respostas reais com fallback automático
+ * Respostas reais com fallback automático (Gemini 2.0 Flash → GROQ → Gemini Pro)
+ * Version Hash: 2024-11-27-v2.4.0-force-update
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -175,9 +176,9 @@ export default function HybridAgentSimple() {
         <div className="sidebar-section">
           <h3>SISTEMA</h3>
           <div className="info-box">
-            <p>🚀 <strong>Versão 2.3.0</strong></p>
-            <p>API Real Integrada</p>
-            <p>✅ Totalmente Funcional</p>
+            <p>🚀 <strong>Versão 2.4.0</strong></p>
+            <p>Gemini 2.0 Flash + GROQ + Gemini Pro</p>
+            <p>✅ Fallback Automático Ativo</p>
           </div>
         </div>
       </div>
