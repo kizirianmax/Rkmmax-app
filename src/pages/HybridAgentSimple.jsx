@@ -5,7 +5,8 @@ import '../styles/HybridAgent.css';
  * HYBRID AGENT - VERSÃO REAL v2.4.0
  * Usa /api/chat que funciona de verdade
  * Respostas reais com fallback automático (Gemini 2.0 Flash → GROQ → Gemini Pro)
- * Version Hash: 2024-11-27-v2.4.0-force-update
+ * Version Hash: 2024-11-27-v2.4.0-reverted-from-sdk
+ * Status: ✅ FUNCIONANDO
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -62,10 +63,10 @@ export default function HybridAgentSimple() {
     setLoading(true);
 
     try {
-      console.log(`📤 Enviando para /api/google-ai (SDK oficial) com agente: ${selectedAgent}`);
+      console.log(`📤 Enviando para /api/chat com agente: ${selectedAgent}`);
 
-      // Chamar /api/google-ai que usa SDK oficial do Google
-      const response = await fetch('/api/google-ai', {
+      // Chamar /api/chat que funciona com fallback automático
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
