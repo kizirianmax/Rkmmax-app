@@ -2,11 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * HYBRID AGENT - VERSÃO REAL v2.4.0
- * Usa /api/chat que funciona de verdade
- * Respostas reais com fallback automático (Gemini 2.0 Flash → GROQ → Gemini Pro)
- * Version Hash: 2024-11-27-v2.4.0-reverted-from-sdk
- * Status: ✅ FUNCIONANDO
+ * RKMMAX HYBRID - VERSÃO MANUS SIMPLIFICADA
+ * Um único agente (Serginho) que faz TUDO
+ * Metodologia: Execução real com fallback automático
+ * Gemini 2.0 Flash → GROQ → Gemini Pro
+ * Modos: Manual (1 crédito) | Otimizado (0.5 crédito)
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -15,7 +15,7 @@ export default function HybridAgentSimple() {
     {
       id: 1,
       type: 'system',
-      content: '🤖 Bem-vindo ao RKMMAX Híbrido v2.0.0 - Sistema Inteligente de Agentes',
+      content: '🤖 Bem-vindo ao RKMMAX Híbrido - Sistema Inteligente',
       timestamp: new Date(),
     },
     {
@@ -23,20 +23,12 @@ export default function HybridAgentSimple() {
       type: 'agent',
       agent: 'Serginho',
       content: 'Olá! Sou Serginho, seu orquestrador de IA. Descreva a tarefa que deseja executar e eu faço!',
+      provider: 'gemini-2.0-flash',
       timestamp: new Date(),
     },
   ]);
   const [loading, setLoading] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState('Serginho');
   const messagesEndRef = useRef(null);
-
-  const agents = [
-    { id: 'serginho', name: 'Serginho', role: 'Orquestrador', icon: '🤖' },
-    { id: 'researcher', name: 'Pesquisador', role: 'Análise', icon: '🔍' },
-    { id: 'writer', name: 'Escritor', role: 'Conteúdo', icon: '✍️' },
-    { id: 'developer', name: 'Dev', role: 'Código', icon: '💻' },
-    { id: 'designer', name: 'Designer', role: 'Visual', icon: '🎨' },
-  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,9 +55,9 @@ export default function HybridAgentSimple() {
     setLoading(true);
 
     try {
-      console.log(`📤 Enviando para /api/chat com agente: ${selectedAgent}`);
+      console.log(`📤 Enviando para /api/chat (Serginho) - Modo: ${mode}`);
 
-      // Chamar /api/chat que funciona com fallback automático
+      // Chamar /api/chat com Serginho
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -84,7 +76,6 @@ export default function HybridAgentSimple() {
               content: userInput,
             },
           ],
-          specialist: selectedAgent,
           mode: mode.toUpperCase(),
         }),
       });
@@ -95,29 +86,32 @@ export default function HybridAgentSimple() {
 
       const data = await response.json();
       const aiResponse = data.response || data.message || 'Sem resposta';
+      const provider = data.usedProvider || 'unknown';
 
-      console.log(`✅ Resposta recebida: ${aiResponse.substring(0, 100)}...`);
+      console.log(`✅ Resposta recebida de ${provider}`);
 
       // Adicionar resposta do agente
       const agentMessage = {
         id: messages.length + 2,
         type: 'agent',
-        agent: selectedAgent,
+        agent: 'Serginho',
         content: aiResponse,
+        provider: provider,
         timestamp: new Date(),
-        model: data.model,
-        provider: data.provider,
       };
 
       setMessages((prev) => [...prev, agentMessage]);
     } catch (error) {
-      console.error('❌ Erro:', error);
+      console.error('❌ Erro ao enviar mensagem:', error);
+
+      // Adicionar mensagem de erro
       const errorMessage = {
         id: messages.length + 2,
         type: 'error',
         content: `❌ Erro: ${error.message}`,
         timestamp: new Date(),
       };
+
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
@@ -132,113 +126,107 @@ export default function HybridAgentSimple() {
   };
 
   return (
-    <div className="hybrid-agent-container">
-      {/* Sidebar - Agentes */}
-      <div className="hybrid-sidebar">
-        <div className="sidebar-section">
-          <h3>AGENTES DISPONÍVEIS</h3>
-          <div className="agents-list">
-            {agents.map((agent) => (
+    <div className="hybrid-container">
+      {/* Header */}
+      <div className="hybrid-header">
+        <div className="header-left">
+          <h1>🤖 RKMMAX Híbrido</h1>
+          <p>Sistema Inteligente de Agentes</p>
+        </div>
+
+        {/* Controles */}
+        <div className="header-controls">
+          <div className="mode-selector">
+            <label>Modo:</label>
+            <div className="mode-buttons">
               <button
-                key={agent.id}
-                className={`agent-button ${selectedAgent === agent.name ? 'active' : ''}`}
-                onClick={() => setSelectedAgent(agent.name)}
+                className={`mode-btn ${mode === 'manual' ? 'active' : ''}`}
+                onClick={() => setMode('manual')}
               >
-                <span className="agent-icon">{agent.icon}</span>
-                <div className="agent-info">
-                  <div className="agent-name">{agent.name}</div>
-                  <div className="agent-role">{agent.role}</div>
-                </div>
+                📋 Manual (1 crédito)
               </button>
-            ))}
+              <button
+                className={`mode-btn ${mode === 'optimized' ? 'active' : ''}`}
+                onClick={() => setMode('optimized')}
+              >
+                ⚡ Otimizado (0.5 crédito)
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Modo */}
-        <div className="sidebar-section">
-          <h3>MODO</h3>
-          <div className="mode-buttons">
-            <button
-              className={`mode-btn ${mode === 'manual' ? 'active' : ''}`}
-              onClick={() => setMode('manual')}
-            >
-              🎮 Manual
-            </button>
-            <button
-              className={`mode-btn ${mode === 'optimized' ? 'active' : ''}`}
-              onClick={() => setMode('optimized')}
-            >
-              ⚡ Otimizado
-            </button>
-          </div>
-        </div>
-
-        {/* Info */}
-        <div className="sidebar-section">
-          <h3>SISTEMA</h3>
-          <div className="info-box">
-            <p>🚀 <strong>Versão 2.5.0</strong></p>
-            <p>Google AI SDK Oficial</p>
-            <p>✅ Gemini 2.0 Flash + Pro</p>
+          {/* Info Box */}
+          <div className="info-section">
+            <div className="info-box">
+              <h3>SISTEMA</h3>
+              <p>🚀 <strong>Versão 3.0.0</strong></p>
+              <p>Serginho - Orquestrador de IA</p>
+              <p>✅ Gemini 2.0 Flash + GROQ + Pro</p>
+              <p>💰 Fallback Automático</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main - Chat */}
-      <div className="hybrid-main">
-        {/* Header */}
-        <div className="hybrid-header">
-          <h1>🤖 RKMMAX Híbrido v2.0.0</h1>
-          <p>Sistema Inteligente de Agentes</p>
-        </div>
-
-        {/* Messages */}
-        <div className="hybrid-messages">
+      {/* Chat Area */}
+      <div className="chat-container">
+        <div className="messages-area">
           {messages.map((msg) => (
             <div key={msg.id} className={`message message-${msg.type}`}>
               {msg.type === 'agent' && (
-                <div className="message-agent">
-                  <span className="agent-badge">{msg.agent}</span>
+                <div className="message-header">
+                  <span className="agent-name">🤖 {msg.agent}</span>
+                  {msg.provider && (
+                    <span className="provider-badge">{msg.provider}</span>
+                  )}
+                  <span className="timestamp">
+                    {msg.timestamp.toLocaleTimeString()}
+                  </span>
+                </div>
+              )}
+              {msg.type === 'user' && (
+                <div className="message-header">
+                  <span className="user-name">👤 Você</span>
+                  <span className="timestamp">
+                    {msg.timestamp.toLocaleTimeString()}
+                  </span>
                 </div>
               )}
               <div className="message-content">{msg.content}</div>
-              {msg.model && (
-                <div className="message-meta">
-                  {msg.model} • {msg.provider}
-                </div>
-              )}
             </div>
           ))}
+
           {loading && (
             <div className="message message-loading">
-              <div className="typing-indicator">
+              <div className="loading-spinner">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
+              <p>Serginho está pensando...</p>
             </div>
           )}
+
           <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        {/* Input */}
-        <div className="hybrid-input-area">
-          <textarea
-            className="hybrid-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Descreva a tarefa que deseja executar... (Shift+Enter para nova linha)"
-            disabled={loading}
-          />
-          <button
-            className="hybrid-send-btn"
-            onClick={handleSendMessage}
-            disabled={loading || !input.trim()}
-          >
-            {loading ? '⏳ Processando...' : '📤 Enviar'}
-          </button>
-        </div>
+      {/* Input Area */}
+      <div className="input-area">
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Descreva a tarefa que deseja executar..."
+          disabled={loading}
+          rows="3"
+        />
+        <button
+          onClick={handleSendMessage}
+          disabled={loading || !input.trim()}
+          className="send-button"
+        >
+          {loading ? '⏳ Enviando...' : '📤 Enviar'}
+        </button>
       </div>
     </div>
   );
