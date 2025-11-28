@@ -8,7 +8,7 @@ import '../styles/HybridAgent.css';
  * Gemini 2.0 Flash → GROQ → Gemini Pro
  * Modos: Manual (1 crédito) | Otimizado (0.5 crédito)
  * 
- * Microfone: Press & Hold com limites por plano
+ * Microfone: Press & Hold com envio automático
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -64,18 +64,22 @@ export default function HybridAgentSimple() {
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
+    await sendMessageWithText(input);
+  };
+
+  const sendMessageWithText = async (messageText) => {
+    if (!messageText.trim()) return;
 
     const userMessage = {
       id: messages.length + 1,
       type: 'user',
-      content: input,
+      content: messageText,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    const userInput = input;
-    setInput('');
     setLoading(true);
+    setInput('');
 
     try {
       console.log(`📤 Enviando para /api/chat (Serginho) - Modo: ${mode}`);
@@ -95,7 +99,7 @@ export default function HybridAgentSimple() {
               })),
             {
               role: 'user',
-              content: userInput,
+              content: messageText,
             },
           ],
           mode: mode.toUpperCase(),
@@ -239,8 +243,13 @@ export default function HybridAgentSimple() {
       
       const transcript = data.transcript || data.text || '';
       if (transcript) {
-        setInput(transcript);
-        console.log('📝 Texto inserido:', transcript);
+        console.log('📝 Texto transcrito:', transcript);
+        
+        // Enviar automaticamente após transcrição
+        setTimeout(() => {
+          console.log('🚀 Enviando automaticamente...');
+          sendMessageWithText(transcript);
+        }, 300);
       } else {
         console.warn('⚠️ Nenhum texto foi transcrito');
       }
