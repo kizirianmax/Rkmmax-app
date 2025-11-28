@@ -157,6 +157,8 @@ export default function HybridAgentSimple() {
 
   const handleAudioUpload = async (audioBlob) => {
     try {
+      console.log('🎤 Enviando áudio para transcrição...', audioBlob);
+      
       const formData = new FormData();
       formData.append('audio', audioBlob, 'audio.mp3');
 
@@ -165,12 +167,26 @@ export default function HybridAgentSimple() {
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setInput(data.transcript || '');
+      console.log('📥 Resposta recebida:', response.status);
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro na transcrição');
+      }
+
+      const data = await response.json();
+      console.log('✅ Transcrição concluída:', data);
+      
+      const transcript = data.transcript || data.text || '';
+      if (transcript) {
+        setInput(transcript);
+        console.log('📝 Texto inserido:', transcript);
+      } else {
+        console.warn('⚠️ Nenhum texto foi transcrito');
       }
     } catch (error) {
-      console.error('Erro ao transcrever áudio:', error);
+      console.error('❌ Erro ao transcrever áudio:', error);
+      alert(`Erro ao transcrever: ${error.message}`);
     }
   };
 
@@ -186,6 +202,8 @@ export default function HybridAgentSimple() {
     if (!imageFile) return;
 
     try {
+      console.log('📸 Enviando imagem para análise...', imageFile);
+      
       const formData = new FormData();
       formData.append('image', imageFile);
 
@@ -194,12 +212,19 @@ export default function HybridAgentSimple() {
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setInput(`[Imagem analisada] ${data.description || 'Imagem processada'}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro na análise de imagem');
       }
+
+      const data = await response.json();
+      console.log('✅ Análise concluída:', data);
+      
+      const description = data.description || data.text || 'Imagem processada';
+      setInput(`[Imagem analisada] ${description}`);
     } catch (error) {
-      console.error('Erro ao processar imagem:', error);
+      console.error('❌ Erro ao processar imagem:', error);
+      alert(`Erro ao processar imagem: ${error.message}`);
     }
   };
 

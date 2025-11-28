@@ -2,7 +2,11 @@
  * API de Transcrição de Áudio usando Gemini 2.0 Flash
  * Endpoint: /api/transcribe
  * Fallback: Groq (se Gemini falhar)
+ * 
+ * Compatível com Vercel Serverless
  */
+
+const busboy = require('busboy');
 
 async function transcribeWithGemini(audioBase64, apiKey) {
   const response = await fetch(
@@ -16,7 +20,7 @@ async function transcribeWithGemini(audioBase64, apiKey) {
             parts: [
               {
                 inlineData: {
-                  mimeType: 'audio/wav',
+                  mimeType: 'audio/mpeg',
                   data: audioBase64
                 }
               },
@@ -43,20 +47,27 @@ async function transcribeWithGemini(audioBase64, apiKey) {
   return data.candidates[0].content.parts[0].text;
 }
 
-async function transcribeWithGroq(audioBase64, apiKey) {
-  // Groq não suporta áudio diretamente, então usamos como fallback apenas se Gemini falhar
-  // Neste caso, retornamos um erro indicando que Groq não pode processar áudio
-  throw new Error('Groq does not support audio transcription. Use Gemini.');
-}
+module.exports = async function handler(req, res) {
+  // CORS
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
 
-export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido' });
   }
 
   try {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-    const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
     if (!GEMINI_API_KEY) {
       console.error('❌ GEMINI_API_KEY não configurada');
@@ -66,54 +77,70 @@ export default async function handler(req, res) {
       });
     }
 
-    // Receber o áudio do FormData
-    let formData;
-    try {
-      formData = await req.formData();
-    } catch (err) {
-      return res.status(400).json({ error: 'Erro ao processar FormData', details: err.message });
-    }
+    // Parse multipart form data
+    const bb = busboy({ headers: req.headers });
+    let audioBuffer = null;
+    let audioMimeType = 'audio/mpeg';
 
-    const audioFile = formData.get('audio');
+    await new Promise((resolve, reject) => {
+      bb.on('file', (fieldname, file, info) => {
+        const chunks = [];
+        
+        file.on('data', (data) => {
+          chunks.push(data);
+        });
 
-    if (!audioFile || audioFile.size === 0) {
+        file.on('end', () => {
+          audioBuffer = Buffer.concat(chunks);
+          audioMimeType = info.mimeType || 'audio/mpeg';
+        });
+
+        file.on('error', reject);
+      });
+
+      bb.on('error', reject);
+      bb.on('close', resolve);
+
+      req.pipe(bb);
+    });
+
+    if (!audioBuffer || audioBuffer.length === 0) {
       return res.status(400).json({ error: 'Áudio inválido ou vazio' });
     }
 
     // Validar tamanho do arquivo (máx 25MB)
     const MAX_SIZE = 25 * 1024 * 1024;
-    if (audioFile.size > MAX_SIZE) {
+    if (audioBuffer.length > MAX_SIZE) {
       return res.status(400).json({ error: 'Áudio muito grande (máximo 25MB)' });
     }
 
     // Converter áudio para base64
-    const buffer = await audioFile.arrayBuffer();
-    const audioBase64 = Buffer.from(buffer).toString('base64');
+    const audioBase64 = audioBuffer.toString('base64');
 
-    // Tentar transcrever com Gemini primeiro
+    console.log(`📤 Transcrevendo áudio (${audioBuffer.length} bytes)...`);
+
+    // Transcrever com Gemini
     let text = null;
-    let usedProvider = 'gemini';
 
     try {
       text = await transcribeWithGemini(audioBase64, GEMINI_API_KEY);
       console.log('✅ Transcrição concluída com Gemini');
     } catch (error) {
       console.error('❌ Gemini transcription failed:', error.message);
-
-      // Groq não suporta áudio, então retornar erro
       return res.status(500).json({
         error: 'Erro ao transcrever áudio',
         message: error.message,
-        hint: 'Gemini é necessário para transcrição de áudio'
+        hint: 'Verifique se a chave da API está configurada corretamente'
       });
     }
 
     // Retornar texto transcrito
     return res.status(200).json({
       success: true,
+      transcript: text,
       text: text,
-      language: 'pt',
-      provider: usedProvider
+      language: 'pt-BR',
+      provider: 'gemini-2.0-flash'
     });
 
   } catch (error) {
@@ -123,5 +150,4 @@ export default async function handler(req, res) {
       message: error.message
     });
   }
-}
-
+};
