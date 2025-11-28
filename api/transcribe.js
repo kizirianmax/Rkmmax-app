@@ -1,15 +1,64 @@
 /**
- * API de Transcrição de Áudio usando Gemini 2.0 Flash
+ * API de Transcrição de Áudio usando Google Cloud Speech-to-Text
  * Endpoint: /api/transcribe
- * Fallback: Groq (se Gemini falhar)
- * 
  * Compatível com Vercel Serverless
  */
 
 const busboy = require('busboy');
 
+async function transcribeWithGoogleSpeech(audioBase64, apiKey) {
+  try {
+    console.log('🎤 Enviando para Google Speech-to-Text...');
+    
+    const response = await fetch(
+      `https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          config: {
+            encoding: 'MP3',
+            sampleRateHertz: 16000,
+            languageCode: 'pt-BR',
+            enableAutomaticPunctuation: true,
+            model: 'latest_long',
+            useEnhanced: true
+          },
+          audio: {
+            content: audioBase64
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('Google Speech error:', error);
+      throw new Error(`Google Speech: ${error.error?.message || 'Transcription failed'}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Resposta Google:', data);
+    
+    if (!data.results?.[0]?.alternatives?.[0]?.transcript) {
+      console.error('No transcript found:', data);
+      throw new Error('No transcript in response');
+    }
+
+    const transcript = data.results[0].alternatives[0].transcript.trim();
+    console.log('✅ Transcrição:', transcript);
+    
+    return transcript;
+  } catch (error) {
+    console.error('❌ Google Speech error:', error.message);
+    throw error;
+  }
+}
+
 async function transcribeWithGemini(audioBase64, apiKey) {
   try {
+    console.log('🎤 Enviando para Gemini (fallback)...');
+    
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
@@ -26,7 +75,7 @@ async function transcribeWithGemini(audioBase64, apiKey) {
                   }
                 },
                 {
-                  text: 'Transcreva este áudio em português. Retorne APENAS o texto transcrito, sem explicações ou pontuação adicional.'
+                  text: 'Transcreva este áudio em português. Retorne APENAS o texto transcrito.'
                 }
               ]
             }
@@ -49,23 +98,15 @@ async function transcribeWithGemini(audioBase64, apiKey) {
     
     if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
       console.error('Invalid Gemini response:', data);
-      throw new Error('No text in response');
+      throw new Error('No text in Gemini response');
     }
 
-    return data.candidates[0].content.parts[0].text.trim();
+    const transcript = data.candidates[0].content.parts[0].text.trim();
+    console.log('✅ Transcrição Gemini:', transcript);
+    
+    return transcript;
   } catch (error) {
-    console.error('Gemini transcription error:', error.message);
-    throw error;
-  }
-}
-
-async function transcribeWithGroq(audioBase64) {
-  try {
-    // Groq não suporta áudio diretamente, então retornamos um fallback
-    console.log('Groq fallback: Audio transcription not supported');
-    throw new Error('Groq does not support audio transcription');
-  } catch (error) {
-    console.error('Groq error:', error.message);
+    console.error('❌ Gemini error:', error.message);
     throw error;
   }
 }
@@ -90,7 +131,7 @@ module.exports = async function handler(req, res) {
     let audioBuffer = null;
 
     bb.on('file', async (fieldname, file, info) => {
-      console.log(`📁 Arquivo recebido: ${fieldname}`);
+      console.log(`📁 Arquivo recebido: ${fieldname}, tipo: ${info.mimeType}`);
       
       const chunks = [];
       file.on('data', (data) => {
@@ -117,23 +158,33 @@ module.exports = async function handler(req, res) {
           return res.status(500).json({ error: 'Google API key not configured' });
         }
 
-        console.log('🎤 Transcrevendo com Gemini...');
+        console.log('🎤 Iniciando transcrição...');
         let transcript;
 
         try {
-          transcript = await transcribeWithGemini(audioBase64, apiKey);
-          console.log('✅ Transcrição concluída:', transcript);
-        } catch (geminiError) {
-          console.warn('⚠️ Gemini falhou, tentando fallback...');
+          // Tenta Google Speech-to-Text primeiro
+          transcript = await transcribeWithGoogleSpeech(audioBase64, apiKey);
+          console.log('✅ Sucesso com Google Speech');
+        } catch (googleError) {
+          console.warn('⚠️ Google Speech falhou, tentando Gemini...');
           try {
-            transcript = await transcribeWithGroq(audioBase64);
-          } catch (groqError) {
-            console.error('❌ Todos os fallbacks falharam');
+            // Fallback para Gemini
+            transcript = await transcribeWithGemini(audioBase64, apiKey);
+            console.log('✅ Sucesso com Gemini (fallback)');
+          } catch (geminiError) {
+            console.error('❌ Ambos os serviços falharam');
             return res.status(500).json({ 
               error: 'Transcription failed',
-              details: geminiError.message 
+              details: `Google: ${googleError.message} | Gemini: ${geminiError.message}`
             });
           }
+        }
+
+        if (!transcript || transcript.length === 0) {
+          return res.status(400).json({ 
+            error: 'No speech detected',
+            message: 'Nenhuma fala foi detectada no áudio. Tente novamente.'
+          });
         }
 
         return res.status(200).json({
