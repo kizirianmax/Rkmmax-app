@@ -395,13 +395,6 @@ export default function HybridAgentSimple() {
       <div className="input-area">
         <div className="input-toolbar">
           <button
-            onClick={handleGitHubClick}
-            className="toolbar-btn github-btn"
-            title="Abrir repositório GitHub"
-          >
-            🐙
-          </button>
-          <button
             onMouseDown={handleMicrophoneMouseDown}
             onMouseUp={handleMicrophoneMouseUp}
             onMouseLeave={handleMicrophoneMouseUp}
@@ -418,6 +411,13 @@ export default function HybridAgentSimple() {
             title="Enviar imagem"
           >
             📸
+          </button>
+          <button
+            onClick={handleGitHubClick}
+            className="toolbar-btn github-btn"
+            title="Abrir repositório GitHub"
+          >
+            🐙
           </button>
           {isRecording && (
             <div className="recording-info">
