@@ -1,7 +1,14 @@
 // src/pages/Serginho.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { sendMessageToGroq } from "../services/groqService";
+import OptimizedAPIManager from "../api/OptimizedAPIManager";
 import "./Serginho.css";
+
+// INICIALIZAR GERENCIADOR DE API OTIMIZADO
+const apiManager = new OptimizedAPIManager({
+  googleKey: process.env.REACT_APP_GEMINI_API_KEY,
+  groqKey: process.env.REACT_APP_GROQ_API_KEY,
+});
 
 export default function Serginho() {
   const [messages, setMessages] = useState([
