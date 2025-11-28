@@ -353,6 +353,41 @@
   color: #34d399;
 }
 
+/* Recording Info */
+.recording-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.recording-timer {
+  font-size: 0.75rem;
+  color: #f87171;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  animation: pulse-text 1s infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.plan-info {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(168, 85, 247, 0.2);
+}
+
 textarea {
   flex: 1;
   padding: 0.75rem;
@@ -507,5 +542,14 @@ textarea:disabled {
     min-width: 35px;
     height: 35px;
     font-size: 1rem;
+  }
+
+  .recording-info {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .recording-timer {
+    font-size: 0.65rem;
   }
 }

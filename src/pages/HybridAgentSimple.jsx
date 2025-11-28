@@ -7,6 +7,8 @@ import '../styles/HybridAgent.css';
  * Metodologia: Execução real com fallback automático
  * Gemini 2.0 Flash → GROQ → Gemini Pro
  * Modos: Manual (1 crédito) | Otimizado (0.5 crédito)
+ * 
+ * Microfone: Press & Hold com limites por plano
  */
 export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
@@ -29,9 +31,20 @@ export default function HybridAgentSimple() {
   ]);
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [userPlan, setUserPlan] = useState('basic');
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
+  const recordingIntervalRef = useRef(null);
+  const mouseDownRef = useRef(false);
+
+  // Limites por plano
+  const RECORDING_LIMITS = {
+    basic: { maxSeconds: 30, maxPerDay: 5 },
+    intermediate: { maxSeconds: 60, maxPerDay: 20 },
+    premium: { maxSeconds: 120, maxPerDay: 100 }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,10 +54,17 @@ export default function HybridAgentSimple() {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    return () => {
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    };
+  }, []);
+
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
-    // Adicionar mensagem do usuário
     const userMessage = {
       id: messages.length + 1,
       type: 'user',
@@ -60,7 +80,6 @@ export default function HybridAgentSimple() {
     try {
       console.log(`📤 Enviando para /api/chat (Serginho) - Modo: ${mode}`);
 
-      // Chamar /api/chat com Serginho
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -93,7 +112,6 @@ export default function HybridAgentSimple() {
 
       console.log(`✅ Resposta recebida de ${provider}`);
 
-      // Adicionar resposta do agente
       const agentMessage = {
         id: messages.length + 2,
         type: 'agent',
@@ -107,7 +125,6 @@ export default function HybridAgentSimple() {
     } catch (error) {
       console.error('❌ Erro ao enviar mensagem:', error);
 
-      // Adicionar mensagem de erro
       const errorMessage = {
         id: messages.length + 2,
         type: 'error',
@@ -128,30 +145,73 @@ export default function HybridAgentSimple() {
     }
   };
 
-  const handleMicrophoneClick = async () => {
-    if (!isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        const chunks = [];
+  const startRecording = async () => {
+    try {
+      const limits = RECORDING_LIMITS[userPlan];
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      const chunks = [];
 
-        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(chunks, { type: 'audio/mp3' });
-          await handleAudioUpload(audioBlob);
-          stream.getTracks().forEach(track => track.stop());
-        };
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/mp3' });
+        await handleAudioUpload(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
 
-        mediaRecorder.start();
-        setIsRecording(true);
-      } catch (error) {
-        console.error('Erro ao acessar microfone:', error);
-        alert('Permissão de microfone negada');
-      }
-    } else {
-      mediaRecorderRef.current?.stop();
-      setIsRecording(false);
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime((prev) => {
+          const newTime = prev + 1;
+          if (newTime >= limits.maxSeconds) {
+            stopRecording();
+          }
+          return newTime;
+        });
+      }, 1000);
+    } catch (error) {
+      console.error('Erro ao acessar microfone:', error);
+      alert('Permissão de microfone negada');
+    }
+  };
+
+  const stopRecording = () => {
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+    }
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    setRecordingTime(0);
+  };
+
+  const handleMicrophoneMouseDown = () => {
+    mouseDownRef.current = true;
+    startRecording();
+  };
+
+  const handleMicrophoneMouseUp = () => {
+    if (mouseDownRef.current) {
+      mouseDownRef.current = false;
+      stopRecording();
+    }
+  };
+
+  const handleMicrophoneTouchStart = (e) => {
+    e.preventDefault();
+    mouseDownRef.current = true;
+    startRecording();
+  };
+
+  const handleMicrophoneTouchEnd = (e) => {
+    e.preventDefault();
+    if (mouseDownRef.current) {
+      mouseDownRef.current = false;
+      stopRecording();
     }
   };
 
@@ -232,6 +292,10 @@ export default function HybridAgentSimple() {
     window.open('https://github.com/kizirianmax/Rkmmax-app', '_blank');
   };
 
+  useEffect(() => {
+    setUserPlan('basic');
+  }, []);
+
   return (
     <div className="hybrid-container">
       {/* Header */}
@@ -269,6 +333,7 @@ export default function HybridAgentSimple() {
               <p>Serginho - Orquestrador de IA</p>
               <p>✅ Gemini 2.0 Flash + GROQ + Pro</p>
               <p>💰 Fallback Automático</p>
+              <p className="plan-info">📱 Plano: <strong>{userPlan.toUpperCase()}</strong></p>
             </div>
           </div>
         </div>
@@ -328,11 +393,15 @@ export default function HybridAgentSimple() {
             🐙
           </button>
           <button
-            onClick={handleMicrophoneClick}
+            onMouseDown={handleMicrophoneMouseDown}
+            onMouseUp={handleMicrophoneMouseUp}
+            onMouseLeave={handleMicrophoneMouseUp}
+            onTouchStart={handleMicrophoneTouchStart}
+            onTouchEnd={handleMicrophoneTouchEnd}
             className={`toolbar-btn mic-btn ${isRecording ? 'recording' : ''}`}
-            title={isRecording ? 'Parar gravação' : 'Gravar áudio'}
+            title="Segure para gravação de voz"
           >
-            {isRecording ? '🔴' : '🎤'}
+            {isRecording ? `🔴 ${recordingTime}s` : '🎤'}
           </button>
           <button
             onClick={handleImageClick}
@@ -341,6 +410,13 @@ export default function HybridAgentSimple() {
           >
             📸
           </button>
+          {isRecording && (
+            <div className="recording-info">
+              <span className="recording-timer">
+                {recordingTime}s / {RECORDING_LIMITS[userPlan].maxSeconds}s
+              </span>
+            </div>
+          )}
         </div>
         <textarea
           value={input}
