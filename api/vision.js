@@ -1,16 +1,12 @@
 /**
- * API de Análise de Imagem usando Gemini 2.0 Flash
+ * API de Análise de Imagem usando Gemini 2.0 Flash Vision
  * Endpoint: /api/vision
- * Fallback: Groq (não suporta imagens, então apenas Gemini)
+ * 
+ * Compatível com Vercel Serverless
  */
+const busboy = require('busboy');
 
-async function analyzeImageWithGemini(imageBase64, prompt, apiKey) {
-  // Remover data URL prefix se existir
-  let cleanBase64 = imageBase64;
-  if (imageBase64.startsWith('data:')) {
-    cleanBase64 = imageBase64.split(',')[1];
-  }
-
+async function analyzeImageWithGemini(imageBase64, mimeType, apiKey) {
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
@@ -22,20 +18,16 @@ async function analyzeImageWithGemini(imageBase64, prompt, apiKey) {
             parts: [
               {
                 inlineData: {
-                  mimeType: 'image/jpeg',
-                  data: cleanBase64
+                  mimeType: mimeType,
+                  data: imageBase64
                 }
               },
               {
-                text: prompt
+                text: 'Analise esta imagem e descreva o que você vê em português. Se houver código, extraia-o. Seja conciso e direto.'
               }
             ]
           }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000
-        }
+        ]
       })
     }
   );
@@ -53,63 +45,69 @@ async function analyzeImageWithGemini(imageBase64, prompt, apiKey) {
   return data.candidates[0].content.parts[0].text;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método não permitido' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    console.log('📸 Recebendo imagem para análise...');
 
-    if (!GEMINI_API_KEY) {
-      console.error('❌ GEMINI_API_KEY não configurada');
-      return res.status(500).json({
-        error: 'Chave da API não configurada',
-        message: 'Configure GEMINI_API_KEY nas variáveis de ambiente do Vercel'
+    const bb = busboy({ headers: req.headers });
+    let imageBuffer = null;
+    let mimeType = 'image/jpeg';
+
+    bb.on('file', (fieldname, file, info) => {
+      console.log(`📁 Arquivo recebido: ${fieldname} (${info.mimeType})`);
+      mimeType = info.mimeType;
+      const chunks = [];
+      file.on('data', (data) => chunks.push(data));
+      file.on('end', () => {
+        imageBuffer = Buffer.concat(chunks);
+        console.log(`✅ Imagem recebida: ${imageBuffer.length} bytes`);
       });
-    }
-
-    const { imageBase64, prompt } = req.body;
-
-    if (!imageBase64 || (typeof imageBase64 === 'string' && imageBase64.trim() === '')) {
-      return res.status(400).json({ error: 'Imagem inválida ou vazia' });
-    }
-
-    // Validar tamanho da imagem (máx 20MB)
-    const MAX_SIZE = 20 * 1024 * 1024;
-    if (imageBase64.length > MAX_SIZE) {
-      return res.status(400).json({ error: 'Imagem muito grande (máximo 20MB)' });
-    }
-
-    // Prompt padrão se não fornecido
-    const userPrompt = prompt || 'Descreva esta imagem em detalhes em português.';
-
-    // Analisar imagem com Gemini
-    let description = null;
-    let usedProvider = 'gemini';
-
-    try {
-      description = await analyzeImageWithGemini(imageBase64, userPrompt, GEMINI_API_KEY);
-      console.log('✅ Análise de imagem concluída com Gemini');
-    } catch (error) {
-      console.error('❌ Gemini vision failed:', error.message);
-      throw error;
-    }
-
-    // Retornar descrição
-    return res.status(200).json({
-      success: true,
-      description: description,
-      model: 'gemini-2.0-flash',
-      provider: usedProvider
     });
 
+    bb.on('close', async () => {
+      if (!imageBuffer) {
+        return res.status(400).json({ error: 'Nenhuma imagem foi enviada' });
+      }
+
+      try {
+        const imageBase64 = imageBuffer.toString('base64');
+        console.log('🔄 Iniciando análise com Gemini Vision...');
+
+        const description = await analyzeImageWithGemini(imageBase64, mimeType, process.env.GOOGLE_API_KEY);
+        console.log('✅ Análise bem-sucedida:', description);
+
+        return res.status(200).json({
+          success: true,
+          description: description.trim(),
+          text: description.trim()
+        });
+      } catch (error) {
+        console.error('❌ Erro na análise:', error);
+        return res.status(500).json({
+          error: 'Erro ao processar imagem',
+          message: error.message
+        });
+      }
+    });
+
+    req.pipe(bb);
   } catch (error) {
-    console.error('❌ Erro na análise de imagem:', error);
+    console.error('❌ Erro ao processar requisição:', error);
     return res.status(500).json({
-      error: 'Erro ao analisar imagem',
+      error: 'Erro ao processar imagem',
       message: error.message
     });
   }
-}
-
+};
