@@ -30,6 +30,7 @@ import Terms from "./pages/Terms.jsx";
 import Refund from "./pages/Refund.jsx";
 import HybridAgent from "./pages/HybridAgent.jsx";
 import HybridAgentSimple from "./pages/HybridAgentSimple.jsx";
+import GitHubCallback from "./pages/GitHubCallback.jsx";
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -99,9 +100,10 @@ export default function App() {
         {/* Subscription Management */}
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/assinatura" element={<Navigate to="/subscription" replace />} />
-        {/* Sistema Híbr ido */}
+         {/* Sistema Híbrido */}
         <Route path="/hybrid" element={<HybridAgentSimple />} />
         <Route path="/agent" element={<HybridAgentSimple />} />
+        <Route path="/github-callback" element={<GitHubCallback />} />
 
         {/* Políticas */}
         <Route path="/privacy" element={<Privacy />} />

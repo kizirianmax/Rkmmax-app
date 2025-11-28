@@ -29,6 +29,8 @@ export default function HybridAgentSimple() {
   ]);
   const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [githubToken, setGithubToken] = useState(localStorage.getItem('github_token') || null);
+  const [githubUser, setGithubUser] = useState(null);
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -40,6 +42,20 @@ export default function HybridAgentSimple() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('github_token');
+    const userName = urlParams.get('user_name');
+
+    if (token) {
+      console.log('Token recebido:', token);
+      localStorage.setItem('github_token', token);
+      setGithubToken(token);
+      setGithubUser(userName);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -228,8 +244,37 @@ export default function HybridAgentSimple() {
     }
   };
 
+  const handleGitHubOAuth = async () => {
+    try {
+      console.log('Iniciando autenticacao GitHub...');
+      
+      const response = await fetch('/api/github-oauth/authorize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao iniciar autenticacao');
+      }
+
+      const data = await response.json();
+      console.log('URL de autorizacao gerada:', data.authUrl);
+      
+      window.open(data.authUrl, 'github-auth', 'width=600,height=700');
+    } catch (error) {
+      console.error('Erro ao iniciar OAuth:', error);
+      alert('Erro: ' + error.message);
+    }
+  };
+
   const handleGitHubClick = () => {
-    window.open('https://github.com/kizirianmax/Rkmmax-app', '_blank');
+    if (githubToken) {
+      window.open('https://github.com/kizirianmax/Rkmmax-app', '_blank');
+    } else {
+      handleGitHubOAuth();
+    }
   };
 
   return (
@@ -322,10 +367,10 @@ export default function HybridAgentSimple() {
         <div className="input-toolbar">
           <button
             onClick={handleGitHubClick}
-            className="toolbar-btn github-btn"
-            title="Abrir repositório GitHub"
+            className={`toolbar-btn github-btn ${githubToken ? 'authorized' : 'unauthorized'}`}
+            title={githubToken ? 'Abrir repositório GitHub' : 'Autorizar GitHub'}
           >
-            🐙
+            {githubToken ? '🐙✅' : '🐙'}
           </button>
           <button
             onClick={handleMicrophoneClick}

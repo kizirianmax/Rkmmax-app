@@ -11,6 +11,7 @@ const auditLogHandler = require('./audit-log');
 const creditCalculatorHandler = require('./credit-calculator');
 const githubAutomationHandler = require('./github-automation');
 const githubBotHandler = require('./github-bot');
+const githubOAuthHandler = require('./github-oauth');
 const multimodalHandler = require('./multimodal');
 const securityValidatorHandler = require('./security-validator');
 const specialistChatHandler = require('./specialist-chat');
@@ -72,6 +73,10 @@ module.exports = async (req, res) => {
       return githubBotHandler(req, res);
     }
 
+    if (pathname === '/api/github-oauth' || pathname.startsWith('/api/github-oauth/')) {
+      return githubOAuthHandler(req, res);
+    }
+
     if (pathname === '/api/multimodal' || pathname.startsWith('/api/multimodal/')) {
       return multimodalHandler(req, res);
     }
@@ -126,6 +131,7 @@ module.exports = async (req, res) => {
           '/api/credit-calculator',
           '/api/github-automation',
           '/api/github-bot',
+          '/api/github-oauth',
           '/api/multimodal',
           '/api/security-validator',
           '/api/specialist-chat',
@@ -153,6 +159,7 @@ module.exports = async (req, res) => {
         '/api/credit-calculator',
         '/api/github-automation',
         '/api/github-bot',
+        '/api/github-oauth',
         '/api/multimodal',
         '/api/security-validator',
         '/api/specialist-chat',
