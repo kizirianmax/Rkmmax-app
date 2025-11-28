@@ -341,8 +341,23 @@
   }
 }
 
+.github-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  transition: all 0.3s ease;
+}
+
 .github-btn:hover {
-  color: #60a5fa;
+  color: #3b82f6;
+  transform: scale(1.15);
+}
+
+.github-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 .mic-btn:hover {
