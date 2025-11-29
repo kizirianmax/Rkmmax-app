@@ -10,13 +10,23 @@
  * - Gemini Pro para tarefas complexas/críticas
  * - Gemini Flash Lite para tarefas simples/rápidas
  * - Groq como fallback em caso de falha
+ * 
+ * ⚠️ SEGURANÇA: Usa SecretManager para injetar credenciais
  */
+
+import secretManager from './SecretManager';
 
 class OptimizedAPIManager {
   constructor(config = {}) {
+    // 🔐 INICIALIZAR SECRET MANAGER
+    if (!secretManager.initialized) {
+      secretManager.initialize();
+    }
+
     this.config = {
-      googleKey: process.env.GOOGLE_API_KEY,
-      groqKey: process.env.GROQ_API_KEY,
+      // 🔐 USAR SECRET MANAGER EM VEZ DE PROCESS.ENV DIRETO
+      googleKey: secretManager.getSecret('gemini'),
+      groqKey: secretManager.getSecret('groq'),
       ...config,
     };
 
@@ -42,12 +52,11 @@ class OptimizedAPIManager {
 
   /**
    * INICIALIZAR GEMINI
-   * CORRIGIDO: Garantir inicialização mesmo sem API key (usar fallback)
+   * 🔐 SEGURO: Usa SecretManager para obter API key
    */
   initGemini() {
-    // IMPORTANTE: Sempre retornar objeto, nunca null
-    // Isso garante que selectModel() não quebra
-    const apiKey = this.config.googleKey || process.env.GEMINI_API_KEY || '';
+    // 🔐 OBTER CHAVE DO SECRET MANAGER
+    const apiKey = this.config.googleKey || secretManager.getSecret('gemini') || '';
     
     return {
       apiKey,
@@ -77,11 +86,11 @@ class OptimizedAPIManager {
 
   /**
    * INICIALIZAR GROQ
-   * CORRIGIDO: Sempre retornar objeto, nunca null
+   * 🔐 SEGURO: Usa SecretManager para obter API key
    */
   initGroq() {
-    // IMPORTANTE: Sempre retornar objeto, nunca null
-    const apiKey = this.config.groqKey || process.env.GROQ_API_KEY || '';
+    // 🔐 OBTER CHAVE DO SECRET MANAGER
+    const apiKey = this.config.groqKey || secretManager.getSecret('groq') || '';
     
     return {
       apiKey,

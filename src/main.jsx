@@ -3,6 +3,10 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 
+// 🔐 INICIALIZAR GERENCIADOR DE SEGREDOS
+import { initializeSecrets } from "./api/initializeSecrets";
+initializeSecrets();
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />
