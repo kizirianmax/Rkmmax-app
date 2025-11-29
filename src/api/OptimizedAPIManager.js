@@ -536,12 +536,6 @@ class OptimizedAPIManager {
   }
 }
 
-// EXPORTAR PARA COMMONJS E ES6
-module.exports = OptimizedAPIManager;
-module.exports.default = OptimizedAPIManager;
-
-// PARA COMPATIBILIDADE COM ES6 IMPORTS
-if (typeof window !== 'undefined') {
-  window.OptimizedAPIManager = OptimizedAPIManager;
-}
+// EXPORTAR COMO ES6 DEFAULT
+export default OptimizedAPIManager;
 
