@@ -182,6 +182,12 @@ FORMATAÇÃO OBRIGATÓRIA:
 
     // Estratégia de fallback com 3 IAs
     const providers = [];
+    
+    // DEBUG: Logar status das credenciais
+    console.log('🔍 DEBUG - Verificando credenciais:');
+    console.log('  GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? '✅ Configurado' : '❌ Não configurado');
+    console.log('  GROQ_API_KEY:', process.env.GROQ_API_KEY ? '✅ Configurado' : '❌ Não configurado');
+    console.log('  forceProvider:', forceProvider || 'nenhum');
 
     // Se forçar provider específico
     if (forceProvider === 'groq' && process.env.GROQ_API_KEY) {
@@ -222,11 +228,18 @@ FORMATAÇÃO OBRIGATÓRIA:
     }
 
     if (providers.length === 0) {
+      console.error('❌ ERRO: Nenhum provider configurado!');
       return res.status(500).json({
         error: 'No AI providers configured',
-        hint: 'Configure GEMINI_API_KEY and GROQ_API_KEY in Vercel environment variables'
+        hint: 'Configure GEMINI_API_KEY and GROQ_API_KEY in Vercel environment variables',
+        debug: {
+          gemini_configured: !!process.env.GEMINI_API_KEY,
+          groq_configured: !!process.env.GROQ_API_KEY
+        }
       });
     }
+    
+    console.log(`📊 Providers disponíveis: ${providers.map(p => p.name).join(', ')}`);
 
     // Tentar cada provider em ordem
     let lastError = null;
@@ -234,6 +247,7 @@ FORMATAÇÃO OBRIGATÓRIA:
 
     for (const provider of providers) {
       try {
+        console.log(`🚀 Tentando provider: ${provider.name}`);
         const result = await provider.fn();
         console.log(`✅ Chat completed with ${provider.name}`);
         return res.status(200).json({
@@ -254,11 +268,17 @@ FORMATAÇÃO OBRIGATÓRIA:
     }
 
     // Se chegou aqui, todos falharam
+    console.error('🔴 CRÍTICO: Todos os providers falharam!');
+    console.error('Providers tentados:', providers.map(p => p.name));
     return res.status(500).json({
       error: 'All AI providers failed',
       lastError: lastError?.message,
       attemptedProviders: attemptedProviders,
-      providers: providers.map(p => p.name)
+      providers: providers.map(p => p.name),
+      debug: {
+        gemini_configured: !!process.env.GEMINI_API_KEY,
+        groq_configured: !!process.env.GROQ_API_KEY
+      }
     });
 
   } catch (error) {
