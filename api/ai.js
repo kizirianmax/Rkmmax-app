@@ -173,7 +173,7 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-            model: 'gemini-2.0-flash-thinking-exp',
+            model: 'gemini-exp-1206',  // Gemini 2.5 Pro REAL
             provider: 'google',
             tier: 'genius',
             type: promptType,
@@ -278,11 +278,11 @@ export default async function handler(req, res) {
       console.log(`🎯 Especialista: ${specialist.name}`);
       console.log(`💰 Otimização: ${optimized.stats.originalMessages} → ${optimized.stats.optimizedMessages} msgs`);
 
-      // Tentar Gemini Flash (otimizado para especialistas)
+      // Tentar Gemini 2.5 Pro (qualidade máxima para especialistas)
       if (hasGemini) {
         try {
-          console.log('🚀 Chamando Gemini Flash (especialista)...');
-          const response = await callGeminiFlash(
+          console.log('🚀 Chamando Gemini 2.5 Pro (especialista)...');
+          const response = await callGeminiPro(
             optimized.messages,
             optimized.systemPrompt,
             process.env.GEMINI_API_KEY
@@ -290,10 +290,10 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-exp-1206',  // Gemini 2.5 Pro REAL
             provider: 'google',
             specialist: specialist.name,
-            tier: 'optimized',
+            tier: 'genius',  // Agora é genius também!
             success: true
           };
 

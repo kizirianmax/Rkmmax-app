@@ -22,8 +22,8 @@ export default function HybridAgentSimple() {
       id: 2,
       type: 'agent',
       agent: 'Serginho',
-      content: 'Olá! Sou Serginho, seu orquestrador de IA nível ChatGPT-5. Posso orquestrar 54 especialistas ou executar tarefas complexas diretamente. Descreva o que precisa!',
-      provider: 'gemini-2.0-flash',
+      content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou executar tarefas complexas diretamente. Descreva o que precisa!',
+      provider: 'gemini-exp-1206',
       timestamp: new Date(),
     },
   ]);
@@ -107,7 +107,7 @@ export default function HybridAgentSimple() {
 
       const data = await response.json();
       const aiResponse = data.response || data.message || 'Sem resposta';
-      const provider = data.usedProvider || 'unknown';
+      const provider = data.model || data.usedProvider || 'gemini-exp-1206';
 
       console.log(`✅ Resposta recebida de ${provider}`);
 
