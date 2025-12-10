@@ -13,9 +13,9 @@ const https = require('https');
 const querystring = require('querystring');
 
 // Configuração do GitHub OAuth
-const GITHUB_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID;
-const GITHUB_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET;
-const GITHUB_REDIRECT_URI = process.env.GITHUB_OAUTH_REDIRECT_URI || 'https://kizirianmax.site/api/github-oauth/callback';
+const GITHUB_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET;
+const GITHUB_REDIRECT_URI = process.env.GITHUB_OAUTH_REDIRECT_URI || process.env.GITHUB_REDIRECT_URI || 'https://kizirianmax.site/api/github-oauth/callback';
 
 // Armazenamento em memória (em produção, usar banco de dados)
 const tokenStore = new Map();
