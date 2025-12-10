@@ -1,13 +1,12 @@
 // src/pages/Serginho.jsx
 import React, { useState, useRef, useEffect } from "react";
-import { sendMessageToGroq } from "../services/groqService";
 import "./Serginho.css";
 
 export default function Serginho() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Olá! Sou o Serginho, seu orquestrador de IA. Como posso ajudar você hoje?"
+      content: "Olá! Sou o Serginho, seu orquestrador de IA nível ChatGPT-5. Posso orquestrar 54 especialistas ou responder diretamente. Como posso ajudar?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -40,8 +39,22 @@ export default function Serginho() {
     setIsLoading(true);
 
     try {
-      // Chamar API Groq
-      const aiResponse = await sendMessageToGroq(newMessages);
+      // Chamar API com Gemini Pro 2.5 (nível ChatGPT-5)
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: newMessages,
+          forceProvider: 'gemini-pro'  // SEMPRE Gemini Pro 2.5
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na API: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.response;
       
       if (!aiResponse || aiResponse.trim() === "") {
         throw new Error("Resposta vazia da IA");

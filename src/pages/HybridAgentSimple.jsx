@@ -22,7 +22,7 @@ export default function HybridAgentSimple() {
       id: 2,
       type: 'agent',
       agent: 'Serginho',
-      content: 'Olá! Sou Serginho, seu orquestrador de IA. Descreva a tarefa que deseja executar e eu faço!',
+      content: 'Olá! Sou Serginho, seu orquestrador de IA nível ChatGPT-5. Posso orquestrar 54 especialistas ou executar tarefas complexas diretamente. Descreva o que precisa!',
       provider: 'gemini-2.0-flash',
       timestamp: new Date(),
     },
@@ -76,7 +76,7 @@ export default function HybridAgentSimple() {
     try {
       console.log(`📤 Enviando para /api/chat (Serginho) - Modo: ${mode}`);
 
-      // Chamar /api/chat com Serginho
+      // Chamar /api/chat com Gemini Pro 2.5 (nível ChatGPT-5)
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -95,6 +95,7 @@ export default function HybridAgentSimple() {
               content: userInput,
             },
           ],
+          forceProvider: 'gemini-pro',  // SEMPRE Gemini Pro 2.5
           mode: mode.toUpperCase(),
         }),
       });
