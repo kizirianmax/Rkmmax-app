@@ -119,6 +119,7 @@ export default function SpecialistChat() {
           <div>
             <h1>{specialist.name}</h1>
             <p>{specialist.description}</p>
+            <p style={{fontSize: '0.75rem', color: '#888', marginTop: '4px'}}>🤖 Gemini 2.5 Pro (Genius Mode)</p>
           </div>
         </div>
       </div>

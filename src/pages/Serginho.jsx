@@ -284,6 +284,7 @@ export default function Serginho() {
           <div className="header-info">
             <h1>Serginho</h1>
             <p>Orquestrador de IA • Online</p>
+            <p style={{fontSize: '0.75rem', color: '#888', marginTop: '2px'}}>🤖 Gemini 2.5 Pro (Genius Mode)</p>
           </div>
         </div>
       </div>

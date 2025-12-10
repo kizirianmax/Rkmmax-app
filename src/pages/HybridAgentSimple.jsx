@@ -314,8 +314,8 @@ export default function HybridAgentSimple() {
               <h3>SISTEMA</h3>
               <p>🚀 <strong>Versão 3.0.0</strong></p>
               <p>Serginho - Orquestrador de IA</p>
-              <p>✅ Gemini 2.0 Flash + GROQ + Pro</p>
-              <p>💰 Fallback Automático</p>
+              <p>🤖 <strong>Gemini 2.5 Pro (Genius Mode)</strong></p>
+              <p>💰 Otimização de Custo Ativa</p>
             </div>
           </div>
         </div>
