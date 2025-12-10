@@ -6,7 +6,7 @@ export default function Serginho() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Olá! Sou o Serginho, seu orquestrador de IA nível ChatGPT-5. Posso orquestrar 54 especialistas ou responder diretamente. Como posso ajudar?"
+      content: "Olá! Sou o Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou responder diretamente. Como posso ajudar?"
     }
   ]);
   const [input, setInput] = useState("");
@@ -284,7 +284,7 @@ export default function Serginho() {
           <div className="header-info">
             <h1>Serginho</h1>
             <p>Orquestrador de IA • Online</p>
-            <p style={{fontSize: '0.75rem', color: '#888', marginTop: '2px'}}>🤖 Gemini 2.5 Pro (Genius Mode)</p>
+            <p style={{fontSize: '0.75rem', color: '#888', marginTop: '2px'}}>🤖 Gemini 2.5 Pro</p>
           </div>
         </div>
       </div>
