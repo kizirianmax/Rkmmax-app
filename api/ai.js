@@ -18,11 +18,11 @@ const { optimizeRequest, cacheResponse } = require('../src/utils/costOptimizatio
 const { specialists } = require('../src/config/specialists.js');
 
 /**
- * Chamar Gemini Pro 2.5 (nível ChatGPT-5)
+ * Chamar Gemini 2.5 Pro REAL (modelo mais avançado)
  */
 async function callGeminiPro(messages, systemPrompt, apiKey) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp-01-21:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-exp-1206:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -33,10 +33,10 @@ async function callGeminiPro(messages, systemPrompt, apiKey) {
           parts: [{ text: msg.content }]
         })),
         generationConfig: {
-          temperature: 0.9,
-          maxOutputTokens: 8000,
+          temperature: 1.0,
+          maxOutputTokens: 16000,  // Gemini 2.5 Pro suporta mais tokens
           topP: 0.95,
-          topK: 40
+          topK: 64  // Melhor para raciocínio complexo
         }
       })
     }
