@@ -46,18 +46,25 @@ async function transcribeWithGemini(audioBase64, apiKey) {
   return data.candidates[0].content.parts[0].text;
 }
 
-async function transcribeWithGroq(audioBase64) {
+async function transcribeWithGroq(audioBuffer) {
   // Fallback para GROQ se Gemini falhar
+  const FormData = require('form-data');
+  const formData = new FormData();
+  
+  formData.append('file', audioBuffer, {
+    filename: 'audio.mp3',
+    contentType: 'audio/mpeg'
+  });
+  formData.append('model', 'whisper-large-v3');
+  formData.append('language', 'pt');
+
   const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      ...formData.getHeaders()
     },
-    body: new FormData([
-      ['file', Buffer.from(audioBase64, 'base64'), 'audio.mp3'],
-      ['model', 'whisper-large-v3'],
-      ['language', 'pt']
-    ])
+    body: formData
   });
 
   if (!response.ok) {
@@ -112,7 +119,7 @@ module.exports = async function handler(req, res) {
           console.log('✅ Transcrição com Gemini bem-sucedida:', transcript);
         } catch (error) {
           console.warn('⚠️ Gemini falhou, tentando GROQ...', error.message);
-          transcript = await transcribeWithGroq(audioBase64);
+          transcript = await transcribeWithGroq(audioBuffer);
           console.log('✅ Transcrição com GROQ bem-sucedida:', transcript);
         }
 
