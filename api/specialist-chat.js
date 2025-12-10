@@ -9,6 +9,8 @@
  */
 
 const { specialists } = require('../src/config/specialists.js');
+const { buildGeniusPrompt } = require('../src/prompts/geniusPrompts.js');
+const { optimizeRequest, cacheResponse } = require('../src/utils/costOptimization.js');
 
 /**
  * Chamar Gemini Flash para especialistas
@@ -109,23 +111,13 @@ async function handler(req, res) {
       return res.status(404).json({ error: 'Specialist not found' });
     }
 
-    // Construir system prompt do especialista
-    const systemPrompt = `Você é ${specialist.name}, ${specialist.description}.
-
-Responda APENAS sobre ${specialist.category}.
-Se a pergunta for fora da sua área, redirecione educadamente ao Serginho.
-Seja um GÊNIO MUNDIAL em sua especialidade.
-Qualidade impecável.
-
-${specialist.systemPrompt || ''}
-
-FORMATAÇÃO OBRIGATÓRIA:
-- Use quebras de linha entre parágrafos
-- Máximo 3-4 linhas por parágrafo
-- Deixe espaço entre seções
-- Nunca junte palavras
-
-Responda em Português Brasileiro.`;
+    // Construir prompt de gênio do especialista
+    const systemPrompt = buildGeniusPrompt('specialist', {
+      name: specialist.name,
+      description: specialist.description,
+      category: specialist.category,
+      systemPrompt: specialist.systemPrompt
+    });
 
     // Verificar credenciais
     const hasGemini = !!process.env.GEMINI_API_KEY;
@@ -140,21 +132,45 @@ Responda em Português Brasileiro.`;
 
     console.log(`🎯 Especialista: ${specialist.name} (${specialistId})`);
 
+    // Otimizar requisição
+    const optimized = optimizeRequest(messages, systemPrompt);
+    
+    // Se encontrou no cache, retornar imediatamente
+    if (optimized.cached) {
+      console.log('💰 CACHE HIT! Economia total de custo!');
+      return res.status(200).json({
+        ...optimized.response,
+        cached: true,
+        specialist: specialist.name
+      });
+    }
+
+    console.log(`💰 Otimização: ${optimized.stats.originalMessages} → ${optimized.stats.optimizedMessages} msgs`);
+
     // Tentar Gemini Flash primeiro (otimizado para especialistas)
     if (hasGemini) {
       try {
         console.log('🚀 Tentando Gemini Flash (especialista)...');
-        const response = await callGeminiFlash(messages, systemPrompt, process.env.GEMINI_API_KEY);
+        const response = await callGeminiFlash(optimized.messages, optimized.systemPrompt, process.env.GEMINI_API_KEY);
         
         console.log(`✅ Sucesso com Gemini Flash para ${specialist.name}`);
         
-        return res.status(200).json({
+        // Salvar no cache
+        const result = {
           response,
           model: 'gemini-2.0-flash-exp',
           provider: 'google',
           specialist: specialist.name,
           tier: 'optimized',
           success: true
+        };
+        cacheResponse(messages, result);
+        
+        return res.status(200).json({
+          ...result,
+          cached: false,
+          optimized: true,
+          stats: optimized.stats
         });
       } catch (error) {
         console.error(`❌ Gemini Flash falhou para ${specialist.name}:`, error.message);

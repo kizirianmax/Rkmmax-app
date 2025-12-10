@@ -40,13 +40,13 @@ export default function Serginho() {
 
     try {
       // Chamar API com Gemini Pro 2.5 (nível ChatGPT-5)
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat-genius', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        headers: { 'Content-Type': 'application/json' },        body: JSON.stringify({
           messages: newMessages,
-          forceProvider: 'gemini-pro'  // SEMPRE Gemini Pro 2.5
-        })
+          agentType: 'serginho',  // Prompts de gênio do Serginho
+          mode: 'OTIMIZADO'       // Otimização de custo ativada
+        }),
       });
 
       if (!response.ok) {

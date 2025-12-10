@@ -76,8 +76,8 @@ export default function HybridAgentSimple() {
     try {
       console.log(`📤 Enviando para /api/chat (Serginho) - Modo: ${mode}`);
 
-      // Chamar /api/chat com Gemini Pro 2.5 (nível ChatGPT-5)
-      const response = await fetch('/api/chat', {
+      // Chamar /api/chat-genius com prompts de gênio + otimização
+      const response = await fetch('/api/chat-genius', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,8 +95,8 @@ export default function HybridAgentSimple() {
               content: userInput,
             },
           ],
-          forceProvider: 'gemini-pro',  // SEMPRE Gemini Pro 2.5
-          mode: mode.toUpperCase(),
+          agentType: 'hybrid',  // Prompts de gênio do Híbrido
+          mode: mode.toUpperCase(),  // MANUAL ou OTIMIZADO
         }),
       });
 
