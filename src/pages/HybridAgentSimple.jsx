@@ -76,8 +76,8 @@ export default function HybridAgentSimple() {
     try {
       console.log(`📤 Enviando para /api/chat (Serginho) - Modo: ${mode}`);
 
-      // Chamar /api/chat-genius com prompts de gênio + otimização
-      const response = await fetch('/api/chat-genius', {
+      // Chamar /api/ai com prompts de gênio + otimização
+      const response = await fetch('/api/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,6 +95,7 @@ export default function HybridAgentSimple() {
               content: userInput,
             },
           ],
+          type: 'genius',       // Endpoint unificado
           agentType: 'hybrid',  // Prompts de gênio do Híbrido
           mode: mode.toUpperCase(),  // MANUAL ou OTIMIZADO
         }),

@@ -47,14 +47,15 @@ export default function SpecialistChat() {
     setIsLoading(true);
 
     try {
-      // Chamar API do especialista
-      const response = await fetch('/api/specialist-chat', {
+      // Chamar API do especialista via endpoint unificado
+      const response = await fetch('/api/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           messages: newMessages,
+          type: 'specialist',
           specialistId: specialistId
         }),
       });
