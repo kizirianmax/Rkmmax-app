@@ -5,7 +5,7 @@ import '../styles/HybridAgent.css';
  * RKMMAX HYBRID - VERSÃO MANUS SIMPLIFICADA
  * Um único agente (Serginho) que faz TUDO
  * Metodologia: Execução real com fallback automático
- * Gemini 2.0 Flash → GROQ → Gemini Pro
+ * Gemini 1.5 Pro → GROQ (fallback)
  * Modos: Manual (1 crédito) | Otimizado (0.5 crédito)
  */
 export default function HybridAgentSimple() {
