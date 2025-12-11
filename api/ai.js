@@ -26,7 +26,7 @@ const { specialists } = specialistsConfig;
  */
 async function callGeminiPro(messages, systemPrompt, apiKey) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-exp-1206:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -177,7 +177,7 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-            model: 'gemini-exp-1206',  // Gemini 2.5 Pro REAL
+            model: 'gemini-1.5-pro',  // Gemini 1.5 Pro (estável)
             provider: 'google',
             tier: 'genius',
             type: promptType,
@@ -294,7 +294,7 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-            model: 'gemini-exp-1206',  // Gemini 2.5 Pro REAL
+            model: 'gemini-1.5-pro',  // Gemini 1.5 Pro (estável)
             provider: 'google',
             specialist: specialist.name,
             tier: 'genius',  // Agora é genius também!

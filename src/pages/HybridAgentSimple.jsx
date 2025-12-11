@@ -26,7 +26,7 @@ export default function HybridAgentSimple() {
       type: 'agent',
       agent: 'Serginho',
       content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou executar tarefas complexas diretamente. Descreva o que precisa!',
-      provider: 'gemini-exp-1206',
+      provider: 'gemini-1.5-pro',
       timestamp: new Date(),
     },
   ]);
@@ -110,7 +110,7 @@ export default function HybridAgentSimple() {
 
       const data = await response.json();
       const aiResponse = data.response || data.message || 'Sem resposta';
-      const provider = data.model || data.usedProvider || 'gemini-exp-1206';
+      const provider = data.model || data.usedProvider || 'gemini-1.5-pro';
 
       console.log(`✅ Resposta recebida de ${provider}`);
 
