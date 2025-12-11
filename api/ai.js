@@ -13,9 +13,13 @@
  * Qualidade: MANTIDA 100%
  */
 
-const { buildGeniusPrompt } = require('../src/prompts/geniusPrompts.js');
-const { optimizeRequest, cacheResponse } = require('../src/utils/costOptimization.js');
-const { specialists } = require('../src/config/specialists.js');
+import geniusPrompts from '../src/prompts/geniusPrompts.js';
+import costOptimization from '../src/utils/costOptimization.js';
+import specialistsConfig from '../src/config/specialists.js';
+
+const { buildGeniusPrompt } = geniusPrompts;
+const { optimizeRequest, cacheResponse } = costOptimization;
+const { specialists } = specialistsConfig;
 
 /**
  * Chamar Gemini 2.5 Pro REAL (modelo mais avançado)
