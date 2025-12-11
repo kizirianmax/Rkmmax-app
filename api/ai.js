@@ -25,7 +25,7 @@ const { optimizeRequest, cacheResponse } = costOptimization;
  */
 async function callGeminiPro(messages, systemPrompt, apiKey) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp-1219:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -142,7 +142,7 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-            model: 'gemini-1.5-pro',  // Gemini 1.5 Pro (estável)
+            model: 'gemini-2.0-flash-thinking',  // Gemini 1.5 Pro (estável)
             provider: 'google',
             tier: 'genius',
             type: promptType,
@@ -259,7 +259,7 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-            model: 'gemini-1.5-pro',  // Gemini 1.5 Pro (estável)
+            model: 'gemini-2.0-flash-thinking',  // Gemini 1.5 Pro (estável)
             provider: 'google',
             specialist: specialist.name,
             tier: 'genius',  // Agora é genius também!

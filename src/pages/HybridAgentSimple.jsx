@@ -12,7 +12,7 @@ export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
   const [input, setInput] = useState('');
   // Versão do app para cache busting
-  const APP_VERSION = 'v3.0.2-gemini15pro';
+  const APP_VERSION = 'v3.0.2-gemini2thinking';
   
   const [messages, setMessages] = useState([
     {
@@ -26,7 +26,7 @@ export default function HybridAgentSimple() {
       type: 'agent',
       agent: 'Serginho',
       content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou executar tarefas complexas diretamente. Descreva o que precisa!',
-      provider: 'gemini-1.5-pro',
+        provider: 'gemini-2.0-flash-thinking',
       timestamp: new Date(),
     },
   ]);
@@ -317,7 +317,7 @@ export default function HybridAgentSimple() {
               <h3>SISTEMA</h3>
               <p>🚀 <strong>Versão 3.0.2</strong></p>
               <p>Serginho - Orquestrador de IA</p>
-              <p>🤖 <strong>Gemini 1.5 Pro</strong></p>
+              <p>🤖 <strong>Gemini 2.0 Flash (Thinking)</strong></p>
               <p>💰 Otimização de Custo Ativa</p>
             </div>
           </div>
