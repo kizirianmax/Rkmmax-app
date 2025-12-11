@@ -15,11 +15,10 @@
 
 import geniusPrompts from '../src/prompts/geniusPrompts.js';
 import costOptimization from '../src/utils/costOptimization.js';
-import specialistsConfig from '../src/config/specialists.js';
+import { specialists } from '../src/config/specialists.js';
 
 const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
-const { specialists } = specialistsConfig;
 
 /**
  * Chamar Gemini 2.5 Pro REAL (modelo mais avançado)
