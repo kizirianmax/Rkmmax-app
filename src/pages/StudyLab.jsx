@@ -1,5 +1,5 @@
 // src/pages/StudyLab.jsx
-import React, { useState } from "react";
+import React from "react";
 
 export default function StudyLab() {
 
