@@ -12,7 +12,7 @@ export default function HybridAgentSimple() {
   const [mode, setMode] = useState('manual');
   const [input, setInput] = useState('');
   // Versão do app para cache busting
-  const APP_VERSION = 'v3.0.1-gemini25pro';
+  const APP_VERSION = 'v3.0.2-gemini15pro';
   
   const [messages, setMessages] = useState([
     {
@@ -315,9 +315,9 @@ export default function HybridAgentSimple() {
           <div className="info-section">
             <div className="info-box">
               <h3>SISTEMA</h3>
-              <p>🚀 <strong>Versão 3.0.1</strong></p>
+              <p>🚀 <strong>Versão 3.0.2</strong></p>
               <p>Serginho - Orquestrador de IA</p>
-              <p>🤖 <strong>Gemini 2.5 Pro</strong></p>
+              <p>🤖 <strong>Gemini 1.5 Pro</strong></p>
               <p>💰 Otimização de Custo Ativa</p>
             </div>
           </div>
