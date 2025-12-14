@@ -21,11 +21,11 @@ const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
 
 /**
- * Chamar Gemini 3 Pro Preview (modelo com raciocínio SOTA)
+ * Chamar Gemini 2.5 Pro (modelo com raciocínio avançado)
  */
 async function callGeminiPro(messages, systemPrompt, apiKey) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -133,7 +133,7 @@ export default async function handler(req, res) {
       // Tentar Gemini Pro 2.5 (sempre)
       if (hasGemini) {
         try {
-          console.log('🚀 Chamando Gemini Pro 2.5 (ChatGPT-5 level)...');
+          console.log('🚀 Chamando Gemini 2.5 Pro...');
           const response = await callGeminiPro(
             optimized.messages,
             optimized.systemPrompt,
@@ -142,7 +142,7 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-                model: 'gemini-3-pro-preview',  // Gemini 3 Pro Preview (raciocínio SOTA)
+                model: 'gemini-2.5-pro',  // Gemini 2.5 Pro (raciocínio avançado)
             provider: 'google',
             tier: 'genius',
             type: promptType,
@@ -259,7 +259,7 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-                model: 'gemini-3-pro-preview',  // Gemini 3 Pro Preview (raciocínio SOTA)
+                model: 'gemini-2.5-pro',  // Gemini 2.5 Pro (raciocínio avançado)
             provider: 'google',
             specialist: specialist.name,
             tier: 'genius',  // Agora é genius também!
