@@ -218,7 +218,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'specialistId required' });
       }
 
-      const specialist = specialists.find(s => s.id === specialistId);
+      const specialist = specialists[specialistId];
       if (!specialist) {
         return res.status(404).json({ error: 'Specialist not found' });
       }
