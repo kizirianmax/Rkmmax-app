@@ -184,7 +184,7 @@ const sx = {
   heroOverlay: {
     position: "absolute",
     inset: 0,
-    background: "linear-gradient(135deg, rgba(30,64,175,0.08) 0%, rgba(59,130,246,0.05) 100%)",
+    background: "linear-gradient(135deg, rgba(15,23,42,0.75) 0%, rgba(30,58,138,0.7) 100%)",
     borderRadius: 16
   },
   title: {
@@ -194,9 +194,10 @@ const sx = {
     margin: "0 0 10px",
     position: "relative",
     zIndex: 1,
-    color: tone.ink
+    color: "#ffffff",
+    textShadow: "0 2px 8px rgba(0,0,0,0.5)"
   },
-  sub: { margin: "0 0 24px", fontSize: 18, color: tone.mute, position: "relative", zIndex: 1 },
+  sub: { margin: "0 0 24px", fontSize: 18, color: "rgba(255,255,255,0.95)", position: "relative", zIndex: 1, textShadow: "0 1px 4px rgba(0,0,0,0.4)" },
 
   card: {
     background: tone.bgCard,
