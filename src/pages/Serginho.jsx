@@ -477,6 +477,7 @@ export default function Serginho() {
             placeholder="Digite sua mensagem..."
             disabled={isLoading}
             className="message-input"
+            style={{ color: '#1e293b', background: '#f8fafc' }}
           />
 
           {/* Botão de microfone */}
