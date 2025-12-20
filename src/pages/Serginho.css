@@ -332,23 +332,30 @@ html.serginho-page body {
   padding: 10px 14px;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 16px; /* Maior para mobile */
   outline: none;
   transition: all 0.2s;
   background: #f8fafc;
   min-height: 40px;
   resize: none;
   min-width: 0;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  opacity: 1;
+  caret-color: #1e293b;
 }
 
 .message-input:focus {
   border-color: #667eea;
   background: white;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
 }
 
 .message-input::placeholder {
   color: #94a3b8;
+  -webkit-text-fill-color: #94a3b8;
 }
 
 /* Voice Button */
