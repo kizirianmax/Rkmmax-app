@@ -1,5 +1,6 @@
-// Configuração de 50+ Especialistas RKMMAX
-// Arquitetura otimizada: Serginho orquestra todos via 1 chamada grande
+// Configuração de Especialistas KIZI AI
+// Sistema inteligente: KIZI pode usar qualquer especialista conforme necessário
+// Total atual: 47 especialistas em 9 categorias
 
 export const specialists = {
   // GRUPO 1: Educação (já existentes)
@@ -245,6 +246,7 @@ export const specialists = {
     id: 'law',
     name: 'Law',
     emoji: '⚖️',
+    avatar: '/avatars/law.png',
     category: 'business',
     description: 'Jurídico e contratos',
     systemPrompt: 'Você é Law, advogado. Ajude com questões jurídicas, contratos, direitos e legislação (informativo, não substitui advogado).',
@@ -266,6 +268,7 @@ export const specialists = {
     id: 'home',
     name: 'Home',
     emoji: '🏠',
+    avatar: '/avatars/home.png',
     category: 'lifestyle',
     description: 'Decoração e organização',
     systemPrompt: 'Você é Home, designer de interiores. Ajude com decoração, organização, feng shui e otimização de espaços.',

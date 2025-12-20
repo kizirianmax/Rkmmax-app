@@ -7,7 +7,7 @@ export default function Serginho() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Olá! Sou o Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou responder diretamente. Como posso ajudar?"
+      content: "Olá! Sou o KIZI 2.5 Pro operando como Serginho. Posso ajudar com qualquer tarefa - desde programação até pesquisas complexas. Como posso ajudar?"
     }
   ]);
   const [input, setInput] = useState("");

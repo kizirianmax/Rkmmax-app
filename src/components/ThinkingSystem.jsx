@@ -43,7 +43,7 @@ export const ThinkingSystem = ({ size = 'medium', steps = [], onComplete }) => {
       <div className="thinking-bubble">
         <div className="thinking-header">
           <span className="thinking-icon">🧠</span>
-          <span className="thinking-title">Kizi pensando...</span>
+          <span className="thinking-title">KIZI 2.5 Pro pensando...</span>
           <span className="thinking-size-badge">{size === 'small' ? 'S' : size === 'medium' ? 'M' : 'L'}</span>
         </div>
 
@@ -137,7 +137,7 @@ export const ThinkingPresets = {
   medium: {
     analysis: [
       { emoji: '📖', text: 'Lendo sua mensagem...' },
-      { emoji: '🧠', text: 'Analisando contexto...' },
+      { emoji: '🧠', text: 'KIZI 2.5 Pro analisando...' },
       { emoji: '🔍', text: 'Buscando na memória...' },
       { emoji: '💡', text: 'Gerando resposta...' }
     ],
@@ -154,7 +154,7 @@ export const ThinkingPresets = {
       { emoji: '📋', text: 'Analisando escopo do projeto...' },
       { emoji: '🎯', text: 'Definindo objetivos...' },
       { emoji: '🗂️', text: 'Organizando estrutura...' },
-      { emoji: '💻', text: 'Gerando código base...', preview: 'const project = { name: "..." }' },
+      { emoji: '💻', text: 'KIZI 2.5 Pro gerando código...', preview: 'const project = { name: "..." }' },
       { emoji: '🎨', text: 'Criando interface...' },
       { emoji: '🔧', text: 'Configurando ferramentas...' },
       { emoji: '✨', text: 'Finalizando detalhes...' }

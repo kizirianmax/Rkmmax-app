@@ -22,7 +22,7 @@ export default function SpecialistChat() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: `Olá! Sou ${specialist?.name}, ${specialist?.description}. Como posso ajudar você hoje?`
+      content: `Olá! Sou o KIZI 2.5 Pro operando como ${specialist?.name}. ${specialist?.description}. Como posso ajudar você hoje?`
     }
   ]);
   const [input, setInput] = useState("");

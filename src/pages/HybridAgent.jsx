@@ -13,14 +13,14 @@ export default function HybridAgent() {
     {
       id: 1,
       type: 'system',
-      content: '🤖 Bem-vindo ao RKMMAX Híbrido v2.0.0 - Sistema Inteligente de Agentes',
+      content: '🤖 Bem-vindo ao KIZI 2.5 Pro - Sistema Inteligente de Agentes',
       timestamp: new Date(),
     },
     {
       id: 2,
       type: 'agent',
       agent: 'Serginho',
-      content: 'Olá! Sou Serginho, seu orquestrador de IA. Descreva a tarefa que deseja executar e eu faço!',
+      content: 'Olá! Sou o KIZI 2.5 Pro operando como Serginho. Descreva a tarefa que deseja executar e eu faço!',
       timestamp: new Date(),
     },
   ]);
