@@ -1,5 +1,6 @@
 // src/pages/SourceProof.jsx
 import React, { useState } from "react";
+import { studyLabAI } from "../lib/StudyLabAI.js";
 
 // Domínios acadêmicos confiáveis
 const DOMINIOS_CONFIAVEIS = [
@@ -134,9 +135,6 @@ export default function SourceProof() {
     setIsAnalyzing(true);
     setResultados([]);
 
-    // Simular delay de análise
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
     let urls = [];
     
     if (modoAnalise === "url") {
@@ -145,6 +143,18 @@ export default function SourceProof() {
       }
     } else {
       urls = extrairURLsDoTexto(texto);
+    }
+
+    // Tentar usar IA para análise mais profunda
+    try {
+      const analiseIA = await studyLabAI.analisarFontes(urls);
+      if (analiseIA && analiseIA.length > 0) {
+        setResultados(analiseIA);
+        setIsAnalyzing(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Erro na análise com IA, usando fallback:', error);
     }
 
     if (urls.length === 0) {

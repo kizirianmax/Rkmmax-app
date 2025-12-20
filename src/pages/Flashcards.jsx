@@ -1,5 +1,6 @@
 // src/pages/Flashcards.jsx
 import React, { useState } from "react";
+import { studyLabAI } from "../lib/StudyLabAI.js";
 
 export default function Flashcards() {
   const [texto, setTexto] = useState("");
@@ -95,31 +96,46 @@ export default function Flashcards() {
     if (contarPalavras(texto) < 30) return;
     
     setIsGenerating(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    const conceitos = extrairConceitos(texto);
-    const cards = conceitos.slice(0, numCards).map((c, i) => ({
-      id: i + 1,
-      frente: c.pergunta,
-      verso: c.resposta,
-      dificuldade: dificuldade,
-      acertou: null
-    }));
-    
-    // Se não tiver cards suficientes, criar alguns genéricos
-    while (cards.length < Math.min(numCards, 5)) {
-      const palavras = extrairPalavrasChave(texto);
-      const palavra = palavras[cards.length] || "conceito";
-      cards.push({
-        id: cards.length + 1,
-        frente: `Defina o conceito de ${palavra}`,
-        verso: `${palavra} é um conceito importante relacionado ao tema estudado. Revise o material para uma definição completa.`,
+    try {
+      // Usar IA real do Gemini
+      const cardsIA = await studyLabAI.gerarFlashcards(texto, numCards);
+      const cards = cardsIA.map((c, i) => ({
+        id: i + 1,
+        frente: c.pergunta,
+        verso: c.resposta,
+        dificuldade: c.dificuldade || dificuldade,
+        acertou: null
+      }));
+      
+      setFlashcards(cards);
+    } catch (error) {
+      console.error('Erro ao gerar flashcards com IA:', error);
+      // Fallback para geração local
+      const conceitos = extrairConceitos(texto);
+      const cards = conceitos.slice(0, numCards).map((c, i) => ({
+        id: i + 1,
+        frente: c.pergunta,
+        verso: c.resposta,
         dificuldade: dificuldade,
         acertou: null
-      });
+      }));
+      
+      while (cards.length < Math.min(numCards, 5)) {
+        const palavras = extrairPalavrasChave(texto);
+        const palavra = palavras[cards.length] || "conceito";
+        cards.push({
+          id: cards.length + 1,
+          frente: `Defina o conceito de ${palavra}`,
+          verso: `${palavra} é um conceito importante relacionado ao tema estudado.`,
+          dificuldade: dificuldade,
+          acertou: null
+        });
+      }
+      
+      setFlashcards(cards);
     }
     
-    setFlashcards(cards);
     setModo("estudar");
     setCurrentCard(0);
     setIsFlipped(false);

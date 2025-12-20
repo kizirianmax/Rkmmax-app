@@ -1,5 +1,6 @@
 // src/pages/MapasMentais.jsx
 import React, { useState, useRef, useEffect } from "react";
+import { studyLabAI } from "../lib/StudyLabAI.js";
 
 const CORES_TEMA = [
   { id: "azul", cor: "#3b82f6", nome: "Azul" },
@@ -102,15 +103,25 @@ export default function MapasMentais() {
     if (contarPalavras(texto) < 20 || !temaCentral.trim()) return;
     
     setIsGenerating(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    const conceitos = extrairConceitos(texto);
-    
-    setMapa({
-      centro: temaCentral,
-      cor: corTema.cor,
-      ramos: conceitos
-    });
+    try {
+      // Usar IA real do Gemini
+      const mapaIA = await studyLabAI.gerarMapaMental(texto, temaCentral);
+      setMapa({
+        centro: mapaIA.centro || temaCentral,
+        cor: corTema.cor,
+        ramos: mapaIA.ramos || []
+      });
+    } catch (error) {
+      console.error('Erro ao gerar mapa mental com IA:', error);
+      // Fallback para geração local
+      const conceitos = extrairConceitos(texto);
+      setMapa({
+        centro: temaCentral,
+        cor: corTema.cor,
+        ramos: conceitos
+      });
+    }
     
     setModo("visualizar");
     setIsGenerating(false);
