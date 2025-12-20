@@ -1,113 +1,132 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import '../styles/HybridAgent.css';
 import MarkdownMessage from '../components/MarkdownMessage';
+import { AutonomousAgent, AgentState } from '../lib/autonomousAgent';
 
 /**
- * RKMMAX HYBRID - Padrão Serginho
- * Visual limpo, claro e focado no chat
+ * RKMMAX HYBRID AGENT - Estilo Manus
+ * Agente Autônomo com planejamento e execução automática
  */
 export default function HybridAgentSimple() {
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content: "Olá! Sou o Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou responder diretamente. Como posso ajudar?"
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [agentState, setAgentState] = useState(AgentState.IDLE);
+  const [currentPlan, setCurrentPlan] = useState(null);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [totalSteps, setTotalSteps] = useState(0);
+  const [currentAction, setCurrentAction] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  
   const messagesEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const imageInputRef = useRef(null);
+  const agentRef = useRef(null);
 
-  const scrollToBottom = () => {
+  // Inicializar agente
+  useEffect(() => {
+    agentRef.current = new AutonomousAgent({
+      onStateChange: (state, data) => {
+        setAgentState(state);
+        if (data.error) {
+          console.error('Agent error:', data.error);
+        }
+      },
+      onProgress: (progress) => {
+        if (progress.type === 'plan_created') {
+          setCurrentPlan(progress.plan);
+          setTotalSteps(progress.totalSteps);
+        } else if (progress.type === 'step_start') {
+          setCurrentStep(progress.step);
+          setCurrentAction(progress.action);
+        } else if (progress.type === 'step_complete') {
+          // Atualizar UI com resultado da etapa
+        }
+      },
+      onMessage: (message) => {
+        setMessages(prev => [...prev, message]);
+      },
+      onToolUse: (tool) => {
+        setCurrentAction(`Usando ferramenta: ${tool.tool}`);
+      }
+    });
+
+    // Mensagem inicial
+    setMessages([{
+      role: 'assistant',
+      content: `# 🤖 RKMMAX Agente Autônomo
+
+Olá! Sou um **agente de IA autônomo** de nível avançado, similar ao Manus.
+
+## O que posso fazer:
+- 📋 **Planejar** tarefas complexas automaticamente
+- ⚡ **Executar** múltiplas etapas em sequência
+- 🔧 **Usar ferramentas** como código, análise e pesquisa
+- 📝 **Entregar** resultados completos e estruturados
+
+## Como funciona:
+1. Você me dá uma tarefa
+2. Eu analiso e crio um plano
+3. Executo cada etapa automaticamente
+4. Entrego o resultado final
+
+**Qual tarefa posso executar para você?**`,
+      timestamp: Date.now(),
+      type: 'welcome'
+    }]);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
-  // Função para remover bloco <thinking> das respostas
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Função para remover thinking
   const removeThinking = (text) => {
     if (!text) return text;
     return text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
   };
 
-  // Scroll para o topo ao carregar a página
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-  }, []);
-
-  useEffect(() => {
-    if (messages.length > 1) {
-      scrollToBottom();
-    }
-  }, [messages]);
-
-  // Verificar token do GitHub na URL
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('github_token');
-    const userName = urlParams.get('user_name');
-
-    if (token) {
-      localStorage.setItem('github_token', token);
-      window.history.replaceState({}, document.title, window.location.pathname);
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: `✅ GitHub conectado com sucesso! Olá, ${userName}! Agora posso ajudar com seus repositórios.`
-      }]);
-    }
-  }, []);
-
+  // Enviar mensagem e executar agente
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isProcessing) return;
 
     const userMessage = input.trim();
-    setInput("");
-    
-    const newMessages = [...messages, { role: "user", content: userMessage }];
-    setMessages(newMessages);
-    setIsLoading(true);
+    setInput('');
+    setIsProcessing(true);
+    setCurrentPlan(null);
+    setCurrentStep(0);
+    setTotalSteps(0);
 
     try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'genius',
-          messages: newMessages,
-          agentType: 'hybrid',
-          mode: 'OTIMIZADO'
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro na API: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const aiResponse = data.response;
-      
-      if (!aiResponse || aiResponse.trim() === "") {
-        throw new Error("Resposta vazia da IA");
-      }
-      
-      const cleanResponse = removeThinking(aiResponse);
+      // Adicionar mensagem do usuário
       setMessages(prev => [...prev, {
-        role: "assistant",
-        content: cleanResponse
+        role: 'user',
+        content: userMessage,
+        timestamp: Date.now()
       }]);
+
+      // Executar agente autônomo
+      await agentRef.current.run(userMessage);
+      
     } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
+      console.error('Erro no agente:', error);
       setMessages(prev => [...prev, {
-        role: "assistant",
-        content: `❌ Erro ao processar: ${error?.message || "erro desconhecido"}. Tente novamente.`
+        role: 'assistant',
+        content: `❌ Erro ao processar: ${error.message}`,
+        timestamp: Date.now(),
+        type: 'error'
       }]);
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
+      setAgentState(AgentState.IDLE);
     }
   };
 
+  // Gravação de voz
   const handleVoiceInput = async () => {
     if (isRecording) {
       if (mediaRecorderRef.current) {
@@ -118,23 +137,7 @@ export default function HybridAgentSimple() {
     }
 
     try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setMessages(prev => [...prev, {
-          role: "assistant",
-          content: "❌ Seu navegador não suporta gravação de áudio. Tente usar Chrome ou Safari."
-        }]);
-        return;
-      }
-
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: "🎤 Solicitando permissão do microfone..."
-      }]);
-
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      setMessages(prev => prev.slice(0, -1));
-      
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       
@@ -151,8 +154,10 @@ export default function HybridAgentSimple() {
         stream.getTracks().forEach(track => track.stop());
         
         setMessages(prev => [...prev, {
-          role: "assistant",
-          content: "🔄 Transcrevendo áudio..."
+          role: 'assistant',
+          content: '🔄 Transcrevendo áudio...',
+          timestamp: Date.now(),
+          type: 'status'
         }]);
         
         try {
@@ -164,206 +169,207 @@ export default function HybridAgentSimple() {
             body: formData
           });
           
-          setMessages(prev => prev.slice(0, -1));
+          // Remover mensagem de status
+          setMessages(prev => prev.filter(m => m.content !== '🔄 Transcrevendo áudio...'));
           
-          if (!response.ok) {
-            throw new Error('Erro na transcrição');
-          }
-          
-          const data = await response.json();
-          const text = data.text || data.transcript || '';
-          
-          if (text) {
-            const userMessage = { role: "user", content: text };
-            setMessages(prev => [...prev, userMessage]);
+          if (response.ok) {
+            const data = await response.json();
+            const text = data.text || data.transcript || '';
             
-            setIsLoading(true);
-            try {
-              const currentMessages = [...messages, userMessage];
-              const response = await fetch('/api/ai', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  type: 'genius',
-                  messages: currentMessages,
-                  agentType: 'hybrid',
-                  mode: 'OTIMIZADO'
-                }),
-              });
-
-              if (!response.ok) {
-                throw new Error(`Erro na API: ${response.status}`);
-              }
-
-              const data = await response.json();
-              const aiResponse = data.response;
-              
-              if (aiResponse && aiResponse.trim() !== "") {
-                const cleanResponse = removeThinking(aiResponse);
-                setMessages(prev => [...prev, {
-                  role: "assistant",
-                  content: cleanResponse
-                }]);
-              }
-            } catch (error) {
-              console.error("Erro ao enviar mensagem de voz:", error);
-              setMessages(prev => [...prev, {
-                role: "assistant",
-                content: `❌ Erro ao processar: ${error?.message || "erro desconhecido"}. Tente novamente.`
-              }]);
-            } finally {
-              setIsLoading(false);
+            if (text) {
+              setInput(text);
+              // Auto-enviar após transcrição
+              setTimeout(() => {
+                document.querySelector('.send-btn')?.click();
+              }, 100);
             }
-          } else {
-            setMessages(prev => [...prev, {
-              role: "assistant",
-              content: "⚠️ Não foi possível transcrever o áudio. Tente falar mais alto."
-            }]);
           }
         } catch (error) {
           console.error('Erro na transcrição:', error);
-          setMessages(prev => {
-            const lastMsg = prev[prev.length - 1];
-            if (lastMsg?.content?.includes('Transcrevendo')) {
-              return [...prev.slice(0, -1), {
-                role: "assistant",
-                content: "❌ Erro ao transcrever. Tente novamente."
-              }];
-            }
-            return [...prev, {
-              role: "assistant",
-              content: "❌ Erro ao transcrever. Tente novamente."
-            }];
-          });
         }
       };
       
       mediaRecorder.start();
       setIsRecording(true);
       
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: "🔴 Gravando... Clique no microfone novamente para parar."
-      }]);
-      
     } catch (error) {
-      console.error("Erro ao acessar microfone:", error);
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: `❌ Não foi possível acessar o microfone. ${error.name === 'NotAllowedError' ? 'Permissão negada.' : 'Verifique as permissões.'}`
-      }]);
+      console.error('Erro ao acessar microfone:', error);
     }
   };
 
-  const handleImageAttach = () => {
-    imageInputRef.current?.click();
-  };
-
+  // Upload de imagem
   const handleImageSelect = async (event) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const imageBase64 = e.target.result;
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const imageBase64 = e.target.result;
+      
+      setMessages(prev => [...prev, {
+        role: 'user',
+        content: `🖼️ Imagem enviada: ${file.name}`,
+        image: imageBase64,
+        timestamp: Date.now()
+      }]);
+      
+      setIsProcessing(true);
+      
+      try {
+        const response = await fetch('/api/vision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64 })
+        });
         
-        setMessages(prev => [...prev, {
-          role: "user",
-          content: `🖼️ Imagem: ${file.name}`,
-          image: imageBase64
-        }]);
-        
-        setIsLoading(true);
-        try {
-          const response = await fetch('/api/vision', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageBase64 })
-          });
-          
-          if (!response.ok) {
-            throw new Error('Erro na análise de imagem');
-          }
-          
+        if (response.ok) {
           const data = await response.json();
-          const description = data.description || data.text || 'Imagem processada';
+          const description = removeThinking(data.description || data.text || 'Imagem analisada');
           
-          const cleanDescription = removeThinking(description);
           setMessages(prev => [...prev, {
-            role: "assistant",
-            content: cleanDescription
+            role: 'assistant',
+            content: `## 👁️ Análise da Imagem\n\n${description}`,
+            timestamp: Date.now()
           }]);
-        } catch (error) {
-          console.error('Erro ao analisar imagem:', error);
-          setMessages(prev => [...prev, {
-            role: "assistant",
-            content: `❌ Erro ao analisar imagem: ${error.message}`
-          }]);
-        } finally {
-          setIsLoading(false);
         }
-      };
-      reader.readAsDataURL(file);
-    }
+      } catch (error) {
+        console.error('Erro ao analisar imagem:', error);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Renderizar indicador de estado do agente
+  const renderAgentStatus = () => {
+    if (!isProcessing) return null;
+
+    const stateLabels = {
+      [AgentState.PLANNING]: '🧠 Planejando...',
+      [AgentState.EXECUTING]: '⚡ Executando...',
+      [AgentState.THINKING]: '💭 Pensando...',
+      [AgentState.USING_TOOL]: '🔧 Usando ferramenta...',
+    };
+
+    return (
+      <div className="agent-status-bar">
+        <div className="status-indicator">
+          <div className="status-pulse"></div>
+          <span className="status-text">{stateLabels[agentState] || '⏳ Processando...'}</span>
+        </div>
+        
+        {totalSteps > 0 && (
+          <div className="progress-info">
+            <div className="progress-bar">
+              <div 
+                className="progress-fill" 
+                style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              ></div>
+            </div>
+            <span className="progress-text">Etapa {currentStep} de {totalSteps}</span>
+          </div>
+        )}
+        
+        {currentAction && (
+          <div className="current-action">
+            <span>📍 {currentAction}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Renderizar plano de execução
+  const renderPlan = () => {
+    if (!currentPlan || !currentPlan.plan) return null;
+
+    return (
+      <div className="execution-plan">
+        <div className="plan-header">
+          <span className="plan-icon">📋</span>
+          <span className="plan-title">Plano de Execução</span>
+          <span className="plan-complexity">{currentPlan.complexity}</span>
+        </div>
+        <div className="plan-steps">
+          {currentPlan.plan.map((step, index) => (
+            <div 
+              key={index} 
+              className={`plan-step ${index + 1 < currentStep ? 'completed' : ''} ${index + 1 === currentStep ? 'active' : ''}`}
+            >
+              <div className="step-number">
+                {index + 1 < currentStep ? '✓' : index + 1}
+              </div>
+              <div className="step-content">
+                <span className="step-action">{step.action}</span>
+                {step.tool && <span className="step-tool">🔧 {step.tool}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="hybrid-container">
-      {/* Header fixo */}
+    <div className="hybrid-container manus-style">
+      {/* Header */}
       <div className="hybrid-header">
         <div className="header-content">
-          <img src="/avatars/serginho.png" alt="Serginho" className="avatar-large" />
-          <div className="header-info">
-            <h1>Serginho Híbrido</h1>
-            <p>Orquestrador de IA • Online</p>
-            <p className="model-badge">🤖 Gemini 2.5 Pro</p>
+          <div className="header-logo">
+            <div className="logo-icon">🤖</div>
+            <div className="header-info">
+              <h1>RKMMAX Agent</h1>
+              <p className="header-subtitle">Agente Autônomo • Modo Automático</p>
+            </div>
+          </div>
+          <div className="header-badge">
+            <span className="badge-dot"></span>
+            <span>Gemini 2.5 Pro</span>
           </div>
         </div>
       </div>
 
-      {/* Card de boas-vindas */}
-      <div className="welcome-container-compact">
-        <div className="welcome-card-compact">
-          <img src="/avatars/serginho.png" alt="Serginho" className="avatar-compact" />
-          <div className="welcome-info-compact">
-            <h3>Serginho — Orquestrador Híbrido</h3>
-            <p>Orquestro 54 especialistas para resolver qualquer tarefa 💡</p>
-          </div>
-        </div>
-      </div>
+      {/* Status Bar */}
+      {renderAgentStatus()}
+
+      {/* Plan Display */}
+      {isProcessing && renderPlan()}
 
       {/* Messages */}
       <div className="messages-container">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`message ${msg.role === "user" ? "message-user" : "message-assistant"}`}
+            className={`message ${msg.role === 'user' ? 'message-user' : 'message-assistant'} ${msg.type || ''}`}
           >
-            {msg.role === "assistant" && (
-              <img src="/avatars/serginho.png" alt="Serginho" className="message-avatar" />
+            {msg.role === 'assistant' && (
+              <div className="message-avatar">
+                <span>🤖</span>
+              </div>
             )}
             <div className="message-bubble">
               {msg.image && (
                 <img 
                   src={msg.image} 
-                  alt="Imagem enviada" 
-                  style={{
-                    maxWidth: '100%',
-                    borderRadius: '12px',
-                    marginBottom: msg.content ? '8px' : '0'
-                  }}
+                  alt="Imagem" 
+                  className="message-image"
                 />
               )}
               <MarkdownMessage 
                 content={msg.content} 
-                isUser={msg.role === "user"}
+                isUser={msg.role === 'user'}
               />
             </div>
           </div>
         ))}
-        {isLoading && (
+        
+        {isProcessing && (
           <div className="message message-assistant">
-            <img src="/avatars/serginho.png" alt="Serginho" className="message-avatar" />
-            <div className="message-bubble message-loading">
+            <div className="message-avatar">
+              <span>🤖</span>
+            </div>
+            <div className="message-bubble">
               <div className="typing-indicator">
                 <span></span>
                 <span></span>
@@ -372,53 +378,52 @@ export default function HybridAgentSimple() {
             </div>
           </div>
         )}
+        
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input fixo na parte inferior */}
+      {/* Input */}
       <div className="input-container">
         <div className="input-wrapper">
-          {/* Botão de imagem */}
           <button
             className="icon-btn"
-            onClick={handleImageAttach}
+            onClick={() => imageInputRef.current?.click()}
+            disabled={isProcessing}
             title="Enviar imagem"
           >
             🖼️
           </button>
 
-          {/* Campo de texto */}
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Digite sua mensagem..."
-            disabled={isLoading}
+            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            placeholder="Descreva a tarefa que deseja executar..."
+            disabled={isProcessing}
             className="message-input"
           />
 
-          {/* Botão de microfone */}
           <button
             className={`icon-btn ${isRecording ? 'recording' : ''}`}
             onClick={handleVoiceInput}
+            disabled={isProcessing}
             title="Gravar áudio"
           >
             🎙️
           </button>
 
-          {/* Botão de enviar */}
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isProcessing}
             className="send-btn"
           >
-            ↑
+            {isProcessing ? '⏳' : '▶'}
           </button>
         </div>
       </div>
 
-      {/* Input escondido para upload de imagem */}
+      {/* Hidden file input */}
       <input
         ref={imageInputRef}
         type="file"
