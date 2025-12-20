@@ -365,9 +365,10 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
               <p className="header-subtitle">Agente Autônomo • Modo Automático</p>
             </div>
           </div>
-          <div className="header-badge">
-            <span className="badge-dot"></span>
-            <span>KIZI 2.5 Pro</span>
+          <div style={{display: 'flex', gap: '6px', flexWrap: 'wrap'}}>
+            <span style={{fontSize: '0.6rem', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white', padding: '2px 6px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '2px'}}><span className="badge-dot" style={{width: '6px', height: '6px', background: '#4ade80', borderRadius: '50%'}}></span>🧠 Pro</span>
+            <span style={{fontSize: '0.6rem', background: 'linear-gradient(135deg, #f59e0b, #ef4444)', color: 'white', padding: '2px 6px', borderRadius: '10px'}}>🚀 Speed</span>
+            <span style={{fontSize: '0.6rem', background: 'linear-gradient(135deg, #10b981, #06b6d4)', color: 'white', padding: '2px 6px', borderRadius: '10px'}}>⚡ Flash</span>
           </div>
         </div>
       </div>
