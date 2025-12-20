@@ -23,8 +23,18 @@ export default function Serginho() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Scroll para o topo ao carregar a página
   useEffect(() => {
-    scrollToBottom();
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }, []);
+
+  useEffect(() => {
+    // Só faz scroll para baixo se tiver mais de 1 mensagem
+    if (messages.length > 1) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const handleSend = async () => {
