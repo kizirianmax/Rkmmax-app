@@ -1,17 +1,12 @@
 /**
  * 🤖 ENDPOINT UNIFICADO DE IA - KIZI AI
  * 
- * Dois modos de operação:
- * - KIZI 2.5 Pro (Gemini) = Respostas inteligentes e complexas
- * - KIZI Speed (Groq Llama 70B) = Respostas ultra-rápidas
+ * Sistema inteligente com 3 motores:
+ * - KIZI 2.5 Pro (Gemini 2.5 Pro) = Raciocínio complexo, análises profundas
+ * - KIZI Speed (Groq Llama 70B) = Velocidade, respostas rápidas
+ * - KIZI Flash (Gemini Flash) = Respostas simples, conversas leves
  * 
- * Consolida TODOS os endpoints de chat em um único endpoint:
- * - /api/chat.js → /api/ai?type=chat
- * - /api/chat-genius.js → /api/ai?type=genius
- * - /api/chat-intelligent.js → /api/ai?type=intelligent
- * - /api/specialist-chat.js → /api/ai?type=specialist
- * - /api/hybrid.js → /api/ai?type=hybrid
- * - /api/transcribe.js → /api/ai?type=transcribe
+ * O sistema escolhe automaticamente o melhor motor baseado na complexidade.
  */
 
 import geniusPrompts from '../src/prompts/geniusPrompts.js';
@@ -22,7 +17,75 @@ const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
 
 /**
- * Chamar KIZI 2.5 Pro (Gemini - raciocínio avançado)
+ * Analisar complexidade da mensagem para escolher o motor ideal
+ */
+function analyzeComplexity(messages) {
+  const lastMessage = messages[messages.length - 1]?.content || '';
+  const allContent = messages.map(m => m.content).join(' ');
+  
+  // Indicadores de complexidade ALTA (KIZI 2.5 Pro)
+  const complexIndicators = [
+    /analis[ae]/i, /compar[ae]/i, /expliq/i, /detalh/i,
+    /código|code|programa/i, /debug/i, /erro|error|bug/i,
+    /arquitetura/i, /sistema/i, /projeto/i, /planeja/i,
+    /pesquis/i, /estud/i, /aprend/i,
+    /estratégia/i, /negócio/i, /empresa/i,
+    /matemática|cálculo|equação/i,
+    /\?.*\?/,  // Múltiplas perguntas
+    /por que|porque|como funciona/i,
+    /passo a passo/i, /tutorial/i,
+    /crie|desenvolva|construa|implemente/i
+  ];
+  
+  // Indicadores de simplicidade (KIZI Flash)
+  const simpleIndicators = [
+    /^(oi|olá|hey|hi|hello|e aí)/i,
+    /^(obrigado|valeu|thanks|ok|tá|beleza)/i,
+    /^(sim|não|yes|no)$/i,
+    /^.{1,30}$/,  // Mensagens muito curtas
+    /^(qual|quem|onde|quando) .{1,50}\?$/i,  // Perguntas diretas curtas
+    /bom dia|boa tarde|boa noite/i,
+    /tudo bem|como vai/i
+  ];
+  
+  // Calcular scores
+  let complexScore = 0;
+  let simpleScore = 0;
+  
+  for (const pattern of complexIndicators) {
+    if (pattern.test(lastMessage) || pattern.test(allContent)) {
+      complexScore++;
+    }
+  }
+  
+  for (const pattern of simpleIndicators) {
+    if (pattern.test(lastMessage)) {
+      simpleScore++;
+    }
+  }
+  
+  // Fatores adicionais
+  const messageLength = lastMessage.length;
+  const conversationLength = messages.length;
+  
+  if (messageLength > 500) complexScore += 2;
+  else if (messageLength > 200) complexScore += 1;
+  else if (messageLength < 50) simpleScore += 1;
+  
+  if (conversationLength > 10) complexScore += 1;
+  
+  // Decidir
+  if (simpleScore >= 2 && complexScore === 0) {
+    return 'flash';  // KIZI Flash para respostas simples
+  } else if (complexScore >= 2) {
+    return 'pro';    // KIZI 2.5 Pro para raciocínio complexo
+  } else {
+    return 'speed';  // KIZI Speed para velocidade (padrão)
+  }
+}
+
+/**
+ * Chamar KIZI 2.5 Pro (Gemini 2.5 Pro - raciocínio avançado)
  */
 async function callKiziPro(messages, systemPrompt, apiKey) {
   const response = await fetch(
@@ -49,6 +112,39 @@ async function callKiziPro(messages, systemPrompt, apiKey) {
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`KIZI Pro error: ${error}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+/**
+ * Chamar KIZI Flash (Gemini Flash - respostas simples e rápidas)
+ */
+async function callKiziFlash(messages, systemPrompt, apiKey) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
+        contents: messages.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.content }]
+        })),
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 4000,
+          topP: 0.9
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`KIZI Flash error: ${error}`);
   }
 
   const data = await response.json();
@@ -85,7 +181,58 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
 }
 
 /**
- * Handler principal - Roteia para função correta
+ * Chamar o motor KIZI apropriado com fallback automático
+ */
+async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
+  const hasGemini = !!geminiKey;
+  const hasGroq = !!groqKey;
+  
+  // Ordem de tentativa baseada na complexidade
+  let attempts = [];
+  
+  switch (complexity) {
+    case 'pro':
+      attempts = [
+        { name: 'kizi-2.5-pro', fn: () => callKiziPro(messages, systemPrompt, geminiKey), requires: hasGemini },
+        { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq },
+        { name: 'kizi-flash', fn: () => callKiziFlash(messages, systemPrompt, geminiKey), requires: hasGemini }
+      ];
+      break;
+    case 'flash':
+      attempts = [
+        { name: 'kizi-flash', fn: () => callKiziFlash(messages, systemPrompt, geminiKey), requires: hasGemini },
+        { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq },
+        { name: 'kizi-2.5-pro', fn: () => callKiziPro(messages, systemPrompt, geminiKey), requires: hasGemini }
+      ];
+      break;
+    case 'speed':
+    default:
+      attempts = [
+        { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq },
+        { name: 'kizi-flash', fn: () => callKiziFlash(messages, systemPrompt, geminiKey), requires: hasGemini },
+        { name: 'kizi-2.5-pro', fn: () => callKiziPro(messages, systemPrompt, geminiKey), requires: hasGemini }
+      ];
+      break;
+  }
+  
+  // Tentar cada motor em ordem
+  for (const attempt of attempts) {
+    if (!attempt.requires) continue;
+    
+    try {
+      console.log(`🤖 Tentando ${attempt.name}...`);
+      const response = await attempt.fn();
+      return { response, model: attempt.name };
+    } catch (error) {
+      console.error(`❌ ${attempt.name} falhou:`, error.message);
+    }
+  }
+  
+  throw new Error('Todos os motores KIZI falharam');
+}
+
+/**
+ * Handler principal
  */
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -97,12 +244,9 @@ export default async function handler(req, res) {
       type = 'genius', 
       messages, 
       agentType, 
-      mode, 
       specialistId,
-      speedMode = false  // NOVO: modo velocidade (usa Groq)
+      forceModel  // Opcional: forçar um modelo específico ('pro', 'speed', 'flash')
     } = req.body;
-
-    console.log(`🤖 KIZI AI - Type: ${type} | Agent: ${agentType || 'default'} | Speed: ${speedMode}`);
 
     // Verificar credenciais
     const geminiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY;
@@ -117,6 +261,10 @@ export default async function handler(req, res) {
       });
     }
 
+    // Analisar complexidade automaticamente ou usar modelo forçado
+    const complexity = forceModel || analyzeComplexity(messages);
+    console.log(`🤖 KIZI AI - Type: ${type} | Complexity: ${complexity}`);
+
     // ========================================
     // TIPO: GENIUS (Serginho + Híbrido)
     // ========================================
@@ -127,7 +275,7 @@ export default async function handler(req, res) {
 
       // Verificar cache
       if (optimized.cached) {
-        console.log('💰 CACHE HIT! Economia total!');
+        console.log('💰 CACHE HIT!');
         return res.status(200).json({
           ...optimized.response,
           cached: true,
@@ -135,123 +283,36 @@ export default async function handler(req, res) {
         });
       }
 
-      console.log(`💰 Otimização: ${optimized.stats.originalMessages} → ${optimized.stats.optimizedMessages} msgs`);
+      // Chamar KIZI com seleção automática
+      const { response, model } = await callKizi(
+        optimized.messages,
+        optimized.systemPrompt,
+        complexity,
+        geminiKey,
+        groqKey
+      );
 
-      // ========================================
-      // MODO SPEED (Groq - Ultra-rápido)
-      // ========================================
-      if (speedMode && hasGroq) {
-        console.log('⚡ KIZI Speed Mode - Usando Groq Llama 70B...');
-        try {
-          const response = await callKiziSpeed(
-            optimized.messages,
-            optimized.systemPrompt,
-            groqKey
-          );
+      const result = {
+        response,
+        model,
+        provider: 'kizi',
+        tier: complexity,
+        type: promptType,
+        success: true
+      };
 
-          return res.status(200).json({
-            response,
-            model: 'kizi-speed',
-            provider: 'kizi',
-            tier: 'speed',
-            type: promptType,
-            success: true,
-            speedMode: true
-          });
-        } catch (error) {
-          console.error('❌ KIZI Speed falhou:', error.message);
-          // Se Speed falhar, tentar Pro como fallback
-          if (hasGemini) {
-            console.log('🔄 Fallback: Tentando KIZI Pro...');
-          } else {
-            throw error;
-          }
-        }
-      }
+      cacheResponse(messages, result);
 
-      // ========================================
-      // MODO PRO (Gemini - Raciocínio avançado)
-      // ========================================
-      if (hasGemini) {
-        try {
-          console.log('🧠 KIZI 2.5 Pro - Usando Gemini...');
-          const response = await callKiziPro(
-            optimized.messages,
-            optimized.systemPrompt,
-            geminiKey
-          );
-
-          const result = {
-            response,
-            model: 'kizi-2.5-pro',
-            provider: 'kizi',
-            tier: 'pro',
-            type: promptType,
-            success: true
-          };
-
-          cacheResponse(messages, result);
-
-          return res.status(200).json({
-            ...result,
-            cached: false,
-            optimized: true,
-            stats: optimized.stats
-          });
-        } catch (error) {
-          console.error('❌ KIZI Pro falhou:', error.message);
-          
-          // Fallback para KIZI Speed
-          if (hasGroq) {
-            console.log('🔄 Fallback: Tentando KIZI Speed...');
-            try {
-              const response = await callKiziSpeed(
-                optimized.messages,
-                optimized.systemPrompt,
-                groqKey
-              );
-
-              return res.status(200).json({
-                response,
-                model: 'kizi-speed',
-                provider: 'kizi',
-                tier: 'fallback',
-                type: promptType,
-                success: true,
-                fallback: true
-              });
-            } catch (groqError) {
-              console.error('❌ KIZI Speed também falhou:', groqError.message);
-              throw groqError;
-            }
-          }
-
-          throw error;
-        }
-      }
-
-      // Se não tem Gemini, usar KIZI Speed direto
-      if (hasGroq) {
-        console.log('⚡ Usando KIZI Speed (sem Pro disponível)...');
-        const response = await callKiziSpeed(
-          optimized.messages,
-          optimized.systemPrompt,
-          groqKey
-        );
-
-        return res.status(200).json({
-          response,
-          model: 'kizi-speed',
-          provider: 'kizi',
-          tier: 'primary',
-          type: promptType,
-          success: true
-        });
-      }
+      return res.status(200).json({
+        ...result,
+        cached: false,
+        optimized: true,
+        stats: optimized.stats
+      });
     }
 
     // ========================================
-    // TIPO: SPECIALIST (Especialistas)
+    // TIPO: SPECIALIST
     // ========================================
     if (type === 'specialist') {
       if (!specialistId) {
@@ -273,7 +334,7 @@ export default async function handler(req, res) {
       const optimized = optimizeRequest(messages, systemPrompt);
 
       if (optimized.cached) {
-        console.log('💰 CACHE HIT! Economia total!');
+        console.log('💰 CACHE HIT!');
         return res.status(200).json({
           ...optimized.response,
           cached: true,
@@ -281,129 +342,43 @@ export default async function handler(req, res) {
         });
       }
 
-      console.log(`🎯 Especialista: ${specialist.name}`);
-      console.log(`💰 Otimização: ${optimized.stats.originalMessages} → ${optimized.stats.optimizedMessages} msgs`);
+      // Chamar KIZI com seleção automática
+      const { response, model } = await callKizi(
+        optimized.messages,
+        optimized.systemPrompt,
+        complexity,
+        geminiKey,
+        groqKey
+      );
 
-      // MODO SPEED para especialistas
-      if (speedMode && hasGroq) {
-        console.log('⚡ KIZI Speed Mode (Especialista)...');
-        try {
-          const response = await callKiziSpeed(
-            optimized.messages,
-            optimized.systemPrompt,
-            groqKey
-          );
+      const result = {
+        response,
+        model,
+        provider: 'kizi',
+        specialist: specialist.name,
+        tier: complexity,
+        success: true
+      };
 
-          return res.status(200).json({
-            response,
-            model: 'kizi-speed',
-            provider: 'kizi',
-            specialist: specialist.name,
-            tier: 'speed',
-            success: true,
-            speedMode: true
-          });
-        } catch (error) {
-          console.error('❌ KIZI Speed falhou:', error.message);
-          if (!hasGemini) throw error;
-        }
-      }
+      cacheResponse(messages, result);
 
-      // MODO PRO para especialistas
-      if (hasGemini) {
-        try {
-          console.log('🧠 KIZI 2.5 Pro (Especialista)...');
-          const response = await callKiziPro(
-            optimized.messages,
-            optimized.systemPrompt,
-            geminiKey
-          );
-
-          const result = {
-            response,
-            model: 'kizi-2.5-pro',
-            provider: 'kizi',
-            specialist: specialist.name,
-            tier: 'pro',
-            success: true
-          };
-
-          cacheResponse(messages, result);
-
-          return res.status(200).json({
-            ...result,
-            cached: false,
-            optimized: true,
-            stats: optimized.stats
-          });
-        } catch (error) {
-          console.error(`❌ KIZI Pro falhou para ${specialist.name}:`, error.message);
-          
-          if (hasGroq) {
-            console.log('🔄 Fallback: Tentando KIZI Speed...');
-            try {
-              const response = await callKiziSpeed(
-                optimized.messages,
-                optimized.systemPrompt,
-                groqKey
-              );
-
-              return res.status(200).json({
-                response,
-                model: 'kizi-speed',
-                provider: 'kizi',
-                specialist: specialist.name,
-                tier: 'fallback',
-                success: true,
-                fallback: true
-              });
-            } catch (groqError) {
-              console.error('❌ KIZI Speed também falhou:', groqError.message);
-              throw groqError;
-            }
-          }
-
-          throw error;
-        }
-      }
-
-      // Se não tem Gemini, usar KIZI Speed direto
-      if (hasGroq) {
-        console.log('⚡ Usando KIZI Speed (sem Pro disponível)...');
-        const response = await callKiziSpeed(
-          optimized.messages,
-          optimized.systemPrompt,
-          groqKey
-        );
-
-        return res.status(200).json({
-          response,
-          model: 'kizi-speed',
-          provider: 'kizi',
-          specialist: specialist.name,
-          tier: 'primary',
-          success: true
-        });
-      }
-    }
-
-    // ========================================
-    // TIPO: TRANSCRIBE (Whisper)
-    // ========================================
-    if (type === 'transcribe') {
-      const { audioBase64 } = req.body;
-
-      if (!audioBase64) {
-        return res.status(400).json({ error: 'audioBase64 required' });
-      }
-
-      return res.status(501).json({
-        error: 'Transcription not implemented yet',
-        hint: 'Will be implemented in next version'
+      return res.status(200).json({
+        ...result,
+        cached: false,
+        optimized: true,
+        stats: optimized.stats
       });
     }
 
-    // Tipo desconhecido
+    // ========================================
+    // TIPO: TRANSCRIBE
+    // ========================================
+    if (type === 'transcribe') {
+      return res.status(501).json({
+        error: 'Transcription not implemented yet'
+      });
+    }
+
     return res.status(400).json({
       error: 'Invalid type',
       hint: 'Use type: genius, specialist, or transcribe'
