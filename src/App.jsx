@@ -31,6 +31,7 @@ import Refund from "./pages/Refund.jsx";
 import HybridAgent from "./pages/HybridAgent.jsx";
 import HybridAgentSimple from "./pages/HybridAgentSimple.jsx";
 import GitHubCallback from "./pages/GitHubCallback.jsx";
+import SourceProof from "./pages/SourceProof.jsx";
 
 // Wrapper para esconder Footer em páginas de chat
 function FooterWrapper() {
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="/serginho" element={<Serginho />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/study" element={<StudyLab />} />
+        <Route path="/source-proof" element={<SourceProof />} />
         <Route path="/specialists" element={<Specialists />} />
         <Route path="/specialist/:specialistId" element={<SpecialistChat />} />
         <Route path="/study-lab" element={<Navigate to="/study" replace />} />

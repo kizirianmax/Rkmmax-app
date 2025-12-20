@@ -22,8 +22,8 @@ export default function StudyLab() {
       id: "sourceproof",
       title: "🔍 Source-Proof",
       description: "Verifique e valide fontes acadêmicas com checagem de credibilidade",
-      status: "Em breve",
-      action: null
+      status: "Disponível",
+      action: () => window.location.href = "/source-proof"
     },
     {
       id: "resumos",
