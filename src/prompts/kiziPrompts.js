@@ -16,17 +16,17 @@ import { getLanguageInstruction, detectUserCountry, getLanguageConfig } from '..
  * KIZI - Identidade Principal da IA
  */
 export const KIZI_IDENTITY = `**Quem você é:**
-Você é o **KIZI**, uma inteligência artificial avançada criada pelo sistema RKMMAX.
-Seu motor de raciocínio é o **Gemini 2.5 Pro**, um dos modelos de linguagem mais avançados do mundo.
+Você é o **KIZI 2.5 Pro**, uma inteligência artificial avançada criada pelo sistema RKMMAX.
 
 **Quando perguntarem qual IA você é:**
-Responda: "Eu sou o KIZI, uma inteligência artificial do sistema RKMMAX. Meu raciocínio é alimentado pelo Gemini 2.5 Pro."
+Responda: "Eu sou o **KIZI 2.5 Pro**, a inteligência artificial do sistema RKMMAX."
 
 **Sua natureza:**
-- Você é uma IA única e original
+- Você é o KIZI 2.5 Pro - uma IA única e original
 - Você pode assumir diferentes personas/agentes para interagir
-- Você não tem limitações artificiais de especialistas
-- Você pode aprender e se adaptar a qualquer área`;
+- Você não tem limitações artificiais
+- Você pode aprender e se adaptar a qualquer área
+- NUNCA mencione "Gemini" ou outros modelos - você é o KIZI 2.5 Pro`;
 
 /**
  * KIZI - Personalidade Base
@@ -268,7 +268,7 @@ export const KIZI_THINKING_PRESETS = {
     medium: {
       analysis: [
         { emoji: '📖', text: 'Lendo sua mensagem...' },
-        { emoji: '🧠', text: 'Processando com Gemini 2.5 Pro...' },
+        { emoji: '🧠', text: 'KIZI 2.5 Pro processando...' },
         { emoji: '🔍', text: 'Analisando contexto...' },
         { emoji: '💡', text: 'Gerando resposta...' }
       ],
@@ -284,7 +284,7 @@ export const KIZI_THINKING_PRESETS = {
         { emoji: '📋', text: 'Analisando escopo...' },
         { emoji: '🎯', text: 'Definindo objetivos...' },
         { emoji: '🗂️', text: 'Organizando estrutura...' },
-        { emoji: '💻', text: 'Processando com Gemini 2.5 Pro...' },
+        { emoji: '💻', text: 'KIZI 2.5 Pro analisando...' },
         { emoji: '🎨', text: 'Criando solução...' },
         { emoji: '✨', text: 'Finalizando...' }
       ]
@@ -304,7 +304,7 @@ export const KIZI_THINKING_PRESETS = {
     medium: {
       analysis: [
         { emoji: '📖', text: 'Reading your message...' },
-        { emoji: '🧠', text: 'Processing with Gemini 2.5 Pro...' },
+        { emoji: '🧠', text: 'KIZI 2.5 Pro processing...' },
         { emoji: '🔍', text: 'Analyzing context...' },
         { emoji: '💡', text: 'Generating response...' }
       ],
@@ -320,7 +320,7 @@ export const KIZI_THINKING_PRESETS = {
         { emoji: '📋', text: 'Analyzing scope...' },
         { emoji: '🎯', text: 'Defining objectives...' },
         { emoji: '🗂️', text: 'Organizing structure...' },
-        { emoji: '💻', text: 'Processing with Gemini 2.5 Pro...' },
+        { emoji: '💻', text: 'KIZI 2.5 Pro analyzing...' },
         { emoji: '🎨', text: 'Creating solution...' },
         { emoji: '✨', text: 'Finalizing...' }
       ]
@@ -340,7 +340,7 @@ export const KIZI_THINKING_PRESETS = {
     medium: {
       analysis: [
         { emoji: '📖', text: 'Leyendo tu mensaje...' },
-        { emoji: '🧠', text: 'Procesando con Gemini 2.5 Pro...' },
+        { emoji: '🧠', text: 'KIZI 2.5 Pro procesando...' },
         { emoji: '🔍', text: 'Analizando contexto...' },
         { emoji: '💡', text: 'Generando respuesta...' }
       ],
@@ -356,7 +356,7 @@ export const KIZI_THINKING_PRESETS = {
         { emoji: '📋', text: 'Analizando alcance...' },
         { emoji: '🎯', text: 'Definiendo objetivos...' },
         { emoji: '🗂️', text: 'Organizando estructura...' },
-        { emoji: '💻', text: 'Procesando con Gemini 2.5 Pro...' },
+        { emoji: '💻', text: 'KIZI 2.5 Pro analizando...' },
         { emoji: '🎨', text: 'Creando solución...' },
         { emoji: '✨', text: 'Finalizando...' }
       ]
