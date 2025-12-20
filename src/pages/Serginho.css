@@ -210,10 +210,42 @@
 
 .input-wrapper {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   max-width: 900px;
   margin: 0 auto;
   align-items: center;
+}
+
+/* Botões de ícone compactos */
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn.recording {
+  background: #fee2e2;
+  border-color: #ef4444;
+  animation: pulse-red 1s infinite;
 }
 
 /* Action Buttons */
@@ -249,15 +281,16 @@
 /* Message Input */
 .message-input {
   flex: 1;
-  padding: 10px 14px;
-  border-radius: 20px;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 18px;
   border: 1px solid #e2e8f0;
-  font-size: 15px;
+  font-size: 14px;
   outline: none;
   transition: all 0.2s;
   background: #f8fafc;
   resize: none;
-  min-height: 40px;
+  height: 36px;
   max-height: 80px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.4;
@@ -308,20 +341,21 @@
 
 /* Send Button */
 .send-btn {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
   flex-shrink: 0;
 }
 

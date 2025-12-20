@@ -345,7 +345,17 @@ export default function Serginho() {
       {/* Input fixo na parte inferior */}
       <div className="input-container">
         <div className="input-wrapper">
-          {/* Input + Botão enviar */}
+          {/* Botão de foto */}
+          <button
+            className="icon-btn"
+            onClick={handleCameraCapture}
+            disabled={true}
+            title="Tirar foto"
+          >
+            📷
+          </button>
+
+          {/* Campo de texto */}
           <input
             type="text"
             value={input}
@@ -355,6 +365,18 @@ export default function Serginho() {
             disabled={isLoading}
             className="message-input"
           />
+
+          {/* Botão de microfone */}
+          <button
+            className={`icon-btn ${isRecording ? 'recording' : ''}`}
+            onClick={handleVoiceInput}
+            disabled={true}
+            title="Gravar áudio"
+          >
+            🎙️
+          </button>
+
+          {/* Botão de enviar */}
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
