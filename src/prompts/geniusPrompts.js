@@ -1,5 +1,5 @@
 /**
- * RKMMAX GENIUS PROMPTS
+ * RKMMAX GENIUS PROMPTS + KIZI INTEGRATION
  * Sistema de prompts de nível gênio para superar ChatGPT
  * 
  * Características:
@@ -7,12 +7,17 @@
  * - Self-Reflection (auto-avaliação)
  * - Few-Shot Learning (exemplos)
  * - Metacognição avançada
+ * - KIZI Personality Integration
+ * - Automatic Language Detection
  * 
  * Otimizações de custo:
  * - Prompts compactos mas poderosos
  * - Reutilização de contexto
  * - Cache de respostas similares
  */
+
+import { buildKiziPrompt, getThinkingPresets, getKiziGreeting } from './kiziPrompts.js';
+import { getLanguageInstruction, detectUserCountry } from '../utils/languageDetector.js';
 
 /**
  * SERGINHO - Orquestrador Master (Nível ChatGPT-5)
@@ -299,6 +304,23 @@ export function buildGeniusPrompt(type, options = {}) {
 }
 
 /**
+ * Build KIZI-enhanced prompt with automatic language detection
+ * This is the new recommended way to build prompts
+ */
+export async function buildKiziEnhancedPrompt(type, options = {}) {
+  // Get KIZI prompt with language detection
+  const kiziPrompt = await buildKiziPrompt(type, options);
+  
+  // Add self-reflection
+  return kiziPrompt + SELF_REFLECTION_SUFFIX;
+}
+
+/**
+ * Get localized thinking presets for KIZI
+ */
+export { getThinkingPresets, getKiziGreeting };
+
+/**
  * Exportar tudo
  */
 export default {
@@ -307,5 +329,8 @@ export default {
   HYBRID_GENIUS_PROMPT,
   FEW_SHOT_EXAMPLES,
   SELF_REFLECTION_SUFFIX,
-  buildGeniusPrompt
+  buildGeniusPrompt,
+  buildKiziEnhancedPrompt,
+  getThinkingPresets,
+  getKiziGreeting
 };
