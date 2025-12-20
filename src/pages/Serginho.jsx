@@ -345,34 +345,7 @@ export default function Serginho() {
       {/* Input fixo na parte inferior */}
       <div className="input-container">
         <div className="input-wrapper">
-          {/* Botões de ação */}
-          <div className="action-buttons">
-            <button
-              className="action-btn"
-              onClick={handleCameraCapture}
-              disabled={true}
-              title="Recurso em desenvolvimento"
-            >
-              📸
-            </button>
-            <button
-              className="action-btn"
-              onClick={handleImageAttach}
-              disabled={true}
-              title="Recurso em desenvolvimento"
-            >
-              🗸️
-            </button>
-            <button
-              className="action-btn"
-              onClick={handleFileAttach}
-              title="Anexar arquivo"
-            >
-              📎
-            </button>
-          </div>
-
-          {/* Input de texto */}
+          {/* Input + Botão enviar */}
           <input
             type="text"
             value={input}
@@ -382,18 +355,6 @@ export default function Serginho() {
             disabled={isLoading}
             className="message-input"
           />
-
-          {/* Botão de voz - DESATIVADO */}
-          <button
-            className={`voice-btn ${isRecording ? 'recording' : ''}`}
-            onClick={handleVoiceInput}
-            disabled={true}
-            title="Recurso em desenvolvimento"
-          >
-            🎙
-          </button>
-
-          {/* Botão de enviar */}
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
