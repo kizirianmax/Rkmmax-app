@@ -2,41 +2,22 @@ import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
 
 /**
- * RKMMAX HYBRID - VERSÃO MANUS SIMPLIFICADA
- * Um único agente (Serginho) que faz TUDO
- * Metodologia: Execução real com fallback automático
- * Gemini 1.5 Pro → GROQ (fallback)
- * Modos: Manual (1 crédito) | Otimizado (0.5 crédito)
+ * RKMMAX HYBRID - Padrão Serginho
+ * Visual limpo, claro e focado no chat
  */
 export default function HybridAgentSimple() {
-  const [mode, setMode] = useState('manual');
-  const [input, setInput] = useState('');
-  // Versão do app para cache busting
-  const APP_VERSION = 'v3.0.2-gemini2thinking';
-  
   const [messages, setMessages] = useState([
     {
-      id: 1,
-      type: 'system',
-      content: `🤖 Bem-vindo ao RKMMAX Híbrido - Sistema Inteligente (${APP_VERSION})`,
-      timestamp: new Date(),
-    },
-    {
-      id: 2,
-      type: 'agent',
-      agent: 'Serginho',
-      content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou executar tarefas complexas diretamente. Descreva o que precisa!',
-        provider: 'gemini-2.5-pro',
-      timestamp: new Date(),
-    },
+      role: "assistant",
+      content: "Olá! Sou o Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou responder diretamente. Como posso ajudar?"
+    }
   ]);
-  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [githubToken, setGithubToken] = useState(localStorage.getItem('github_token') || null);
-  const [githubUser, setGithubUser] = useState(null);
   const messagesEndRef = useRef(null);
-  const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
+  const imageInputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,430 +29,399 @@ export default function HybridAgentSimple() {
     return text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
   };
 
+  // Scroll para o topo ao carregar a página
   useEffect(() => {
-    scrollToBottom();
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 1) {
+      scrollToBottom();
+    }
   }, [messages]);
 
+  // Verificar token do GitHub na URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('github_token');
     const userName = urlParams.get('user_name');
 
     if (token) {
-      console.log('Token recebido:', token);
       localStorage.setItem('github_token', token);
-      setGithubToken(token);
-      setGithubUser(userName);
       window.history.replaceState({}, document.title, window.location.pathname);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `✅ GitHub conectado com sucesso! Olá, ${userName}! Agora posso ajudar com seus repositórios.`
+      }]);
     }
   }, []);
 
-  const handleSendMessage = async () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
 
-    // Adicionar mensagem do usuário
-    const userMessage = {
-      id: messages.length + 1,
-      type: 'user',
-      content: input,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    const userInput = input;
-    setInput('');
-    setLoading(true);
+    const userMessage = input.trim();
+    setInput("");
+    
+    const newMessages = [...messages, { role: "user", content: userMessage }];
+    setMessages(newMessages);
+    setIsLoading(true);
 
     try {
-      console.log(`📤 Enviando para /api/chat (Serginho) - Modo: ${mode}`);
-
-      // Chamar /api/ai com prompts de gênio + otimização
       const response = await fetch('/api/ai', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [
-            ...messages
-              .filter(msg => msg.type !== 'system')
-              .map(msg => ({
-                role: msg.type === 'user' ? 'user' : 'assistant',
-                content: msg.content,
-              })),
-            {
-              role: 'user',
-              content: userInput,
-            },
-          ],
-          type: 'genius',       // Endpoint unificado
-          agentType: 'hybrid',  // Prompts de gênio do Híbrido
-          mode: mode.toUpperCase(),  // MANUAL ou OTIMIZADO
+          type: 'genius',
+          messages: newMessages,
+          agentType: 'hybrid',
+          mode: 'OTIMIZADO'
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw new Error(`Erro na API: ${response.status}`);
       }
 
       const data = await response.json();
-      const rawResponse = data.response || data.message || 'Sem resposta';
-      const aiResponse = removeThinking(rawResponse);
-      const provider = data.model || data.usedProvider || 'gemini-2.5-pro';
-
-      console.log(`✅ Resposta recebida de ${provider}`);
-
-      // Adicionar resposta do agente
-      const agentMessage = {
-        id: messages.length + 2,
-        type: 'agent',
-        agent: 'Serginho',
-        content: aiResponse,
-        provider: provider,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, agentMessage]);
+      const aiResponse = data.response;
+      
+      if (!aiResponse || aiResponse.trim() === "") {
+        throw new Error("Resposta vazia da IA");
+      }
+      
+      const cleanResponse = removeThinking(aiResponse);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: cleanResponse
+      }]);
     } catch (error) {
-      console.error('❌ Erro ao enviar mensagem:', error);
-
-      // Adicionar mensagem de erro
-      const errorMessage = {
-        id: messages.length + 2,
-        type: 'error',
-        content: `❌ Erro: ${error.message}`,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, errorMessage]);
+      console.error("Erro ao enviar mensagem:", error);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `❌ Erro ao processar: ${error?.message || "erro desconhecido"}. Tente novamente.`
+      }]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const handleMicrophoneClick = async () => {
-    if (!isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        const chunks = [];
-
-        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(chunks, { type: 'audio/mp3' });
-          await handleAudioUpload(audioBlob);
-          stream.getTracks().forEach(track => track.stop());
-        };
-
-        mediaRecorder.start();
-        setIsRecording(true);
-      } catch (error) {
-        console.error('Erro ao acessar microfone:', error);
-        alert('Permissão de microfone negada');
+  const handleVoiceInput = async () => {
+    if (isRecording) {
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
       }
-    } else {
-      mediaRecorderRef.current?.stop();
       setIsRecording(false);
+      return;
     }
-  };
 
-  const handleAudioUpload = async (audioBlob) => {
     try {
-      console.log('🎤 Enviando áudio para transcrição...', audioBlob);
-      
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'audio.mp3');
-
-      const response = await fetch('/api/transcribe', {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log('📥 Resposta recebida:', response.status);
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erro na transcrição');
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "❌ Seu navegador não suporta gravação de áudio. Tente usar Chrome ou Safari."
+        }]);
+        return;
       }
 
-      const data = await response.json();
-      console.log('✅ Transcrição concluída:', data);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "🎤 Solicitando permissão do microfone..."
+      }]);
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      const transcript = data.transcript || data.text || '';
-      if (transcript) {
-        console.log('📝 Texto transcrito:', transcript);
+      setMessages(prev => prev.slice(0, -1));
+      
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      
+      const audioChunks = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        stream.getTracks().forEach(track => track.stop());
         
-        // Adicionar mensagem do usuário e enviar automaticamente
-        const userMessage = {
-          id: messages.length + 1,
-          type: 'user',
-          content: transcript,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, userMessage]);
-        setLoading(true);
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "🔄 Transcrevendo áudio..."
+        }]);
         
         try {
-          const response = await fetch('/api/ai', {
+          const formData = new FormData();
+          formData.append('audio', audioBlob, 'recording.webm');
+          
+          const response = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: formData
+          });
+          
+          setMessages(prev => prev.slice(0, -1));
+          
+          if (!response.ok) {
+            throw new Error('Erro na transcrição');
+          }
+          
+          const data = await response.json();
+          const text = data.text || data.transcript || '';
+          
+          if (text) {
+            const userMessage = { role: "user", content: text };
+            setMessages(prev => [...prev, userMessage]);
+            
+            setIsLoading(true);
+            try {
+              const currentMessages = [...messages, userMessage];
+              const response = await fetch('/api/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  type: 'genius',
+                  messages: currentMessages,
+                  agentType: 'hybrid',
+                  mode: 'OTIMIZADO'
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error(`Erro na API: ${response.status}`);
+              }
+
+              const data = await response.json();
+              const aiResponse = data.response;
+              
+              if (aiResponse && aiResponse.trim() !== "") {
+                const cleanResponse = removeThinking(aiResponse);
+                setMessages(prev => [...prev, {
+                  role: "assistant",
+                  content: cleanResponse
+                }]);
+              }
+            } catch (error) {
+              console.error("Erro ao enviar mensagem de voz:", error);
+              setMessages(prev => [...prev, {
+                role: "assistant",
+                content: `❌ Erro ao processar: ${error?.message || "erro desconhecido"}. Tente novamente.`
+              }]);
+            } finally {
+              setIsLoading(false);
+            }
+          } else {
+            setMessages(prev => [...prev, {
+              role: "assistant",
+              content: "⚠️ Não foi possível transcrever o áudio. Tente falar mais alto."
+            }]);
+          }
+        } catch (error) {
+          console.error('Erro na transcrição:', error);
+          setMessages(prev => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg?.content?.includes('Transcrevendo')) {
+              return [...prev.slice(0, -1), {
+                role: "assistant",
+                content: "❌ Erro ao transcrever. Tente novamente."
+              }];
+            }
+            return [...prev, {
+              role: "assistant",
+              content: "❌ Erro ao transcrever. Tente novamente."
+            }];
+          });
+        }
+      };
+      
+      mediaRecorder.start();
+      setIsRecording(true);
+      
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "🔴 Gravando... Clique no microfone novamente para parar."
+      }]);
+      
+    } catch (error) {
+      console.error("Erro ao acessar microfone:", error);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `❌ Não foi possível acessar o microfone. ${error.name === 'NotAllowedError' ? 'Permissão negada.' : 'Verifique as permissões.'}`
+      }]);
+    }
+  };
+
+  const handleImageAttach = () => {
+    imageInputRef.current?.click();
+  };
+
+  const handleImageSelect = async (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const imageBase64 = e.target.result;
+        
+        setMessages(prev => [...prev, {
+          role: "user",
+          content: `🖼️ Imagem: ${file.name}`,
+          image: imageBase64
+        }]);
+        
+        setIsLoading(true);
+        try {
+          const response = await fetch('/api/vision', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              messages: [
-                ...messages
-                  .filter(msg => msg.type !== 'system')
-                  .map(msg => ({
-                    role: msg.type === 'user' ? 'user' : 'assistant',
-                    content: msg.content,
-                  })),
-                { role: 'user', content: transcript },
-              ],
-              type: 'genius',
-              agentType: 'hybrid',
-              mode: mode.toUpperCase(),
-            }),
+            body: JSON.stringify({ imageBase64 })
           });
-
-          if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-          const aiData = await response.json();
-          const rawResponse = aiData.response || aiData.message || 'Sem resposta';
-          const aiResponse = removeThinking(rawResponse);
-          const provider = aiData.model || 'gemini-2.5-pro';
-
-          const agentMessage = {
-            id: messages.length + 2,
-            type: 'agent',
-            agent: 'Serginho',
-            content: aiResponse,
-            provider: provider,
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, agentMessage]);
+          
+          if (!response.ok) {
+            throw new Error('Erro na análise de imagem');
+          }
+          
+          const data = await response.json();
+          const description = data.description || data.text || 'Imagem processada';
+          
+          const cleanDescription = removeThinking(description);
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: cleanDescription
+          }]);
         } catch (error) {
-          console.error('❌ Erro ao enviar mensagem de voz:', error);
-          setMessages((prev) => [...prev, {
-            id: messages.length + 2,
-            type: 'error',
-            content: `❌ Erro: ${error.message}`,
-            timestamp: new Date(),
+          console.error('Erro ao analisar imagem:', error);
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: `❌ Erro ao analisar imagem: ${error.message}`
           }]);
         } finally {
-          setLoading(false);
+          setIsLoading(false);
         }
-      } else {
-        console.warn('⚠️ Nenhum texto foi transcrito');
-      }
-    } catch (error) {
-      console.error('❌ Erro ao transcrever áudio:', error);
-      alert(`Erro ao transcrever: ${error.message}`);
-    }
-  };
-
-  const handleImageClick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => handleImageUpload(e.target.files[0]);
-    input.click();
-  };
-
-  const handleImageUpload = async (imageFile) => {
-    if (!imageFile) return;
-
-    try {
-      console.log('📸 Enviando imagem para análise...', imageFile);
-      
-      const formData = new FormData();
-      formData.append('image', imageFile);
-
-      const response = await fetch('/api/vision', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erro na análise de imagem');
-      }
-
-      const data = await response.json();
-      console.log('✅ Análise concluída:', data);
-      
-      const description = data.description || data.text || 'Imagem processada';
-      setInput(`[Imagem analisada] ${description}`);
-    } catch (error) {
-      console.error('❌ Erro ao processar imagem:', error);
-      alert(`Erro ao processar imagem: ${error.message}`);
-    }
-  };
-
-  const handleGitHubOAuth = async () => {
-    try {
-      console.log('Iniciando autenticacao GitHub...');
-      
-      const response = await fetch('/api/github-oauth/authorize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao iniciar autenticacao');
-      }
-
-      const data = await response.json();
-      console.log('URL de autorizacao gerada:', data.authUrl);
-      
-      window.open(data.authUrl, 'github-auth', 'width=600,height=700');
-    } catch (error) {
-      console.error('Erro ao iniciar OAuth:', error);
-      alert('Erro: ' + error.message);
-    }
-  };
-
-  const handleGitHubClick = () => {
-    if (githubToken) {
-      window.open('https://github.com/kizirianmax/Rkmmax-app', '_blank');
-    } else {
-      handleGitHubOAuth();
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   return (
     <div className="hybrid-container">
-      {/* Header */}
+      {/* Header fixo */}
       <div className="hybrid-header">
-        <div className="header-left">
-          <h1>🤖 RKMMAX Híbrido</h1>
-          <p>Sistema Inteligente de Agentes</p>
-        </div>
-
-        {/* Controles */}
-        <div className="header-controls">
-          <div className="mode-selector">
-            <label>Modo:</label>
-            <div className="mode-buttons">
-              <button
-                className={`mode-btn ${mode === 'manual' ? 'active' : ''}`}
-                onClick={() => setMode('manual')}
-              >
-                📋 Manual (1 crédito)
-              </button>
-              <button
-                className={`mode-btn ${mode === 'optimized' ? 'active' : ''}`}
-                onClick={() => setMode('optimized')}
-              >
-                ⚡ Otimizado (0.5 crédito)
-              </button>
-            </div>
-          </div>
-
-          {/* Info Box */}
-          <div className="info-section">
-            <div className="info-box">
-              <h3>SISTEMA</h3>
-              <p>🚀 <strong>Versão 3.0.2</strong></p>
-              <p>Serginho - Orquestrador de IA</p>
-              <p>🤖 <strong>Gemini 2.5 Pro</strong></p>
-              <p>💰 Otimização de Custo Ativa</p>
-            </div>
+        <div className="header-content">
+          <img src="/avatars/serginho.png" alt="Serginho" className="avatar-large" />
+          <div className="header-info">
+            <h1>Serginho Híbrido</h1>
+            <p>Orquestrador de IA • Online</p>
+            <p className="model-badge">🤖 Gemini 2.5 Pro</p>
           </div>
         </div>
       </div>
 
-      {/* Chat Area */}
-      <div className="chat-container">
-        <div className="messages-area">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`message message-${msg.type}`}>
-              {msg.type === 'agent' && (
-                <div className="message-header">
-                  <span className="agent-name">🤖 {msg.agent}</span>
-                  {msg.provider && (
-                    <span className="provider-badge">{msg.provider}</span>
-                  )}
-                  <span className="timestamp">
-                    {msg.timestamp.toLocaleTimeString()}
-                  </span>
-                </div>
-              )}
-              {msg.type === 'user' && (
-                <div className="message-header">
-                  <span className="user-name">👤 Você</span>
-                  <span className="timestamp">
-                    {msg.timestamp.toLocaleTimeString()}
-                  </span>
-                </div>
-              )}
-              <div className="message-content">{msg.content}</div>
-            </div>
-          ))}
+      {/* Card de boas-vindas */}
+      <div className="welcome-container-compact">
+        <div className="welcome-card-compact">
+          <img src="/avatars/serginho.png" alt="Serginho" className="avatar-compact" />
+          <div className="welcome-info-compact">
+            <h3>Serginho — Orquestrador Híbrido</h3>
+            <p>Orquestro 54 especialistas para resolver qualquer tarefa 💡</p>
+          </div>
+        </div>
+      </div>
 
-          {loading && (
-            <div className="message message-loading">
-              <div className="loading-spinner">
+      {/* Messages */}
+      <div className="messages-container">
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`message ${msg.role === "user" ? "message-user" : "message-assistant"}`}
+          >
+            {msg.role === "assistant" && (
+              <img src="/avatars/serginho.png" alt="Serginho" className="message-avatar" />
+            )}
+            <div className="message-bubble">
+              {msg.image && (
+                <img 
+                  src={msg.image} 
+                  alt="Imagem enviada" 
+                  style={{
+                    maxWidth: '100%',
+                    borderRadius: '12px',
+                    marginBottom: msg.content ? '8px' : '0'
+                  }}
+                />
+              )}
+              {msg.content}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="message message-assistant">
+            <img src="/avatars/serginho.png" alt="Serginho" className="message-avatar" />
+            <div className="message-bubble message-loading">
+              <div className="typing-indicator">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
-              <p>Serginho está pensando...</p>
             </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="input-area">
-        <div className="input-toolbar">
+      {/* Input fixo na parte inferior */}
+      <div className="input-container">
+        <div className="input-wrapper">
+          {/* Botão de imagem */}
           <button
-            onClick={handleGitHubClick}
-            className={`toolbar-btn github-btn ${githubToken ? 'authorized' : 'unauthorized'}`}
-            title={githubToken ? 'Abrir repositório GitHub' : 'Autorizar GitHub'}
-          >
-            {githubToken ? '🐙✅' : '🐙'}
-          </button>
-          <button
-            onClick={handleMicrophoneClick}
-            className={`toolbar-btn mic-btn ${isRecording ? 'recording' : ''}`}
-            title={isRecording ? 'Parar gravação' : 'Gravar áudio'}
-          >
-            {isRecording ? '🔴' : '🎤'}
-          </button>
-          <button
-            onClick={handleImageClick}
-            className="toolbar-btn image-btn"
+            className="icon-btn"
+            onClick={handleImageAttach}
             title="Enviar imagem"
           >
-            📸
+            🖼️
+          </button>
+
+          {/* Campo de texto */}
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleSend()}
+            placeholder="Digite sua mensagem..."
+            disabled={isLoading}
+            className="message-input"
+          />
+
+          {/* Botão de microfone */}
+          <button
+            className={`icon-btn ${isRecording ? 'recording' : ''}`}
+            onClick={handleVoiceInput}
+            title="Gravar áudio"
+          >
+            🎙️
+          </button>
+
+          {/* Botão de enviar */}
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            className="send-btn"
+          >
+            ↑
           </button>
         </div>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Descreva a tarefa que deseja executar..."
-          disabled={loading}
-          rows="3"
-        />
-        <button
-          onClick={handleSendMessage}
-          disabled={loading || !input.trim()}
-          className="send-button"
-        >
-          {loading ? '⏳ Enviando...' : '📤 Enviar'}
-        </button>
       </div>
+
+      {/* Input escondido para upload de imagem */}
+      <input
+        ref={imageInputRef}
+        type="file"
+        style={{ display: 'none' }}
+        onChange={handleImageSelect}
+        accept="image/*"
+      />
     </div>
   );
 }
