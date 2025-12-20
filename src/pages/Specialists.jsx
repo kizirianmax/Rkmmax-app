@@ -50,10 +50,10 @@ function Specialists() {
           </div>
           
           {/* Category Filter */}
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-2 px-2">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-6 py-3 rounded-xl font-medium transition-all ${
+              className={`px-3 py-2 text-sm rounded-lg font-medium transition-all ${
                 selectedCategory === 'all'
                   ? 'bg-purple-600 text-white shadow-lg'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
@@ -65,10 +65,10 @@ function Specialists() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-6 py-3 rounded-xl font-medium transition-all ${
+                className={`px-3 py-2 text-sm rounded-lg font-medium transition-all whitespace-nowrap ${
                   selectedCategory === category.id
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                 }`}
               >
                 {category.emoji} {category.name}
@@ -94,10 +94,10 @@ function Specialists() {
                   <img 
                     src={`${specialist.avatar || `/avatars/${specialist.id}.png`}?v=2`} 
                     alt={specialist.name}
-                    className="w-10 h-10 rounded-xl object-cover shadow-md"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'block'; }}
+                    className="w-16 h-16 rounded-xl object-cover shadow-md"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex'; }}
                   />
-                  <div className="text-4xl" style={{display: 'none'}}>{specialist.emoji}</div>
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-100 to-blue-100 items-center justify-center text-3xl" style={{display: 'none'}}>{specialist.emoji}</div>
                   {!isAvailable && (
                     <span className="px-3 py-1 bg-purple-100 text-purple-600 text-xs font-medium rounded-full">
                       Premium
@@ -124,13 +124,13 @@ function Specialists() {
                       e.stopPropagation();
                       if (isAvailable) navigate(`/specialist/${specialist.id}`);
                     }}
-                    className={`px-8 py-3 rounded-xl font-bold text-base transition-all transform shadow-md ${
+                    className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
                       isAvailable
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 hover:shadow-xl hover:scale-105'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 hover:shadow-lg'
+                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                     }`}
                   >
-                    {isAvailable ? '💬 Conversar' : '🔒 Bloqueado'}
+                    {isAvailable ? '💬 Conversar' : '🔒 Premium'}
                   </button>
                 </div>
               </div>
