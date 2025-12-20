@@ -8,6 +8,9 @@ import './MarkdownMessage.css';
 const MarkdownMessage = ({ content, isUser = false }) => {
   const [copied, setCopied] = useState(false);
 
+  // Só mostrar botão copiar se a mensagem for longa (mais de 100 caracteres)
+  const showCopyButton = content && content.length > 100;
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(content);
@@ -28,6 +31,7 @@ const MarkdownMessage = ({ content, isUser = false }) => {
 
   return (
     <div className="markdown-message ai-message">
+      {showCopyButton && (
       <div className="message-actions">
         <button 
           className={`copy-button ${copied ? 'copied' : ''}`}
@@ -52,6 +56,7 @@ const MarkdownMessage = ({ content, isUser = false }) => {
           )}
         </button>
       </div>
+      )}
       
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}

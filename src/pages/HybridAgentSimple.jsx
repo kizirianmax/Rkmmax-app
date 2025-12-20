@@ -87,6 +87,17 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
     setCurrentStep(0);
     setTotalSteps(0);
 
+    // Detectar se é uma saudação ou mensagem simples
+    const isSimpleMessage = (msg) => {
+      const simplePatterns = [
+        /^(oi|ol[aá]|hey|hi|hello|e a[ií]|opa|fala|salve|bom dia|boa tarde|boa noite|tudo bem|como vai|blz|beleza)[!?.,]*$/i,
+        /^(obrigad[oa]|valeu|vlw|thanks|brigad[oa])[!?.,]*$/i,
+        /^(sim|n[aã]o|ok|certo|entendi|beleza)[!?.,]*$/i,
+        /^.{1,15}$/  // Mensagens muito curtas (menos de 15 caracteres)
+      ];
+      return simplePatterns.some(pattern => pattern.test(msg.trim()));
+    };
+
     try {
       // Adicionar mensagem do usuário
       setMessages(prev => [...prev, {
@@ -95,8 +106,13 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
         timestamp: Date.now()
       }]);
 
-      // Executar agente autônomo
-      await agentRef.current.run(userMessage);
+      // Se for mensagem simples, responder diretamente sem planejamento
+      if (isSimpleMessage(userMessage)) {
+        await agentRef.current.runSimple(userMessage);
+      } else {
+        // Executar agente autônomo com planejamento
+        await agentRef.current.run(userMessage);
+      }
       
     } catch (error) {
       console.error('Erro no agente:', error);

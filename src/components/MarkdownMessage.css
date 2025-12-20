@@ -2,20 +2,26 @@
 .markdown-message {
   position: relative;
   line-height: 1.6;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .markdown-message.user-message {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 12px 16px;
-  border-radius: 18px 18px 4px 18px;
+  padding: 10px 14px;
+  border-radius: 16px 16px 4px 16px;
+  max-width: 100%;
 }
 
 .markdown-message.ai-message {
   background: #f8f9fa;
   color: #1a1a2e;
-  padding: 16px 20px;
-  border-radius: 4px 18px 18px 18px;
+  padding: 14px 16px;
+  border-radius: 4px 16px 16px 16px;
+  max-width: 100%;
 }
 
 /* Message Actions */
