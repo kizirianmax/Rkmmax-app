@@ -1,11 +1,15 @@
 /**
  * API de Transcrição de Áudio usando Gemini 2.0 Flash
  * Endpoint: /api/transcribe
- * Fallback: Groq (se Gemini falhar)
  * 
- * Compatível com Vercel Serverless
+ * Compatível com Vercel Serverless (ESM)
  */
-const busboy = require('busboy');
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 async function transcribeWithGemini(audioBase64, apiKey, mimeType = 'audio/webm') {
   const response = await fetch(
@@ -50,36 +54,73 @@ async function transcribeWithGemini(audioBase64, apiKey, mimeType = 'audio/webm'
   return data.candidates[0].content.parts[0].text;
 }
 
-async function transcribeWithGroq(audioBuffer) {
-  // Fallback para GROQ se Gemini falhar
-  const FormData = require('form-data');
-  const formData = new FormData();
-  
-  formData.append('file', audioBuffer, {
-    filename: 'audio.mp3',
-    contentType: 'audio/mpeg'
+// Função para parsear multipart form data manualmente
+async function parseMultipartForm(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+    
+    req.on('end', () => {
+      const buffer = Buffer.concat(chunks);
+      const contentType = req.headers['content-type'] || '';
+      
+      // Extrair boundary do content-type
+      const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/);
+      if (!boundaryMatch) {
+        reject(new Error('No boundary found'));
+        return;
+      }
+      
+      const boundary = boundaryMatch[1] || boundaryMatch[2];
+      const boundaryBuffer = Buffer.from(`--${boundary}`);
+      
+      // Encontrar as partes
+      const parts = [];
+      let start = 0;
+      let idx;
+      
+      while ((idx = buffer.indexOf(boundaryBuffer, start)) !== -1) {
+        if (start > 0) {
+          // Pegar o conteúdo entre os boundaries
+          const partBuffer = buffer.slice(start, idx - 2); // -2 para remover \r\n
+          parts.push(partBuffer);
+        }
+        start = idx + boundaryBuffer.length + 2; // +2 para pular \r\n
+      }
+      
+      // Processar cada parte
+      for (const part of parts) {
+        const headerEnd = part.indexOf('\r\n\r\n');
+        if (headerEnd === -1) continue;
+        
+        const headers = part.slice(0, headerEnd).toString();
+        const content = part.slice(headerEnd + 4);
+        
+        // Verificar se é o arquivo de áudio
+        if (headers.includes('name="audio"') || headers.includes('filename=')) {
+          // Extrair mime type
+          const mimeMatch = headers.match(/Content-Type:\s*([^\r\n]+)/i);
+          const mimeType = mimeMatch ? mimeMatch[1].trim() : 'audio/webm';
+          
+          resolve({
+            buffer: content,
+            mimeType: mimeType
+          });
+          return;
+        }
+      }
+      
+      reject(new Error('No audio file found in form data'));
+    });
+    
+    req.on('error', reject);
   });
-  formData.append('model', 'whisper-large-v3');
-  formData.append('language', 'pt');
-
-  const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-      ...formData.getHeaders()
-    },
-    body: formData
-  });
-
-  if (!response.ok) {
-    throw new Error('GROQ transcription failed');
-  }
-
-  const data = await response.json();
-  return data.text;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -95,68 +136,37 @@ module.exports = async function handler(req, res) {
   try {
     console.log('📝 Recebendo áudio para transcrição...');
 
-    const bb = busboy({ headers: req.headers });
-    let audioBuffer = null;
-    let audioMimeType = 'audio/webm';
-
-    bb.on('file', (fieldname, file, info) => {
-      console.log(`📁 Arquivo recebido: ${fieldname} (${info.mimeType})`);
-      audioMimeType = info.mimeType || 'audio/webm';
-      const chunks = [];
-      file.on('data', (data) => chunks.push(data));
-      file.on('end', () => {
-        audioBuffer = Buffer.concat(chunks);
-        console.log(`✅ Áudio recebido: ${audioBuffer.length} bytes`);
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ 
+        error: 'API key não configurada',
+        hint: 'Configure GEMINI_API_KEY ou GOOGLE_API_KEY'
       });
+    }
+
+    // Parsear o form data
+    const { buffer, mimeType } = await parseMultipartForm(req);
+    console.log(`✅ Áudio recebido: ${buffer.length} bytes (${mimeType})`);
+
+    // Converter para base64
+    const audioBase64 = buffer.toString('base64');
+    console.log('🔄 Iniciando transcrição com Gemini...');
+
+    // Transcrever com Gemini
+    const transcript = await transcribeWithGemini(audioBase64, apiKey, mimeType);
+    console.log('✅ Transcrição bem-sucedida:', transcript);
+
+    return res.status(200).json({
+      success: true,
+      transcript: transcript.trim(),
+      text: transcript.trim()
     });
 
-    bb.on('close', async () => {
-      if (!audioBuffer) {
-        return res.status(400).json({ error: 'Nenhum áudio foi enviado' });
-      }
-
-      try {
-        const audioBase64 = audioBuffer.toString('base64');
-        console.log('🔄 Iniciando transcrição com Gemini...');
-
-        const apiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY || process.env.GOOGLE_API_KEY;
-        if (!apiKey) {
-          return res.status(500).json({ 
-            error: 'API key não configurada',
-            hint: 'Configure GEMINI_API_KEY ou GOOGLE_API_KEY'
-          });
-        }
-
-        let transcript;
-        try {
-          transcript = await transcribeWithGemini(audioBase64, apiKey, audioMimeType);
-          console.log('✅ Transcrição com Gemini bem-sucedida:', transcript);
-        } catch (error) {
-          console.warn('⚠️ Gemini falhou, tentando GROQ...', error.message);
-          transcript = await transcribeWithGroq(audioBuffer);
-          console.log('✅ Transcrição com GROQ bem-sucedida:', transcript);
-        }
-
-        return res.status(200).json({
-          success: true,
-          transcript: transcript.trim(),
-          text: transcript.trim()
-        });
-      } catch (error) {
-        console.error('❌ Erro na transcrição:', error);
-        return res.status(500).json({
-          error: 'Erro na transcrição',
-          message: error.message
-        });
-      }
-    });
-
-    req.pipe(bb);
   } catch (error) {
-    console.error('❌ Erro ao processar requisição:', error);
+    console.error('❌ Erro na transcrição:', error);
     return res.status(500).json({
-      error: 'Erro ao processar áudio',
+      error: 'Erro na transcrição',
       message: error.message
     });
   }
-};
+}
