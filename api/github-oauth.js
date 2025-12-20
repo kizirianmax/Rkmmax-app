@@ -7,126 +7,83 @@
  * - GET /api/github-oauth/callback → Recebe código e troca por token
  * - POST /api/github-oauth/validate → Valida token existente
  * - POST /api/github-oauth/revoke → Revoga token
+ * 
+ * Compatível com Vercel Serverless (ESM)
  */
-
-const https = require('https');
-const querystring = require('querystring');
 
 // Configuração do GitHub OAuth
 const GITHUB_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET;
-const GITHUB_REDIRECT_URI = process.env.GITHUB_OAUTH_REDIRECT_URI || process.env.GITHUB_REDIRECT_URI || 'https://kizirianmax.site/api/github-oauth/callback';
+const GITHUB_REDIRECT_URI = process.env.GITHUB_OAUTH_REDIRECT_URI || process.env.GITHUB_REDIRECT_URI || 'https://rkmmax-l6tz8z2l1-rkmmax.vercel.app/api/github-oauth/callback';
 
 // Armazenamento em memória (em produção, usar banco de dados)
 const tokenStore = new Map();
 
 /**
- * Fazer requisição HTTPS
- */
-function httpsRequest(options, data = null) {
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => (body += chunk));
-      res.on('end', () => {
-        try {
-          resolve({
-            status: res.statusCode,
-            headers: res.headers,
-            body: body,
-            json: () => JSON.parse(body),
-          });
-        } catch (e) {
-          resolve({
-            status: res.statusCode,
-            headers: res.headers,
-            body: body,
-          });
-        }
-      });
-    });
-
-    req.on('error', reject);
-
-    if (data) {
-      req.write(typeof data === 'string' ? data : JSON.stringify(data));
-    }
-
-    req.end();
-  });
-}
-
-/**
  * Gerar URL de autorização do GitHub
  */
 function generateAuthorizationUrl(state) {
-  const params = querystring.stringify({
+  const params = new URLSearchParams({
     client_id: GITHUB_CLIENT_ID,
     redirect_uri: GITHUB_REDIRECT_URI,
     scope: 'repo,workflow,user',
     state: state,
-    allow_signup: true,
+    allow_signup: 'true',
   });
 
-  return `https://github.com/login/oauth/authorize?${params}`;
+  return `https://github.com/login/oauth/authorize?${params.toString()}`;
 }
 
 /**
- * Trocar código por token
+ * Trocar código por token usando fetch
  */
 async function exchangeCodeForToken(code) {
-  const data = querystring.stringify({
+  const params = new URLSearchParams({
     client_id: GITHUB_CLIENT_ID,
     client_secret: GITHUB_CLIENT_SECRET,
     code: code,
     redirect_uri: GITHUB_REDIRECT_URI,
   });
 
-  const options = {
-    hostname: 'github.com',
-    path: '/login/oauth/access_token',
+  const response = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': Buffer.byteLength(data),
       'Accept': 'application/json',
       'User-Agent': 'RKMMAX-Serginho',
     },
-  };
+    body: params.toString(),
+  });
 
-  try {
-    const response = await httpsRequest(options, data);
-    const result = response.json();
-
-    if (result.error) {
-      throw new Error(`GitHub OAuth error: ${result.error_description}`);
-    }
-
-    return result.access_token;
-  } catch (error) {
-    throw new Error(`Erro ao trocar código por token: ${error.message}`);
+  if (!response.ok) {
+    throw new Error(`GitHub OAuth error: ${response.status}`);
   }
+
+  const result = await response.json();
+
+  if (result.error) {
+    throw new Error(`GitHub OAuth error: ${result.error_description || result.error}`);
+  }
+
+  return result.access_token;
 }
 
 /**
  * Validar token com GitHub
  */
 async function validateToken(token) {
-  const options = {
-    hostname: 'api.github.com',
-    path: '/user',
-    method: 'GET',
-    headers: {
-      'Authorization': `token ${token}`,
-      'User-Agent': 'RKMMAX-Serginho',
-      'Accept': 'application/vnd.github.v3+json',
-    },
-  };
-
   try {
-    const response = await httpsRequest(options);
-    if (response.status === 200) {
-      const user = response.json();
+    const response = await fetch('https://api.github.com/user', {
+      method: 'GET',
+      headers: {
+        'Authorization': `token ${token}`,
+        'User-Agent': 'RKMMAX-Serginho',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (response.ok) {
+      const user = await response.json();
       return {
         valid: true,
         user: {
@@ -144,10 +101,29 @@ async function validateToken(token) {
 }
 
 /**
+ * Parsear body JSON
+ */
+async function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', (chunk) => (body += chunk));
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (e) {
+        resolve({});
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+/**
  * Handler principal
  */
-module.exports = async (req, res) => {
-  const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+export default async function handler(req, res) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = url.pathname;
 
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -155,13 +131,16 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   try {
     // POST /api/github-oauth/authorize
     if (pathname === '/api/github-oauth/authorize' && req.method === 'POST') {
+      console.log('📝 GitHub OAuth: Iniciando autorização...');
+      console.log('📝 CLIENT_ID configurado:', !!GITHUB_CLIENT_ID);
+      console.log('📝 CLIENT_SECRET configurado:', !!GITHUB_CLIENT_SECRET);
+
       if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
         return res.status(500).json({
           error: 'GitHub OAuth não configurado',
@@ -178,6 +157,8 @@ module.exports = async (req, res) => {
         state: state,
       });
 
+      console.log('✅ URL de autorização gerada:', authUrl);
+
       return res.status(200).json({
         success: true,
         authUrl: authUrl,
@@ -188,10 +169,11 @@ module.exports = async (req, res) => {
 
     // GET /api/github-oauth/callback
     if (pathname === '/api/github-oauth/callback' && req.method === 'GET') {
-      const url = new URL(req.url, `http://${req.headers.host}`);
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       const error = url.searchParams.get('error');
+
+      console.log('📝 GitHub OAuth Callback recebido');
 
       if (error) {
         return res.status(400).json({
@@ -208,6 +190,7 @@ module.exports = async (req, res) => {
 
       try {
         const token = await exchangeCodeForToken(code);
+        console.log('✅ Token obtido com sucesso');
 
         // Validar token
         const validation = await validateToken(token);
@@ -226,14 +209,14 @@ module.exports = async (req, res) => {
           timestamp: Date.now(),
         });
 
-        // Retornar sucesso com token
-        return res.status(200).json({
-          success: true,
-          token: token,
-          user: validation.user,
-          message: `✅ Autorização bem-sucedida! Olá, ${validation.user.name || validation.user.login}!`,
-        });
+        console.log('✅ Usuário autenticado:', validation.user.login);
+
+        // Redirecionar de volta para o app com o token
+        const redirectUrl = `https://rkmmax-l6tz8z2l1-rkmmax.vercel.app/hibrido?github_token=${token}&user_name=${validation.user.login}`;
+        res.writeHead(302, { Location: redirectUrl });
+        return res.end();
       } catch (error) {
+        console.error('❌ Erro na autenticação:', error);
         return res.status(500).json({
           error: 'Erro na autenticação',
           message: error.message,
@@ -243,67 +226,45 @@ module.exports = async (req, res) => {
 
     // POST /api/github-oauth/validate
     if (pathname === '/api/github-oauth/validate' && req.method === 'POST') {
-      let body = '';
-      req.on('data', (chunk) => (body += chunk));
-      req.on('end', async () => {
-        try {
-          const { token } = JSON.parse(body);
+      const body = await parseBody(req);
+      const { token } = body;
 
-          if (!token) {
-            return res.status(400).json({
-              error: 'Token não fornecido',
-            });
-          }
+      if (!token) {
+        return res.status(400).json({
+          error: 'Token não fornecido',
+        });
+      }
 
-          const validation = await validateToken(token);
+      const validation = await validateToken(token);
 
-          return res.status(200).json({
-            valid: validation.valid,
-            user: validation.user,
-            error: validation.error,
-          });
-        } catch (error) {
-          res.status(500).json({
-            error: 'Erro ao validar token',
-            message: error.message,
-          });
-        }
+      return res.status(200).json({
+        valid: validation.valid,
+        user: validation.user,
+        error: validation.error,
       });
-      return;
     }
 
     // POST /api/github-oauth/revoke
     if (pathname === '/api/github-oauth/revoke' && req.method === 'POST') {
-      let body = '';
-      req.on('data', (chunk) => (body += chunk));
-      req.on('end', async () => {
-        try {
-          const { username } = JSON.parse(body);
+      const body = await parseBody(req);
+      const { username } = body;
 
-          if (!username) {
-            return res.status(400).json({
-              error: 'Username não fornecido',
-            });
-          }
+      if (!username) {
+        return res.status(400).json({
+          error: 'Username não fornecido',
+        });
+      }
 
-          tokenStore.delete(`token_${username}`);
+      tokenStore.delete(`token_${username}`);
 
-          return res.status(200).json({
-            success: true,
-            message: `Token revogado para ${username}`,
-          });
-        } catch (error) {
-          res.status(500).json({
-            error: 'Erro ao revogar token',
-            message: error.message,
-          });
-        }
+      return res.status(200).json({
+        success: true,
+        message: `Token revogado para ${username}`,
       });
-      return;
     }
 
     // 404
-    res.status(404).json({
+    return res.status(404).json({
       error: 'Endpoint não encontrado',
       available: [
         'POST /api/github-oauth/authorize',
@@ -313,10 +274,10 @@ module.exports = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.error('GitHub OAuth Error:', error);
-    res.status(500).json({
+    console.error('❌ GitHub OAuth Error:', error);
+    return res.status(500).json({
       error: 'Internal Server Error',
       message: error.message,
     });
   }
-};
+}
