@@ -14,7 +14,7 @@
 // Configuração do GitHub OAuth
 const GITHUB_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET;
-const GITHUB_REDIRECT_URI = process.env.GITHUB_OAUTH_REDIRECT_URI || process.env.GITHUB_REDIRECT_URI || 'https://rkmmax-l6tz8z2l1-rkmmax.vercel.app/api/github-oauth/callback';
+const GITHUB_REDIRECT_URI = process.env.GITHUB_OAUTH_REDIRECT_URI || process.env.GITHUB_REDIRECT_URI || 'https://kizirianmax.site/api/github-oauth/callback';
 
 // Armazenamento em memória (em produção, usar banco de dados)
 const tokenStore = new Map();
@@ -212,7 +212,7 @@ export default async function handler(req, res) {
         console.log('✅ Usuário autenticado:', validation.user.login);
 
         // Redirecionar de volta para o app com o token
-        const redirectUrl = `https://rkmmax-l6tz8z2l1-rkmmax.vercel.app/hibrido?github_token=${token}&user_name=${validation.user.login}`;
+        const redirectUrl = `https://kizirianmax.site/hibrido?github_token=${token}&user_name=${validation.user.login}`;
         res.writeHead(302, { Location: redirectUrl });
         return res.end();
       } catch (error) {
