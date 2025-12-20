@@ -313,7 +313,7 @@ Inclua:
   // Executar tarefa completa (planejamento + execução)
   async run(userInput) {
     try {
-      this.addMessage('user', userInput);
+      // Mensagem do usuário já foi adicionada no handleSend
       
       // Fase 1: Planejamento
       this.addMessage('assistant', '🧠 Analisando tarefa e criando plano de execução...', { type: 'status' });
@@ -341,7 +341,7 @@ Inclua:
   // Modo simples (sem planejamento)
   async runSimple(userInput) {
     try {
-      this.addMessage('user', userInput);
+      // Mensagem do usuário já foi adicionada no handleSend
       this.setState(AgentState.THINKING);
       
       const response = await this.callAI(userInput, 'simple');
