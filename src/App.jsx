@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { initSentry } from "./lib/sentry.js";
 import { initAnalytics } from "./lib/analytics.js";
 
@@ -31,6 +31,17 @@ import Refund from "./pages/Refund.jsx";
 import HybridAgent from "./pages/HybridAgent.jsx";
 import HybridAgentSimple from "./pages/HybridAgentSimple.jsx";
 import GitHubCallback from "./pages/GitHubCallback.jsx";
+
+// Wrapper para esconder Footer em páginas de chat
+function FooterWrapper() {
+  const location = useLocation();
+  // Não mostrar footer nas páginas de chat
+  const hiddenPaths = ['/serginho', '/specialist/', '/hybrid', '/agent', '/chat'];
+  const shouldHide = hiddenPaths.some(path => location.pathname.startsWith(path));
+  
+  if (shouldHide) return null;
+  return <Footer />;
+}
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -114,8 +125,8 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer - Não mostrar em páginas de chat */}
+      <FooterWrapper />
     </BrowserRouter>
   );
 }
