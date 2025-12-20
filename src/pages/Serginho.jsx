@@ -101,12 +101,24 @@ export default function Serginho() {
     try {
       // Verificar se o navegador suporta gravação de áudio
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Seu navegador não suporta gravação de áudio. Tente usar Chrome ou Edge.");
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "❌ Seu navegador não suporta gravação de áudio. Tente usar Chrome ou Safari."
+        }]);
         return;
       }
 
+      // Mostrar que está pedindo permissão
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "🎤 Solicitando permissão do microfone..."
+      }]);
+
       // Solicitar permissão de microfone
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Remover mensagem de "solicitando"
+      setMessages(prev => prev.slice(0, -1));
       
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -114,54 +126,92 @@ export default function Serginho() {
       const audioChunks = [];
       
       mediaRecorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
       };
       
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         
         // Parar todas as tracks do stream
         stream.getTracks().forEach(track => track.stop());
         
-        // Enviar áudio para API Whisper
+        // Mostrar que está processando
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "🔄 Transcrevendo áudio..."
+        }]);
+        
+        // Enviar áudio para API
         try {
           const formData = new FormData();
-          formData.append('audio', audioBlob, 'recording.wav');
+          formData.append('audio', audioBlob, 'recording.webm');
           
           const response = await fetch('/api/transcribe', {
             method: 'POST',
             body: formData
           });
           
+          // Remover mensagem de "transcrevendo"
+          setMessages(prev => prev.slice(0, -1));
+          
           if (!response.ok) {
             throw new Error('Erro na transcrição');
           }
           
-          const { text } = await response.json();
+          const data = await response.json();
+          const text = data.text || data.transcript || '';
           
-          // Colocar texto transcrito no input
-          setInput(text);
-          
-          // Mostrar mensagem de sucesso
-          setMessages(prev => [...prev, {
-            role: "assistant",
-            content: `🎤 Áudio transcrito: "${text}"`
-          }]);
+          if (text) {
+            // Colocar texto transcrito no input
+            setInput(text);
+            
+            // Mostrar mensagem de sucesso
+            setMessages(prev => [...prev, {
+              role: "assistant",
+              content: `🎤 Transcrito: "${text}"`
+            }]);
+          } else {
+            setMessages(prev => [...prev, {
+              role: "assistant",
+              content: "⚠️ Não foi possível transcrever o áudio. Tente falar mais alto."
+            }]);
+          }
         } catch (error) {
           console.error('Erro na transcrição:', error);
-          setMessages(prev => [...prev, {
-            role: "assistant",
-            content: "❌ Erro ao transcrever áudio. Verifique se a API Whisper está configurada."
-          }]);
+          // Remover mensagem de "transcrevendo" se ainda existir
+          setMessages(prev => {
+            const lastMsg = prev[prev.length - 1];
+            if (lastMsg?.content?.includes('Transcrevendo')) {
+              return [...prev.slice(0, -1), {
+                role: "assistant",
+                content: "❌ Erro ao transcrever. Tente novamente."
+              }];
+            }
+            return [...prev, {
+              role: "assistant",
+              content: "❌ Erro ao transcrever. Tente novamente."
+            }];
+          });
         }
       };
       
       mediaRecorder.start();
       setIsRecording(true);
       
+      // Mostrar que está gravando
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "🔴 Gravando... Clique no microfone novamente para parar."
+      }]);
+      
     } catch (error) {
       console.error("Erro ao acessar microfone:", error);
-      alert("Não foi possível acessar o microfone. Verifique as permissões do navegador.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `❌ Não foi possível acessar o microfone. ${error.name === 'NotAllowedError' ? 'Permissão negada.' : 'Verifique as permissões.'}`
+      }]);
     }
   };
 
@@ -355,13 +405,13 @@ export default function Serginho() {
       {/* Input fixo na parte inferior */}
       <div className="input-container">
         <div className="input-wrapper">
-          {/* Botão de foto */}
+          {/* Botão de imagem/arquivo */}
           <button
             className="icon-btn"
-            onClick={handleCameraCapture}
-            title="Tirar foto"
+            onClick={handleImageAttach}
+            title="Enviar imagem"
           >
-            📷
+            🖼️
           </button>
 
           {/* Campo de texto */}
