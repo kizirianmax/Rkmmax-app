@@ -244,8 +244,12 @@
 }
 
 .icon-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
 }
 
 .icon-btn.recording {

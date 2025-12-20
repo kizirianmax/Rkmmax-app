@@ -359,7 +359,6 @@ export default function Serginho() {
           <button
             className="icon-btn"
             onClick={handleCameraCapture}
-            disabled={true}
             title="Tirar foto"
           >
             📷
@@ -380,7 +379,6 @@ export default function Serginho() {
           <button
             className={`icon-btn ${isRecording ? 'recording' : ''}`}
             onClick={handleVoiceInput}
-            disabled={true}
             title="Gravar áudio"
           >
             🎙️
