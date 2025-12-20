@@ -35,6 +35,7 @@ import SourceProof from "./pages/SourceProof.jsx";
 import Cronograma from "./pages/Cronograma.jsx";
 import GeradorResumos from "./pages/GeradorResumos.jsx";
 import Flashcards from "./pages/Flashcards.jsx";
+import MapasMentais from "./pages/MapasMentais.jsx";
 
 // Wrapper para esconder Footer em páginas de chat
 function FooterWrapper() {
@@ -87,6 +88,7 @@ export default function App() {
         <Route path="/cronograma" element={<Cronograma />} />
         <Route path="/resumos" element={<GeradorResumos />} />
         <Route path="/flashcards" element={<Flashcards />} />
+        <Route path="/mapas-mentais" element={<MapasMentais />} />
         <Route path="/specialists" element={<Specialists />} />
         <Route path="/specialist/:specialistId" element={<SpecialistChat />} />
         <Route path="/study-lab" element={<Navigate to="/study" replace />} />

@@ -43,8 +43,8 @@ export default function StudyLab() {
       id: "mapas",
       title: "🗺️ Mapas Mentais",
       description: "Gere mapas mentais visuais para organizar conceitos e ideias",
-      status: "Em breve",
-      action: null
+      status: "Disponível",
+      action: () => window.location.href = "/mapas-mentais"
     }
   ];
 
