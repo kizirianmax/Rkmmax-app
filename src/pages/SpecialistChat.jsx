@@ -322,7 +322,7 @@ export default function SpecialistChat() {
           <div className="header-info">
             <h1>{specialist.name}</h1>
             <p>{specialist.description}</p>
-            <p className="model-badge">🤖 Gemini 2.5 Pro</p>
+            <p className="model-badge">🤖 KIZI 2.5 Pro</p>
           </div>
         </div>
       </div>

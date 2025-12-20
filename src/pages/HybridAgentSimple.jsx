@@ -367,7 +367,7 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
           </div>
           <div className="header-badge">
             <span className="badge-dot"></span>
-            <span>Gemini 2.5 Pro</span>
+            <span>KIZI 2.5 Pro</span>
           </div>
         </div>
       </div>
