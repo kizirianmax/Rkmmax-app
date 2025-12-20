@@ -249,7 +249,7 @@ html.serginho-page body {
 
 /* Input Container - fixo no bottom */
 .input-container {
-  background: white;
+  background: white !important;
   border-top: 1px solid #e2e8f0;
   padding: 10px 12px;
   padding-bottom: max(12px, env(safe-area-inset-bottom));
@@ -335,12 +335,12 @@ html.serginho-page body {
 .message-input {
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 20px;
   font-size: 16px; /* Maior para mobile */
   outline: none;
   transition: all 0.2s;
-  background: #f8fafc;
+  background: #f8fafc !important;
   min-height: 40px;
   resize: none;
   min-width: 0;
@@ -351,9 +351,9 @@ html.serginho-page body {
 }
 
 .message-input:focus {
-  border-color: #667eea;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #667eea !important;
+  background: white !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
   color: #1e293b !important;
   -webkit-text-fill-color: #1e293b !important;
 }
