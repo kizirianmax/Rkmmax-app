@@ -40,11 +40,15 @@ export default function SpecialistChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Scroll para o topo ao carregar a página
+  // Scroll para o topo ao carregar a página e prevenir scroll quando teclado abre
   useEffect(() => {
+    document.documentElement.classList.add('serginho-page');
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
+    return () => {
+      document.documentElement.classList.remove('serginho-page');
+    };
   }, []);
 
   useEffect(() => {
