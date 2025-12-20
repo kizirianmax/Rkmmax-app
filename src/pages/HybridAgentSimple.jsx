@@ -26,7 +26,7 @@ export default function HybridAgentSimple() {
       type: 'agent',
       agent: 'Serginho',
       content: 'Olá! Sou Serginho, seu orquestrador de IA. Posso orquestrar 54 especialistas ou executar tarefas complexas diretamente. Descreva o que precisa!',
-        provider: 'gemini-2.0-flash-thinking',
+        provider: 'gemini-2.5-pro',
       timestamp: new Date(),
     },
   ]);
@@ -40,6 +40,12 @@ export default function HybridAgentSimple() {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Função para remover bloco <thinking> das respostas
+  const removeThinking = (text) => {
+    if (!text) return text;
+    return text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
   };
 
   useEffect(() => {
@@ -109,8 +115,9 @@ export default function HybridAgentSimple() {
       }
 
       const data = await response.json();
-      const aiResponse = data.response || data.message || 'Sem resposta';
-      const provider = data.model || data.usedProvider || 'gemini-1.5-pro';
+      const rawResponse = data.response || data.message || 'Sem resposta';
+      const aiResponse = removeThinking(rawResponse);
+      const provider = data.model || data.usedProvider || 'gemini-2.5-pro';
 
       console.log(`✅ Resposta recebida de ${provider}`);
 
@@ -200,8 +207,65 @@ export default function HybridAgentSimple() {
       
       const transcript = data.transcript || data.text || '';
       if (transcript) {
-        setInput(transcript);
-        console.log('📝 Texto inserido:', transcript);
+        console.log('📝 Texto transcrito:', transcript);
+        
+        // Adicionar mensagem do usuário e enviar automaticamente
+        const userMessage = {
+          id: messages.length + 1,
+          type: 'user',
+          content: transcript,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, userMessage]);
+        setLoading(true);
+        
+        try {
+          const response = await fetch('/api/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [
+                ...messages
+                  .filter(msg => msg.type !== 'system')
+                  .map(msg => ({
+                    role: msg.type === 'user' ? 'user' : 'assistant',
+                    content: msg.content,
+                  })),
+                { role: 'user', content: transcript },
+              ],
+              type: 'genius',
+              agentType: 'hybrid',
+              mode: mode.toUpperCase(),
+            }),
+          });
+
+          if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+          const aiData = await response.json();
+          const rawResponse = aiData.response || aiData.message || 'Sem resposta';
+          const aiResponse = removeThinking(rawResponse);
+          const provider = aiData.model || 'gemini-2.5-pro';
+
+          const agentMessage = {
+            id: messages.length + 2,
+            type: 'agent',
+            agent: 'Serginho',
+            content: aiResponse,
+            provider: provider,
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, agentMessage]);
+        } catch (error) {
+          console.error('❌ Erro ao enviar mensagem de voz:', error);
+          setMessages((prev) => [...prev, {
+            id: messages.length + 2,
+            type: 'error',
+            content: `❌ Erro: ${error.message}`,
+            timestamp: new Date(),
+          }]);
+        } finally {
+          setLoading(false);
+        }
       } else {
         console.warn('⚠️ Nenhum texto foi transcrito');
       }
@@ -317,7 +381,7 @@ export default function HybridAgentSimple() {
               <h3>SISTEMA</h3>
               <p>🚀 <strong>Versão 3.0.2</strong></p>
               <p>Serginho - Orquestrador de IA</p>
-              <p>🤖 <strong>Gemini 2.0 Flash (Thinking)</strong></p>
+              <p>🤖 <strong>Gemini 2.5 Pro</strong></p>
               <p>💰 Otimização de Custo Ativa</p>
             </div>
           </div>
