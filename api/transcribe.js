@@ -119,7 +119,7 @@ module.exports = async function handler(req, res) {
         const audioBase64 = audioBuffer.toString('base64');
         console.log('🔄 Iniciando transcrição com Gemini...');
 
-        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY || process.env.GOOGLE_API_KEY;
         if (!apiKey) {
           return res.status(500).json({ 
             error: 'API key não configurada',

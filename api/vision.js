@@ -73,7 +73,7 @@ module.exports = async function handler(req, res) {
 
     console.log('🖼️ Recebendo imagem para análise...');
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY || process.env.GOOGLE_API_KEY;
     
     if (!apiKey) {
       return res.status(500).json({ 

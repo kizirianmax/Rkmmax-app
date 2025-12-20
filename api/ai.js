@@ -96,8 +96,9 @@ export default async function handler(req, res) {
 
     console.log(`🤖 AI Endpoint - Type: ${type} | Agent: ${agentType || 'default'}`);
 
-    // Verificar credenciais
-    const hasGemini = !!process.env.GEMINI_API_KEY;
+    // Verificar credenciais (aceita GERMINI_API_KEY por compatibilidade)
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY;
+    const hasGemini = !!geminiKey;
     const hasGroq = !!process.env.GROQ_API_KEY;
 
     if (!hasGemini && !hasGroq) {
@@ -137,7 +138,7 @@ export default async function handler(req, res) {
           const response = await callGeminiPro(
             optimized.messages,
             optimized.systemPrompt,
-            process.env.GEMINI_API_KEY
+            geminiKey
           );
 
           const result = {
@@ -254,7 +255,7 @@ export default async function handler(req, res) {
           const response = await callGeminiPro(
             optimized.messages,
             optimized.systemPrompt,
-            process.env.GEMINI_API_KEY
+            geminiKey
           );
 
           const result = {
