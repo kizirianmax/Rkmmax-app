@@ -152,10 +152,25 @@
 
 .message-bubble {
   max-width: 85%;
-  padding: 10px 14px;
   font-size: 14px;
   line-height: 1.5;
   word-wrap: break-word;
+  overflow: hidden;
+}
+
+/* Ajustes para MarkdownMessage */
+.message-bubble .markdown-message {
+  border-radius: 0;
+}
+
+.message-user .message-bubble .markdown-message.user-message {
+  background: transparent;
+  padding: 10px 14px;
+}
+
+.message-assistant .message-bubble .markdown-message.ai-message {
+  background: transparent;
+  padding: 10px 14px;
 }
 
 .message-user .message-bubble {

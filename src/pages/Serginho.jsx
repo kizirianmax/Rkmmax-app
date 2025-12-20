@@ -1,6 +1,7 @@
 // src/pages/Serginho.jsx
 import React, { useState, useRef, useEffect } from "react";
 import "./Serginho.css";
+import MarkdownMessage from "../components/MarkdownMessage";
 
 export default function Serginho() {
   const [messages, setMessages] = useState([
@@ -425,7 +426,10 @@ export default function Serginho() {
                   }}
                 />
               )}
-              {msg.content}
+              <MarkdownMessage 
+                content={msg.content} 
+                isUser={msg.role === "user"}
+              />
             </div>
           </div>
         ))}

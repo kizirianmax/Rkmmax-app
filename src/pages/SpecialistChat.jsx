@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { specialists } from "../config/specialists.js";
 import "./Serginho.css";
+import MarkdownMessage from "../components/MarkdownMessage";
 
 export default function SpecialistChat() {
   const { specialistId } = useParams();
@@ -366,7 +367,10 @@ export default function SpecialistChat() {
                   }}
                 />
               )}
-              {msg.content}
+              <MarkdownMessage 
+                content={msg.content} 
+                isUser={msg.role === "user"}
+              />
             </div>
           </div>
         ))}

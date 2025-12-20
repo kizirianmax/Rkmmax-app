@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import '../styles/HybridAgent.css';
+import MarkdownMessage from '../components/MarkdownMessage';
 
 /**
  * RKMMAX HYBRID - Padrão Serginho
@@ -352,7 +353,10 @@ export default function HybridAgentSimple() {
                   }}
                 />
               )}
-              {msg.content}
+              <MarkdownMessage 
+                content={msg.content} 
+                isUser={msg.role === "user"}
+              />
             </div>
           </div>
         ))}
