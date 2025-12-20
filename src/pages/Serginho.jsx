@@ -31,11 +31,24 @@ export default function Serginho() {
     return text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
   };
 
-  // Scroll para o topo ao carregar a página
+  // Scroll para o topo ao carregar a página e prevenir scroll do body
   useEffect(() => {
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
+    
+    // Prevenir scroll do body quando teclado abre no mobile
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+    
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
   }, []);
 
   useEffect(() => {
