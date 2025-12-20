@@ -15,8 +15,8 @@ export default function StudyLab() {
       id: "cronograma",
       title: "📅 Gerador de Cronogramas",
       description: "Crie cronogramas de estudo personalizados baseados em seus objetivos",
-      status: "Em breve",
-      action: null
+      status: "Disponível",
+      action: () => window.location.href = "/cronograma"
     },
     {
       id: "sourceproof",
