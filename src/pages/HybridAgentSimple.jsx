@@ -23,9 +23,44 @@ export default function HybridAgentSimple() {
   const imageInputRef = useRef(null);
   const agentRef = useRef(null);
 
-  // Scroll para o topo ao carregar
+  // Prevenir scroll quando input recebe foco no mobile
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Detectar quando o input recebe foco e prevenir scroll
+    const handleFocusIn = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        // Salvar posição atual
+        const scrollY = window.scrollY;
+        
+        // Restaurar posição após um pequeno delay
+        setTimeout(() => {
+          window.scrollTo(0, scrollY);
+        }, 100);
+        
+        // Prevenir scroll automático do browser
+        e.target.scrollIntoView = () => {};
+      }
+    };
+    
+    // Detectar resize da janela (quando teclado abre/fecha)
+    let initialHeight = window.innerHeight;
+    const handleResize = () => {
+      // Se a altura diminuiu (teclado abriu), não fazer nada
+      // Se a altura aumentou (teclado fechou), scrollar para o topo
+      if (window.innerHeight > initialHeight) {
+        window.scrollTo(0, 0);
+      }
+      initialHeight = window.innerHeight;
+    };
+    
+    document.addEventListener('focusin', handleFocusIn);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Inicializar agente
