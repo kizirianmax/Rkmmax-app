@@ -425,8 +425,8 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
       </div>
 
       {/* Input */}
-      <div className="input-container">
-        <div className="input-wrapper">
+      <div className="input-container" style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
+        <div className="input-wrapper" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
           <button
             className="icon-btn"
             onClick={() => imageInputRef.current?.click()}
@@ -444,6 +444,13 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
             placeholder="Descreva a tarefa que deseja executar..."
             disabled={isProcessing}
             className="message-input"
+            style={{ 
+              color: '#000000', 
+              backgroundColor: '#ffffff',
+              WebkitTextFillColor: '#000000',
+              opacity: 1,
+              caretColor: '#000000'
+            }}
           />
 
           <button

@@ -419,6 +419,13 @@ export default function SpecialistChat() {
             placeholder={`Converse com ${specialist.name}...`}
             disabled={isLoading}
             className="message-input"
+            style={{ 
+              color: '#000000', 
+              backgroundColor: '#ffffff',
+              WebkitTextFillColor: '#000000',
+              opacity: 1,
+              caretColor: '#000000'
+            }}
           />
 
           <button
