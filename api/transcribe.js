@@ -7,7 +7,7 @@
  */
 const busboy = require('busboy');
 
-async function transcribeWithGemini(audioBase64, apiKey) {
+async function transcribeWithGemini(audioBase64, apiKey, mimeType = 'audio/webm') {
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
@@ -19,16 +19,20 @@ async function transcribeWithGemini(audioBase64, apiKey) {
             parts: [
               {
                 inlineData: {
-                  mimeType: 'audio/mpeg',
+                  mimeType: mimeType,
                   data: audioBase64
                 }
               },
               {
-                text: 'Transcreva este áudio em português. Retorne APENAS o texto transcrito, sem explicações.'
+                text: 'Transcreva este áudio em português brasileiro. Retorne APENAS o texto transcrito, sem explicações ou comentários.'
               }
             ]
           }
-        ]
+        ],
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 1024
+        }
       })
     }
   );
@@ -93,9 +97,11 @@ module.exports = async function handler(req, res) {
 
     const bb = busboy({ headers: req.headers });
     let audioBuffer = null;
+    let audioMimeType = 'audio/webm';
 
     bb.on('file', (fieldname, file, info) => {
       console.log(`📁 Arquivo recebido: ${fieldname} (${info.mimeType})`);
+      audioMimeType = info.mimeType || 'audio/webm';
       const chunks = [];
       file.on('data', (data) => chunks.push(data));
       file.on('end', () => {
@@ -113,9 +119,17 @@ module.exports = async function handler(req, res) {
         const audioBase64 = audioBuffer.toString('base64');
         console.log('🔄 Iniciando transcrição com Gemini...');
 
+        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+        if (!apiKey) {
+          return res.status(500).json({ 
+            error: 'API key não configurada',
+            hint: 'Configure GEMINI_API_KEY ou GOOGLE_API_KEY'
+          });
+        }
+
         let transcript;
         try {
-          transcript = await transcribeWithGemini(audioBase64, process.env.GOOGLE_API_KEY);
+          transcript = await transcribeWithGemini(audioBase64, apiKey, audioMimeType);
           console.log('✅ Transcrição com Gemini bem-sucedida:', transcript);
         } catch (error) {
           console.warn('⚠️ Gemini falhou, tentando GROQ...', error.message);
