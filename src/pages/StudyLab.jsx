@@ -29,15 +29,15 @@ export default function StudyLab() {
       id: "resumos",
       title: "📚 Gerador de Resumos",
       description: "Transforme textos longos em resumos estruturados e objetivos",
-      status: "Em breve",
-      action: null
+      status: "Disponível",
+      action: () => window.location.href = "/resumos"
     },
     {
       id: "flashcards",
       title: "🎯 Flashcards Inteligentes",
       description: "Crie flashcards automaticamente a partir de seus materiais de estudo",
-      status: "Em breve",
-      action: null
+      status: "Disponível",
+      action: () => window.location.href = "/flashcards"
     },
     {
       id: "mapas",
