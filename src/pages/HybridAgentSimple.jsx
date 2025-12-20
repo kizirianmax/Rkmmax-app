@@ -51,26 +51,12 @@ export default function HybridAgentSimple() {
       }
     });
 
-    // Mensagem inicial
+    // Mensagem inicial simples
     setMessages([{
       role: 'assistant',
-      content: `# 🤖 RKMMAX Agente Autônomo
+      content: `Olá! Sou o **RKMMAX Agent**, seu assistente autônomo. 🤖
 
-Olá! Sou um **agente de IA autônomo** de nível avançado, similar ao Manus.
-
-## O que posso fazer:
-- 📋 **Planejar** tarefas complexas automaticamente
-- ⚡ **Executar** múltiplas etapas em sequência
-- 🔧 **Usar ferramentas** como código, análise e pesquisa
-- 📝 **Entregar** resultados completos e estruturados
-
-## Como funciona:
-1. Você me dá uma tarefa
-2. Eu analiso e crio um plano
-3. Executo cada etapa automaticamente
-4. Entrego o resultado final
-
-**Qual tarefa posso executar para você?**`,
+Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
       timestamp: Date.now(),
       type: 'welcome'
     }]);
