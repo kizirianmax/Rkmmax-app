@@ -1,5 +1,9 @@
 /**
- * 🤖 ENDPOINT UNIFICADO DE IA - RKMMAX GENIUS
+ * 🤖 ENDPOINT UNIFICADO DE IA - KIZI AI
+ * 
+ * Dois modos de operação:
+ * - KIZI 2.5 Pro (Gemini) = Respostas inteligentes e complexas
+ * - KIZI Speed (Groq Llama 70B) = Respostas ultra-rápidas
  * 
  * Consolida TODOS os endpoints de chat em um único endpoint:
  * - /api/chat.js → /api/ai?type=chat
@@ -8,9 +12,6 @@
  * - /api/specialist-chat.js → /api/ai?type=specialist
  * - /api/hybrid.js → /api/ai?type=hybrid
  * - /api/transcribe.js → /api/ai?type=transcribe
- * 
- * Economia: 6 funções → 1 função (83% redução!)
- * Qualidade: MANTIDA 100%
  */
 
 import geniusPrompts from '../src/prompts/geniusPrompts.js';
@@ -21,9 +22,9 @@ const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
 
 /**
- * Chamar Gemini 2.5 Pro (modelo com raciocínio avançado)
+ * Chamar KIZI 2.5 Pro (Gemini - raciocínio avançado)
  */
-async function callGeminiPro(messages, systemPrompt, apiKey) {
+async function callKiziPro(messages, systemPrompt, apiKey) {
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
     {
@@ -37,9 +38,9 @@ async function callGeminiPro(messages, systemPrompt, apiKey) {
         })),
         generationConfig: {
           temperature: 1.0,
-          maxOutputTokens: 16000,  // Gemini 2.5 Pro suporta mais tokens
+          maxOutputTokens: 16000,
           topP: 0.95,
-          topK: 64  // Melhor para raciocínio complexo
+          topK: 64
         }
       })
     }
@@ -47,7 +48,7 @@ async function callGeminiPro(messages, systemPrompt, apiKey) {
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Gemini Pro error: ${error}`);
+    throw new Error(`KIZI Pro error: ${error}`);
   }
 
   const data = await response.json();
@@ -55,9 +56,9 @@ async function callGeminiPro(messages, systemPrompt, apiKey) {
 }
 
 /**
- * Chamar GROQ (fallback de emergência)
+ * Chamar KIZI Speed (Groq Llama 70B - ultra-rápido)
  */
-async function callGroq(messages, systemPrompt, apiKey) {
+async function callKiziSpeed(messages, systemPrompt, apiKey) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -76,7 +77,7 @@ async function callGroq(messages, systemPrompt, apiKey) {
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`GROQ error: ${error}`);
+    throw new Error(`KIZI Speed error: ${error}`);
   }
 
   const data = await response.json();
@@ -92,14 +93,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { type = 'genius', messages, agentType, mode, specialistId } = req.body;
+    const { 
+      type = 'genius', 
+      messages, 
+      agentType, 
+      mode, 
+      specialistId,
+      speedMode = false  // NOVO: modo velocidade (usa Groq)
+    } = req.body;
 
-    console.log(`🤖 AI Endpoint - Type: ${type} | Agent: ${agentType || 'default'}`);
+    console.log(`🤖 KIZI AI - Type: ${type} | Agent: ${agentType || 'default'} | Speed: ${speedMode}`);
 
-    // Verificar credenciais (aceita GERMINI_API_KEY por compatibilidade)
+    // Verificar credenciais
     const geminiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY;
     const hasGemini = !!geminiKey;
-    const hasGroq = !!process.env.GROQ_API_KEY;
+    const hasGroq = !!groqKey;
 
     if (!hasGemini && !hasGroq) {
       return res.status(500).json({
@@ -112,11 +121,8 @@ export default async function handler(req, res) {
     // TIPO: GENIUS (Serginho + Híbrido)
     // ========================================
     if (type === 'genius' || type === 'chat' || type === 'intelligent' || type === 'hybrid') {
-      // Construir prompt de gênio
       const promptType = agentType || 'serginho';
       const systemPrompt = buildGeniusPrompt(promptType);
-
-      // Otimizar requisição
       const optimized = optimizeRequest(messages, systemPrompt);
 
       // Verificar cache
@@ -131,11 +137,45 @@ export default async function handler(req, res) {
 
       console.log(`💰 Otimização: ${optimized.stats.originalMessages} → ${optimized.stats.optimizedMessages} msgs`);
 
-      // Tentar Gemini Pro 2.5 (sempre)
+      // ========================================
+      // MODO SPEED (Groq - Ultra-rápido)
+      // ========================================
+      if (speedMode && hasGroq) {
+        console.log('⚡ KIZI Speed Mode - Usando Groq Llama 70B...');
+        try {
+          const response = await callKiziSpeed(
+            optimized.messages,
+            optimized.systemPrompt,
+            groqKey
+          );
+
+          return res.status(200).json({
+            response,
+            model: 'kizi-speed',
+            provider: 'kizi',
+            tier: 'speed',
+            type: promptType,
+            success: true,
+            speedMode: true
+          });
+        } catch (error) {
+          console.error('❌ KIZI Speed falhou:', error.message);
+          // Se Speed falhar, tentar Pro como fallback
+          if (hasGemini) {
+            console.log('🔄 Fallback: Tentando KIZI Pro...');
+          } else {
+            throw error;
+          }
+        }
+      }
+
+      // ========================================
+      // MODO PRO (Gemini - Raciocínio avançado)
+      // ========================================
       if (hasGemini) {
         try {
-          console.log('🚀 Chamando Gemini 2.5 Pro...');
-          const response = await callGeminiPro(
+          console.log('🧠 KIZI 2.5 Pro - Usando Gemini...');
+          const response = await callKiziPro(
             optimized.messages,
             optimized.systemPrompt,
             geminiKey
@@ -143,14 +183,13 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-                model: 'gemini-2.5-pro',  // Gemini 2.5 Pro (raciocínio avançado)
-            provider: 'google',
-            tier: 'genius',
+            model: 'kizi-2.5-pro',
+            provider: 'kizi',
+            tier: 'pro',
             type: promptType,
             success: true
           };
 
-          // Salvar no cache
           cacheResponse(messages, result);
 
           return res.status(200).json({
@@ -160,29 +199,29 @@ export default async function handler(req, res) {
             stats: optimized.stats
           });
         } catch (error) {
-          console.error('❌ Gemini Pro falhou:', error.message);
+          console.error('❌ KIZI Pro falhou:', error.message);
           
-          // Fallback para GROQ
+          // Fallback para KIZI Speed
           if (hasGroq) {
-            console.log('🔄 Fallback: Tentando GROQ...');
+            console.log('🔄 Fallback: Tentando KIZI Speed...');
             try {
-              const response = await callGroq(
+              const response = await callKiziSpeed(
                 optimized.messages,
                 optimized.systemPrompt,
-                process.env.GROQ_API_KEY
+                groqKey
               );
 
               return res.status(200).json({
                 response,
-                model: 'llama-3.3-70b-versatile',
-                provider: 'groq',
+                model: 'kizi-speed',
+                provider: 'kizi',
                 tier: 'fallback',
                 type: promptType,
                 success: true,
                 fallback: true
               });
             } catch (groqError) {
-              console.error('❌ GROQ também falhou:', groqError.message);
+              console.error('❌ KIZI Speed também falhou:', groqError.message);
               throw groqError;
             }
           }
@@ -191,19 +230,19 @@ export default async function handler(req, res) {
         }
       }
 
-      // Se não tem Gemini, usar GROQ direto
+      // Se não tem Gemini, usar KIZI Speed direto
       if (hasGroq) {
-        console.log('🚀 Usando GROQ (sem Gemini disponível)...');
-        const response = await callGroq(
+        console.log('⚡ Usando KIZI Speed (sem Pro disponível)...');
+        const response = await callKiziSpeed(
           optimized.messages,
           optimized.systemPrompt,
-          process.env.GROQ_API_KEY
+          groqKey
         );
 
         return res.status(200).json({
           response,
-          model: 'llama-3.3-70b-versatile',
-          provider: 'groq',
+          model: 'kizi-speed',
+          provider: 'kizi',
           tier: 'primary',
           type: promptType,
           success: true
@@ -212,7 +251,7 @@ export default async function handler(req, res) {
     }
 
     // ========================================
-    // TIPO: SPECIALIST (54 Especialistas)
+    // TIPO: SPECIALIST (Especialistas)
     // ========================================
     if (type === 'specialist') {
       if (!specialistId) {
@@ -224,7 +263,6 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Specialist not found' });
       }
 
-      // Construir prompt de gênio do especialista
       const systemPrompt = buildGeniusPrompt('specialist', {
         name: specialist.name,
         description: specialist.description,
@@ -232,10 +270,8 @@ export default async function handler(req, res) {
         systemPrompt: specialist.systemPrompt
       });
 
-      // Otimizar requisição
       const optimized = optimizeRequest(messages, systemPrompt);
 
-      // Verificar cache
       if (optimized.cached) {
         console.log('💰 CACHE HIT! Economia total!');
         return res.status(200).json({
@@ -248,11 +284,36 @@ export default async function handler(req, res) {
       console.log(`🎯 Especialista: ${specialist.name}`);
       console.log(`💰 Otimização: ${optimized.stats.originalMessages} → ${optimized.stats.optimizedMessages} msgs`);
 
-      // Tentar Gemini 2.5 Pro (qualidade máxima para especialistas)
+      // MODO SPEED para especialistas
+      if (speedMode && hasGroq) {
+        console.log('⚡ KIZI Speed Mode (Especialista)...');
+        try {
+          const response = await callKiziSpeed(
+            optimized.messages,
+            optimized.systemPrompt,
+            groqKey
+          );
+
+          return res.status(200).json({
+            response,
+            model: 'kizi-speed',
+            provider: 'kizi',
+            specialist: specialist.name,
+            tier: 'speed',
+            success: true,
+            speedMode: true
+          });
+        } catch (error) {
+          console.error('❌ KIZI Speed falhou:', error.message);
+          if (!hasGemini) throw error;
+        }
+      }
+
+      // MODO PRO para especialistas
       if (hasGemini) {
         try {
-          console.log('🚀 Chamando Gemini 2.5 Pro (especialista)...');
-          const response = await callGeminiPro(
+          console.log('🧠 KIZI 2.5 Pro (Especialista)...');
+          const response = await callKiziPro(
             optimized.messages,
             optimized.systemPrompt,
             geminiKey
@@ -260,14 +321,13 @@ export default async function handler(req, res) {
 
           const result = {
             response,
-                model: 'gemini-2.5-pro',  // Gemini 2.5 Pro (raciocínio avançado)
-            provider: 'google',
+            model: 'kizi-2.5-pro',
+            provider: 'kizi',
             specialist: specialist.name,
-            tier: 'genius',  // Agora é genius também!
+            tier: 'pro',
             success: true
           };
 
-          // Salvar no cache
           cacheResponse(messages, result);
 
           return res.status(200).json({
@@ -277,29 +337,28 @@ export default async function handler(req, res) {
             stats: optimized.stats
           });
         } catch (error) {
-          console.error(`❌ Gemini Flash falhou para ${specialist.name}:`, error.message);
+          console.error(`❌ KIZI Pro falhou para ${specialist.name}:`, error.message);
           
-          // Fallback para GROQ
           if (hasGroq) {
-            console.log('🔄 Fallback: Tentando GROQ...');
+            console.log('🔄 Fallback: Tentando KIZI Speed...');
             try {
-              const response = await callGroq(
+              const response = await callKiziSpeed(
                 optimized.messages,
                 optimized.systemPrompt,
-                process.env.GROQ_API_KEY
+                groqKey
               );
 
               return res.status(200).json({
                 response,
-                model: 'llama-3.3-70b-versatile',
-                provider: 'groq',
+                model: 'kizi-speed',
+                provider: 'kizi',
                 specialist: specialist.name,
                 tier: 'fallback',
                 success: true,
                 fallback: true
               });
             } catch (groqError) {
-              console.error('❌ GROQ também falhou:', groqError.message);
+              console.error('❌ KIZI Speed também falhou:', groqError.message);
               throw groqError;
             }
           }
@@ -308,19 +367,19 @@ export default async function handler(req, res) {
         }
       }
 
-      // Se não tem Gemini, usar GROQ direto
+      // Se não tem Gemini, usar KIZI Speed direto
       if (hasGroq) {
-        console.log('🚀 Usando GROQ (sem Gemini disponível)...');
-        const response = await callGroq(
+        console.log('⚡ Usando KIZI Speed (sem Pro disponível)...');
+        const response = await callKiziSpeed(
           optimized.messages,
           optimized.systemPrompt,
-          process.env.GROQ_API_KEY
+          groqKey
         );
 
         return res.status(200).json({
           response,
-          model: 'llama-3.3-70b-versatile',
-          provider: 'groq',
+          model: 'kizi-speed',
+          provider: 'kizi',
           specialist: specialist.name,
           tier: 'primary',
           success: true
@@ -338,8 +397,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'audioBase64 required' });
       }
 
-      // TODO: Implementar transcrição com Whisper
-      // Por enquanto, retornar erro
       return res.status(501).json({
         error: 'Transcription not implemented yet',
         hint: 'Will be implemented in next version'
@@ -353,7 +410,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ AI Endpoint error:', error);
+    console.error('❌ KIZI AI error:', error);
     return res.status(500).json({
       error: 'Internal server error',
       message: error.message
