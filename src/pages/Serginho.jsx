@@ -164,14 +164,47 @@ export default function Serginho() {
           const text = data.text || data.transcript || '';
           
           if (text) {
-            // Colocar texto transcrito no input
-            setInput(text);
+            // Mostrar mensagem do usuário (texto transcrito)
+            const userMessage = { role: "user", content: text };
+            setMessages(prev => [...prev, userMessage]);
             
-            // Mostrar mensagem de sucesso
-            setMessages(prev => [...prev, {
-              role: "assistant",
-              content: `🎤 Transcrito: "${text}"`
-            }]);
+            // Enviar automaticamente para o Serginho
+            setIsLoading(true);
+            try {
+              const currentMessages = [...messages, userMessage];
+              const response = await fetch('/api/ai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  type: 'genius',
+                  messages: currentMessages,
+                  agentType: 'serginho',
+                  mode: 'OTIMIZADO'
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error(`Erro na API: ${response.status}`);
+              }
+
+              const data = await response.json();
+              const aiResponse = data.response;
+              
+              if (aiResponse && aiResponse.trim() !== "") {
+                setMessages(prev => [...prev, {
+                  role: "assistant",
+                  content: aiResponse
+                }]);
+              }
+            } catch (error) {
+              console.error("Erro ao enviar mensagem de voz:", error);
+              setMessages(prev => [...prev, {
+                role: "assistant",
+                content: `❌ Erro ao processar: ${error?.message || "erro desconhecido"}. Tente novamente.`
+              }]);
+            } finally {
+              setIsLoading(false);
+            }
           } else {
             setMessages(prev => [...prev, {
               role: "assistant",
