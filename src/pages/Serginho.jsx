@@ -23,6 +23,13 @@ export default function Serginho() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Função para remover bloco <thinking> das respostas
+  const removeThinking = (text) => {
+    if (!text) return text;
+    // Remove tudo entre <thinking> e </thinking> incluindo as tags
+    return text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
+  };
+
   // Scroll para o topo ao carregar a página
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -71,10 +78,11 @@ export default function Serginho() {
         throw new Error("Resposta vazia da IA");
       }
       
-      // Adicionar resposta da IA
+      // Remover bloco thinking e adicionar resposta da IA
+      const cleanResponse = removeThinking(aiResponse);
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: aiResponse
+        content: cleanResponse
       }]);
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
@@ -191,9 +199,10 @@ export default function Serginho() {
               const aiResponse = data.response;
               
               if (aiResponse && aiResponse.trim() !== "") {
+                const cleanResponse = removeThinking(aiResponse);
                 setMessages(prev => [...prev, {
                   role: "assistant",
-                  content: aiResponse
+                  content: cleanResponse
                 }]);
               }
             } catch (error) {
