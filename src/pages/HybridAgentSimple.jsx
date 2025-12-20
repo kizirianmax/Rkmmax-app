@@ -23,13 +23,9 @@ export default function HybridAgentSimple() {
   const imageInputRef = useRef(null);
   const agentRef = useRef(null);
 
-  // Aplicar classe ao HTML para prevenir scroll quando teclado abre
+  // Scroll para o topo ao carregar
   useEffect(() => {
-    document.documentElement.classList.add('hybrid-page');
     window.scrollTo(0, 0);
-    return () => {
-      document.documentElement.classList.remove('hybrid-page');
-    };
   }, []);
 
   // Inicializar agente
