@@ -89,7 +89,7 @@ p {
 }
 
 /* Inputs */
-input, select {
+input:not(.message-input), select {
   width: 100%;
   padding: 12px;
   margin: 8px 0;
@@ -100,7 +100,7 @@ input, select {
   font-size: 14px;
 }
 
-input:focus, select:focus {
+input:not(.message-input):focus, select:focus {
   outline: none;
   border-color: #38bdf8;
   box-shadow: 0 0 6px rgba(56,189,248,0.6);
