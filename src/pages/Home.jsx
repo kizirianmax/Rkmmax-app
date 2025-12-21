@@ -86,7 +86,8 @@ export default function Home() {
             role="button"
             aria-label="Agente Híbrido"
           >
-            🤖 Agente Híbrido
+            <img src="/avatars/hybrid.png" alt="" style={{width: 20, height: 20, borderRadius: 4, marginRight: 8, verticalAlign: 'middle'}} />
+            Agente Híbrido
           </a>
           <a
             href="/pricing"
