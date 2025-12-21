@@ -50,14 +50,11 @@ function FooterWrapper() {
   return <Footer />;
 }
 
-// Wrapper para mostrar FeedbackButton em páginas principais
+// Wrapper para mostrar FeedbackButton apenas na Home
 function FeedbackWrapper() {
   const location = useLocation();
-  // Não mostrar feedback nas páginas de chat (já tem muito conteúdo)
-  const hiddenPaths = ['/serginho', '/specialist/', '/hybrid', '/agent', '/chat'];
-  const shouldHide = hiddenPaths.some(path => location.pathname.startsWith(path));
-  
-  if (shouldHide) return null;
+  // Mostrar apenas na página inicial
+  if (location.pathname !== '/') return null;
   return <FeedbackButton />;
 }
 
