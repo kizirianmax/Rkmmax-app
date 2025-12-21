@@ -81,6 +81,14 @@ export default function Home() {
             📚 Abrir Study Lab
           </a>
           <a
+            href="/hybrid"
+            style={sx.ctaHybrid}
+            role="button"
+            aria-label="Agente Híbrido"
+          >
+            🤖 Agente Híbrido
+          </a>
+          <a
             href="/pricing"
             style={sx.ctaOutline}
             role="button"
@@ -271,6 +279,19 @@ const sx = {
     fontSize: 15,
     background: "linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%)",
     boxShadow: "0 4px 12px rgba(3,105,161,.3)",
+    textDecoration: "none",
+    touchAction: "manipulation"
+  },
+  ctaHybrid: {
+    display: "block",
+    padding: "14px 20px",
+    textAlign: "center",
+    borderRadius: 12,
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 15,
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+    boxShadow: "0 4px 12px rgba(99,102,241,.35)",
     textDecoration: "none",
     touchAction: "manipulation"
   },
