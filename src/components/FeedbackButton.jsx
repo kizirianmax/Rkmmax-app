@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { captureMessage } from "../lib/sentry.js";
 import { trackEvent, Events } from "../lib/analytics.js";
 
-export default function FeedbackButton() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
-  const [type, setType] = useState("bug");
+export default function FeedbackButton({ forceOpen = false, onClose = null, defaultType = "bug", defaultMessage = "" }) {
+  const [isOpen, setIsOpen] = useState(forceOpen);
+  const [feedback, setFeedback] = useState(defaultMessage);
+  const [type, setType] = useState(defaultType);
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -61,6 +61,7 @@ export default function FeedbackButton() {
         setSubmitted(false);
         setFeedback("");
         setEmail("");
+        if (onClose) onClose();
       }, 2000);
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -71,6 +72,9 @@ export default function FeedbackButton() {
   };
 
   if (!isOpen) {
+    // Se forceOpen foi passado, não mostrar o botão flutuante
+    if (forceOpen) return null;
+    
     return (
       <button
         type="button"
@@ -131,7 +135,7 @@ export default function FeedbackButton() {
             <h3 style={{ margin: 0, fontSize: 16 }}>Enviar Feedback</h3>
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={() => { setIsOpen(false); if (onClose) onClose(); }}
               style={{
                 background: "none",
                 border: "none",

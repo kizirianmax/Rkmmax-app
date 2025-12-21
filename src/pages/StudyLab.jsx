@@ -1,7 +1,9 @@
 // src/pages/StudyLab.jsx
-import React from "react";
+import React, { useState } from "react";
+import FeedbackButton from "../components/FeedbackButton";
 
 export default function StudyLab() {
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const tools = [
     {
@@ -211,7 +213,7 @@ export default function StudyLab() {
             Envie sua sugestão!
           </p>
           <button
-            onClick={() => alert("Em breve: formulário de sugestões!")}
+            onClick={() => setShowFeedback(true)}
             style={{
               padding: "14px 32px",
               borderRadius: 16,
@@ -230,6 +232,16 @@ export default function StudyLab() {
           </button>
         </div>
       </div>
+      
+      {/* Feedback Modal */}
+      {showFeedback && (
+        <FeedbackButton 
+          forceOpen={true} 
+          onClose={() => setShowFeedback(false)}
+          defaultType="enhancement"
+          defaultMessage="Sugestão de ferramenta para o Study Lab: "
+        />
+      )}
     </div>
   );
 }
