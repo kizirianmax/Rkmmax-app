@@ -23,11 +23,9 @@
   bottom: 0;
 }
 
-/* Reset para garantir altura total */
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+/* Reset aplicado apenas quando .hybrid-container está ativo */
+.hybrid-container ~ html,
+.hybrid-container ~ body {
   overflow: hidden;
 }
 
