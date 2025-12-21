@@ -11,7 +11,7 @@ export default function StudyLab() {
       title: "📝 Formatador ABNT/APA",
       description: "Formate seus trabalhos acadêmicos automaticamente nas normas ABNT ou APA",
       status: "Disponível",
-      action: () => window.open("https://formatador-abnt-phi.vercel.app", "_blank")
+      action: () => window.open("https://abntformat-fxxbew6p.manus.space", "_blank")
     },
     {
       id: "cronograma",
