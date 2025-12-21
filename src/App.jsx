@@ -42,7 +42,7 @@ import Regulamento from "./pages/Regulamento.jsx";
 function FooterWrapper() {
   const location = useLocation();
   // Não mostrar footer nas páginas de chat
-  const hiddenPaths = ['/serginho', '/specialist/', '/hybrid', '/agent', '/chat'];
+  const hiddenPaths = ['/serginho', '/specialists', '/specialist/', '/hybrid', '/agent', '/chat', '/regulamento'];
   const shouldHide = hiddenPaths.some(path => location.pathname.startsWith(path));
   
   if (shouldHide) return null;

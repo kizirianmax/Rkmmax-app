@@ -4,6 +4,15 @@
  */
 
 /* Container principal - altura fixa para prevenir scroll quando teclado abre */
+html:has(.hybrid-container),
+body:has(.hybrid-container) {
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+}
+
 .hybrid-container {
   display: flex !important;
   flex-direction: column !important;
