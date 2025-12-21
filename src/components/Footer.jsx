@@ -28,14 +28,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div className="footer-section">
-          <h3>CONFORMIDADE</h3>
-          <ul>
-            <li><span>✓ GDPR (UE)</span></li>
-            <li><span>✓ LGPD (Brasil)</span></li>
-            <li><span>✓ Google Play Store</span></li>
-          </ul>
-        </div>
+
       </div>
 
       <div className="footer-bottom">
