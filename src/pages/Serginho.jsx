@@ -2,8 +2,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Serginho.css";
 import MarkdownMessage from "../components/MarkdownMessage";
+import { useConversationMemory } from "../hooks/useConversationMemory";
+import { detectToolSuggestion, appendToolSuggestion, shouldSuggestTool, markToolSuggested } from "../lib/smartSuggestions";
 
 export default function Serginho() {
+  // Hook de memória de conversas
+  const memory = useConversationMemory('serginho');
+  const [showHistory, setShowHistory] = useState(false);
+  
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -32,6 +38,26 @@ export default function Serginho() {
   };
 
   // Scroll para o topo ao carregar a página e prevenir scroll do body
+  // Inicializar conversa - criar nova ou carregar existente
+  useEffect(() => {
+    if (memory.conversations.length === 0) {
+      // Primeira vez - criar nova conversa
+      memory.createNewConversation();
+    } else if (memory.currentConversationId) {
+      // Carregar mensagens da conversa atual
+      const currentConv = memory.getCurrentConversation();
+      if (currentConv && currentConv.messages.length > 0) {
+        setMessages([
+          {
+            role: "assistant",
+            content: "Olá! Sou o KIZI 2.5 Pro operando como Serginho. Continuando nossa conversa anterior..."
+          },
+          ...currentConv.messages
+        ]);
+      }
+    }
+  }, [memory.conversations.length, memory.currentConversationId]);
+
   useEffect(() => {
     // Adicionar classe ao HTML para aplicar estilos específicos
     document.documentElement.classList.add('serginho-page');
@@ -63,14 +89,34 @@ export default function Serginho() {
     const newMessages = [...messages, { role: "user", content: userMessage }];
     setMessages(newMessages);
     setIsLoading(true);
+    
+    // Salvar mensagem do usuário na memória
+    memory.addMessage({ role: "user", content: userMessage });
+    
+    // Detectar sugestão de ferramenta
+    const toolSuggestion = detectToolSuggestion(userMessage);
 
     try {
+      // Obter contexto das conversas anteriores
+      const contextSummary = memory.getContextSummary();
+      
+      // Preparar mensagens com contexto
+      let messagesWithContext = newMessages;
+      if (contextSummary && messages.length <= 2) {
+        // Só adiciona contexto se for início de conversa
+        messagesWithContext = [
+          { role: "system", content: `Contexto de conversas anteriores:\n${contextSummary}` },
+          ...newMessages
+        ];
+      }
+      
       // Chamar API com Gemini Pro 2.5 (nível ChatGPT-5)
       const response = await fetch('/api/ai', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },        body: JSON.stringify({
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           type: 'genius',         // Endpoint unificado
-          messages: newMessages,
+          messages: messagesWithContext,
           agentType: 'serginho',  // Prompts de gênio do Serginho
           mode: 'OTIMIZADO'       // Otimização de custo ativada
         }),
@@ -81,14 +127,24 @@ export default function Serginho() {
       }
 
       const data = await response.json();
-      const aiResponse = data.response;
+      let aiResponse = data.response;
       
       if (!aiResponse || aiResponse.trim() === "") {
         throw new Error("Resposta vazia da IA");
       }
       
-      // Remover bloco thinking e adicionar resposta da IA
-      const cleanResponse = removeThinking(aiResponse);
+      // Remover bloco thinking
+      let cleanResponse = removeThinking(aiResponse);
+      
+      // Adicionar sugestão de ferramenta se detectada e não sugerida recentemente
+      if (toolSuggestion && shouldSuggestTool(toolSuggestion.toolId)) {
+        cleanResponse = appendToolSuggestion(cleanResponse, toolSuggestion);
+        markToolSuggested(toolSuggestion.toolId);
+      }
+      
+      // Salvar resposta na memória
+      memory.addMessage({ role: "assistant", content: cleanResponse });
+      
       setMessages(prev => [...prev, {
         role: "assistant",
         content: cleanResponse
@@ -402,7 +458,128 @@ export default function Serginho() {
             </div>
           </div>
         </div>
+        {/* Botões de memória */}
+        <div style={{display: 'flex', gap: '8px'}}>
+          <button
+            onClick={() => {
+              memory.createNewConversation();
+              setMessages([{
+                role: "assistant",
+                content: "Olá! Sou o KIZI 2.5 Pro operando como Serginho. Nova conversa iniciada! Como posso ajudar?"
+              }]);
+            }}
+            style={{
+              background: 'rgba(99, 102, 241, 0.2)',
+              border: '1px solid rgba(99, 102, 241, 0.5)',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              color: 'white',
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            title="Nova conversa"
+          >
+            ➕ Nova
+          </button>
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            style={{
+              background: showHistory ? 'rgba(99, 102, 241, 0.4)' : 'rgba(99, 102, 241, 0.2)',
+              border: '1px solid rgba(99, 102, 241, 0.5)',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              color: 'white',
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            title="Histórico de conversas"
+          >
+            📜 {memory.conversations.length}
+          </button>
+        </div>
       </div>
+      
+      {/* Painel de histórico */}
+      {showHistory && (
+        <div style={{
+          position: 'absolute',
+          top: '80px',
+          right: '10px',
+          background: 'rgba(30, 30, 50, 0.95)',
+          border: '1px solid rgba(99, 102, 241, 0.3)',
+          borderRadius: '12px',
+          padding: '12px',
+          maxHeight: '300px',
+          overflowY: 'auto',
+          zIndex: 1000,
+          minWidth: '250px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+        }}>
+          <h4 style={{margin: '0 0 10px 0', color: 'white', fontSize: '0.9rem'}}>📜 Conversas Salvas</h4>
+          {memory.conversations.length === 0 ? (
+            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem'}}>Nenhuma conversa salva</p>
+          ) : (
+            memory.conversations.map(conv => (
+              <div
+                key={conv.id}
+                onClick={() => {
+                  memory.switchConversation(conv.id);
+                  const currentConv = memory.conversations.find(c => c.id === conv.id);
+                  if (currentConv) {
+                    setMessages([{
+                      role: "assistant",
+                      content: "Olá! Continuando nossa conversa..."
+                    }, ...currentConv.messages]);
+                  }
+                  setShowHistory(false);
+                }}
+                style={{
+                  padding: '8px 10px',
+                  marginBottom: '6px',
+                  background: conv.id === memory.currentConversationId ? 'rgba(99, 102, 241, 0.3)' : 'rgba(255,255,255,0.05)',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div style={{flex: 1, overflow: 'hidden'}}>
+                  <p style={{margin: 0, color: 'white', fontSize: '0.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
+                    {conv.title}
+                  </p>
+                  <p style={{margin: 0, color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem'}}>
+                    {conv.messages.length} msgs • {new Date(conv.updatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    memory.deleteConversation(conv.id);
+                  }}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '4px 8px',
+                    color: '#ef4444',
+                    fontSize: '0.7rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗑️
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {/* Card de boas-vindas - Compacto e fixo */}
       <div className="welcome-container-compact">
