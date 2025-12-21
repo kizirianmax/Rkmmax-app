@@ -87,7 +87,7 @@ export default function FeedbackButton() {
           fontWeight: 600,
           cursor: "pointer",
           boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)",
-          zIndex: 60,
+          zIndex: 9999,
           fontSize: 14,
           minHeight: 48,
           touchAction: "manipulation",
@@ -113,7 +113,7 @@ export default function FeedbackButton() {
         borderRadius: 12,
         boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
         padding: 20,
-        zIndex: 60,
+        zIndex: 9999,
         pointerEvents: "auto",
       }}
     >
