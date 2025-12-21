@@ -1,6 +1,6 @@
 import React from "react";
 import { BRAND } from "../config/brand.js";
-import FeedbackButton from "../components/FeedbackButton.jsx";
+
 
 /**
  * Home — RKMMAX Infinity Matrix/Study
@@ -148,8 +148,7 @@ export default function Home() {
         </small>
       </footer>
 
-      {/* Botão Feedback - apenas na Home */}
-      <FeedbackButton />
+
     </main>
   );
 }

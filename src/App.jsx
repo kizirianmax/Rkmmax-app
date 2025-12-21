@@ -24,6 +24,7 @@ import Subscription from "./pages/Subscription.jsx";
 import Onboarding from "./components/Onboarding.jsx";
 import OptionalSignupBanner from "./components/OptionalSignupBanner.jsx";
 import Footer from "./components/Footer.jsx";
+import FeedbackButton from "./components/FeedbackButton.jsx";
 import ConsentBanner from "./components/ConsentBanner.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Terms from "./pages/Terms.jsx";
@@ -47,6 +48,17 @@ function FooterWrapper() {
   
   if (shouldHide) return null;
   return <Footer />;
+}
+
+// Wrapper para mostrar FeedbackButton em páginas principais
+function FeedbackWrapper() {
+  const location = useLocation();
+  // Não mostrar feedback nas páginas de chat (já tem muito conteúdo)
+  const hiddenPaths = ['/serginho', '/specialist/', '/hybrid', '/agent', '/chat'];
+  const shouldHide = hiddenPaths.some(path => location.pathname.startsWith(path));
+  
+  if (shouldHide) return null;
+  return <FeedbackButton />;
 }
 
 export default function App() {
@@ -139,6 +151,9 @@ export default function App() {
 
       {/* Footer - Não mostrar em páginas de chat */}
       <FooterWrapper />
+      
+      {/* Feedback Button - Mostrar em páginas principais */}
+      <FeedbackWrapper />
     </BrowserRouter>
   );
 }
