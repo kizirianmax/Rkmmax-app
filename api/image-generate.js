@@ -205,8 +205,11 @@ export default async function handler(req, res) {
     console.log(`✨ Prompt melhorado: ${enhancedPrompt}`);
 
     // Verificar APIs disponíveis
-    const geminiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY;
+    // Prioridade: GERMINI_API_KEY (usado no projeto) > GEMINI_API_KEY > NANO_BANANA_API_KEY
+    const geminiKey = process.env.GERMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.NANO_BANANA_API_KEY;
     const togetherKey = process.env.TOGETHER_API_KEY;
+    
+    console.log('🍌 Nano Banana: Chave encontrada:', geminiKey ? 'SIM' : 'NÃO');
 
     // Lista de providers para tentar
     const providers = [];
