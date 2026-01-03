@@ -28,7 +28,8 @@ export const ToolType = {
   ANALYZE: 'analyze',
   WRITE: 'write',
   CALCULATE: 'calculate',
-  VISION: 'vision'
+  VISION: 'vision',
+  IMAGE_GENERATE: 'image_generate'  // 🍌 Nano Banana
 };
 
 // Classe principal do Agente Autônomo
@@ -84,6 +85,7 @@ FERRAMENTAS DISPONÍVEIS:
 - write: Escrever documentos ou textos
 - calculate: Fazer cálculos
 - vision: Analisar imagens
+- image_generate: Gerar imagens com IA (Nano Banana)
 
 FORMATO DE RESPOSTA (JSON):
 {
@@ -210,6 +212,11 @@ Responda APENAS com o JSON, sem texto adicional.`;
     this.setState(AgentState.USING_TOOL, { tool: toolType });
     this.onToolUse({ tool: toolType, action });
 
+    // 🍌 Nano Banana - Geração de Imagens
+    if (toolType === 'image_generate' || toolType === 'nano_banana') {
+      return await this.generateImage(action);
+    }
+
     const toolPrompt = `Você é um agente autônomo executando uma ferramenta.
 
 FERRAMENTA: ${toolType}
@@ -223,6 +230,53 @@ Se for análise, seja detalhado.
 Se for escrita, produza o texto completo.`;
 
     return await this.callAI(toolPrompt, 'tool');
+  }
+
+  // 🍌 Nano Banana - Gerar imagem com IA
+  async generateImage(prompt) {
+    console.log('🍌 Nano Banana: Gerando imagem...');
+    
+    try {
+      const response = await fetch('/api/image-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: prompt,
+          style: 'realistic'
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao gerar imagem');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.image) {
+        // Retornar resultado com a imagem
+        const imageUrl = data.format === 'base64' 
+          ? `data:${data.mimeType || 'image/png'};base64,${data.image}`
+          : data.image;
+        
+        return {
+          type: 'image',
+          url: imageUrl,
+          provider: data.provider,
+          model: data.model,
+          prompt: data.prompt,
+          message: `🍌 Imagem gerada com sucesso pelo Nano Banana!\n\n![Imagem Gerada](${imageUrl})\n\n**Provider:** ${data.provider}\n**Modelo:** ${data.model}`
+        };
+      }
+      
+      throw new Error('Nenhuma imagem foi gerada');
+    } catch (error) {
+      console.error('❌ Nano Banana error:', error);
+      return {
+        type: 'error',
+        message: `🍌 Nano Banana não conseguiu gerar a imagem: ${error.message}`
+      };
+    }
   }
 
   // Pensar/raciocinar sobre algo
