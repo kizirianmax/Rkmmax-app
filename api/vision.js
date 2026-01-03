@@ -73,7 +73,9 @@ module.exports = async function handler(req, res) {
 
     console.log('🖼️ Recebendo imagem para análise...');
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    // Prioridade: GERMINI_API_KEY (configurado no projeto) > GEMINI_API_KEY > GOOGLE_API_KEY
+    const apiKey = process.env.GERMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    console.log('🔑 API Key encontrada:', apiKey ? 'SIM' : 'NÃO');
     
     if (!apiKey) {
       return res.status(500).json({ 
