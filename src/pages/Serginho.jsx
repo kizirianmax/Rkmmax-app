@@ -358,7 +358,7 @@ export default function Serginho() {
           image: imageBase64
         }]);
         
-        // Analisar imagem com GPT-4 Vision
+        // Analisar imagem com Gemini Vision
         setIsLoading(true);
         try {
           const response = await fetch('/api/vision', {
@@ -383,7 +383,7 @@ export default function Serginho() {
           console.error('Erro na análise de imagem:', error);
           setMessages(prev => [...prev, {
             role: "assistant",
-            content: "❌ Erro ao analisar imagem. Verifique se a API GPT-4 Vision está configurada."
+            content: "❌ Erro ao analisar imagem. Verifique se a GERMINI_API_KEY está configurada no Vercel."
           }]);
         } finally {
           setIsLoading(false);
@@ -407,7 +407,7 @@ export default function Serginho() {
           image: imageBase64
         }]);
         
-        // Analisar foto com GPT-4 Vision
+        // Analisar foto com Gemini Vision
         setIsLoading(true);
         try {
           const response = await fetch('/api/vision', {
@@ -432,7 +432,7 @@ export default function Serginho() {
           console.error('Erro na análise de foto:', error);
           setMessages(prev => [...prev, {
             role: "assistant",
-            content: "❌ Erro ao analisar foto. Verifique se a API GPT-4 Vision está configurada."
+            content: "❌ Erro ao analisar foto. Verifique se a GERMINI_API_KEY está configurada no Vercel."
           }]);
         } finally {
           setIsLoading(false);
