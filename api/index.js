@@ -15,7 +15,7 @@ const githubOAuthHandler = require('./github-oauth');
 const multimodalHandler = require('./multimodal');
 const securityValidatorHandler = require('./security-validator');
 const specialistChatHandler = require('./specialist-chat');
-const visionHandler = require('./vision');
+// const visionHandler = require('./vision'); // REMOVIDO
 const transcribeHandler = require('./transcribe');
 const sendEmailHandler = require('./send-email');
 const checkoutHandler = require('./checkout');
@@ -89,8 +89,12 @@ module.exports = async (req, res) => {
       return specialistChatHandler(req, res);
     }
 
+    // Rota /api/vision REMOVIDA
     if (pathname === '/api/vision' || pathname.startsWith('/api/vision/')) {
-      return visionHandler(req, res);
+      return res.status(410).json({ 
+        error: 'Funcionalidade removida',
+        message: 'A análise de imagem não está mais disponível.'
+      });
     }
 
     if (pathname === '/api/transcribe' || pathname.startsWith('/api/transcribe/')) {
@@ -135,7 +139,7 @@ module.exports = async (req, res) => {
           '/api/multimodal',
           '/api/security-validator',
           '/api/specialist-chat',
-          '/api/vision',
+          // '/api/vision', // REMOVIDO
           '/api/transcribe',
           '/api/send-email',
           '/api/checkout',

@@ -20,7 +20,7 @@ export default function HybridAgentSimple() {
   
   const messagesEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
-  const imageInputRef = useRef(null);
+  // const imageInputRef = useRef(null); // REMOVIDO
   const agentRef = useRef(null);
 
   // Prevenir scroll quando input recebe foco no mobile
@@ -239,8 +239,8 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
     }
   };
 
-  // Upload de imagem
-  const handleImageSelect = async (event) => {
+  // Upload de imagem - FUNCIONALIDADE REMOVIDA
+  /* const handleImageSelect = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -281,7 +281,7 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
       }
     };
     reader.readAsDataURL(file);
-  };
+  }; */
 
   // Renderizar indicador de estado do agente
   const renderAgentStatus = () => {
@@ -428,14 +428,7 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
       {/* Input */}
       <div className="input-container" style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
         <div className="input-wrapper" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-          <button
-            className="icon-btn"
-            onClick={() => imageInputRef.current?.click()}
-            disabled={isProcessing}
-            title="Enviar imagem"
-          >
-            🖼️
-          </button>
+          {/* Botão de imagem REMOVIDO */}
 
           <input
             type="text"
@@ -473,14 +466,7 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
         </div>
       </div>
 
-      {/* Hidden file input */}
-      <input
-        ref={imageInputRef}
-        type="file"
-        style={{ display: 'none' }}
-        onChange={handleImageSelect}
-        accept="image/*"
-      />
+      {/* Input de imagem REMOVIDO */}
     </div>
   );
 }
