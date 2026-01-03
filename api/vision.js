@@ -1,5 +1,5 @@
 /**
- * API de Análise de Imagem usando Gemini 2.0 Flash
+ * API de Análise de Imagem usando Gemini 1.5 Flash
  * Endpoint: /api/vision
  * 
  * Compatível com Vercel Serverless
@@ -38,14 +38,15 @@ async function analyzeWithGemini(imageBase64, apiKey) {
     }
   );
 
+  // Ler o body apenas uma vez
+  const data = await response.json();
+
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`Gemini Vision error: ${error.error?.message || 'Unknown'}`);
+    throw new Error(`Gemini Vision error: ${data.error?.message || JSON.stringify(data)}`);
   }
 
-  const data = await response.json();
   if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-    throw new Error('Invalid Gemini response');
+    throw new Error('Invalid Gemini response: ' + JSON.stringify(data));
   }
 
   return data.candidates[0].content.parts[0].text;
@@ -75,12 +76,12 @@ module.exports = async function handler(req, res) {
 
     // Prioridade: GERMINI_API_KEY (configurado no projeto) > GEMINI_API_KEY > GOOGLE_API_KEY
     const apiKey = process.env.GERMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    console.log('🔑 API Key encontrada:', apiKey ? 'SIM' : 'NÃO');
+    console.log('🔑 API Key encontrada:', apiKey ? 'SIM (primeiros 10 chars: ' + apiKey.substring(0, 10) + '...)' : 'NÃO');
     
     if (!apiKey) {
       return res.status(500).json({ 
         error: 'API key não configurada',
-        hint: 'Configure GEMINI_API_KEY ou GOOGLE_API_KEY'
+        hint: 'Configure GERMINI_API_KEY no Vercel'
       });
     }
 
@@ -93,7 +94,7 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Erro na análise de imagem:', error);
+    console.error('❌ Erro na análise de imagem:', error.message);
     return res.status(500).json({
       error: 'Erro ao analisar imagem',
       message: error.message
