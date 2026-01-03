@@ -364,10 +364,58 @@ Inclua:
     return data.response || '';
   }
 
+  // Detectar se é pedido de geração de imagem
+  isImageGenerationRequest(input) {
+    const imageKeywords = [
+      /gere?\s+(uma?\s+)?imagem/i,
+      /crie?\s+(uma?\s+)?imagem/i,
+      /faça\s+(uma?\s+)?imagem/i,
+      /desenhe?/i,
+      /ilustração/i,
+      /nano\s*banana/i,
+      /gerar?\s+imagem/i,
+      /criar?\s+imagem/i,
+      /image\s*generat/i,
+      /generate\s+image/i,
+      /create\s+image/i
+    ];
+    return imageKeywords.some(pattern => pattern.test(input));
+  }
+
+  // Extrair prompt de imagem do input do usuário
+  extractImagePrompt(input) {
+    // Remover palavras-chave de comando
+    let prompt = input
+      .replace(/gere?\s+(uma?\s+)?imagem\s+(de?\s+)?/i, '')
+      .replace(/crie?\s+(uma?\s+)?imagem\s+(de?\s+)?/i, '')
+      .replace(/faça\s+(uma?\s+)?imagem\s+(de?\s+)?/i, '')
+      .replace(/desenhe?\s+/i, '')
+      .replace(/use\s+o?\s*nano\s*banana\s+(para\s+)?/i, '')
+      .replace(/usando\s+o?\s*nano\s*banana/i, '')
+      .trim();
+    return prompt || input;
+  }
+
   // Executar tarefa completa (planejamento + execução)
   async run(userInput) {
     try {
       // Mensagem do usuário já foi adicionada no handleSend
+      
+      // 🍌 NANO BANANA - Detectar pedido de imagem automaticamente
+      if (this.isImageGenerationRequest(userInput)) {
+        this.addMessage('assistant', '🍌 Nano Banana ativado! Gerando imagem...', { type: 'status' });
+        const imagePrompt = this.extractImagePrompt(userInput);
+        const result = await this.generateImage(imagePrompt);
+        
+        if (result.type === 'image') {
+          this.addMessage('assistant', result.message, { type: 'image', imageUrl: result.url });
+          this.setState(AgentState.COMPLETED);
+          return result.message;
+        } else {
+          // Se falhou, continua com o fluxo normal
+          this.addMessage('assistant', `⚠️ ${result.message}. Tentando abordagem alternativa...`, { type: 'warning' });
+        }
+      }
       
       // Fase 1: Planejamento
       this.addMessage('assistant', '🧠 Analisando tarefa e criando plano de execução...', { type: 'status' });
