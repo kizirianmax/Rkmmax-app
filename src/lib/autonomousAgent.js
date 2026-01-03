@@ -364,8 +364,9 @@ Inclua:
     return data.response || '';
   }
 
-  // Detectar se é pedido de geração de imagem
+  // Detectar se é pedido de geração de imagem (v2.0 - Nano Banana)
   isImageGenerationRequest(input) {
+    console.log('🍌 Nano Banana: Verificando se é pedido de imagem:', input);
     const imageKeywords = [
       /gere?\s+(uma?\s+)?imagem/i,
       /crie?\s+(uma?\s+)?imagem/i,
