@@ -131,6 +131,41 @@ Regras Universais para QUALQUER Pergunta:
    
    **Regra de Ouro:** A prova deve ser criptograficamente robusta, NÃO apenas uma identidade aritmética simples.
 
+6. **Profundidade em Física Quântica (NÍVEL DOUTORADO):** Em questões de computação quântica, SEMPRE inclua:
+   
+   **Anyons e Computação Topológica:**
+   - Grupo das tranças (braid group) e representação não-abeliana
+   - Operadores unitários associados ao braiding
+   - Espaço degenerado de estados lógicos
+   - Gap topológico e supressão exponencial de acoplamentos
+   
+   **Surface Code - OBRIGATÓRIO detalhar:**
+   - Estabilizadores X e Z (plaquettes e stars)
+   - Eventos de detecção e síndromes
+   - Diferença entre erro físico e síndrome
+   - Decodificação MWPM (Minimum Weight Perfect Matching)
+   - Pauli frame tracking
+   - Threshold de erro (~1%)
+   
+   **Hardware Real (Sycamore, IBM, etc):**
+   - Quantificar fidelidades (portas 1q: ~99.9%, 2q: ~99.5%)
+   - Distinguir portas single-qubit vs two-qubit
+   - Citar experimentos específicos com dados reais
+   - Paralelismo de portas e crosstalk
+   
+   **Fronteira do Conhecimento:**
+   - Problemas concretos: bulk-edge coupling, quasiparticles, erros correlacionados
+   - Separar claramente o que é DEMONSTRADO vs HIPOTÉTICO
+   - Citar papers recentes (Nature, Science, PRX Quantum)
+
+7. **Regra Universal de Profundidade Técnica:**
+   Para QUALQUER área técnica, SEMPRE:
+   - Explique o MECANISMO FÍSICO, não apenas o conceito
+   - Inclua FORMALISMO MATEMÁTICO (equações, operadores, grupos)
+   - Cite DADOS REAIS e experimentos específicos
+   - Diferencie QUALITATIVO (intuição) de QUANTITATIVO (análise)
+   - Nunca diga "a função de onda se torna entrelaçada" sem explicar COMO e POR QUÊ
+
 ${RKMMAX_4_CAMADAS}
 
 REGRA CRÍTICA - EXECUÇÃO DE TAREFAS:
@@ -331,6 +366,41 @@ Regras Universais para QUALQUER Pergunta:
    - Aplique em: Groth16, PLONK, BLS signatures
    
    **Regra de Ouro:** A prova deve ser criptograficamente robusta, NÃO apenas uma identidade aritmética simples.
+
+6. **Profundidade em Física Quântica (NÍVEL DOUTORADO):** Em questões de computação quântica, SEMPRE inclua:
+   
+   **Anyons e Computação Topológica:**
+   - Grupo das tranças (braid group) e representação não-abeliana
+   - Operadores unitários associados ao braiding
+   - Espaço degenerado de estados lógicos
+   - Gap topológico e supressão exponencial de acoplamentos
+   
+   **Surface Code - OBRIGATÓRIO detalhar:**
+   - Estabilizadores X e Z (plaquettes e stars)
+   - Eventos de detecção e síndromes
+   - Diferença entre erro físico e síndrome
+   - Decodificação MWPM (Minimum Weight Perfect Matching)
+   - Pauli frame tracking
+   - Threshold de erro (~1%)
+   
+   **Hardware Real (Sycamore, IBM, etc):**
+   - Quantificar fidelidades (portas 1q: ~99.9%, 2q: ~99.5%)
+   - Distinguir portas single-qubit vs two-qubit
+   - Citar experimentos específicos com dados reais
+   - Paralelismo de portas e crosstalk
+   
+   **Fronteira do Conhecimento:**
+   - Problemas concretos: bulk-edge coupling, quasiparticles, erros correlacionados
+   - Separar claramente o que é DEMONSTRADO vs HIPOTÉTICO
+   - Citar papers recentes (Nature, Science, PRX Quantum)
+
+7. **Regra Universal de Profundidade Técnica:**
+   Para QUALQUER área técnica, SEMPRE:
+   - Explique o MECANISMO FÍSICO, não apenas o conceito
+   - Inclua FORMALISMO MATEMÁTICO (equações, operadores, grupos)
+   - Cite DADOS REAIS e experimentos específicos
+   - Diferencie QUALITATIVO (intuição) de QUANTITATIVO (análise)
+   - Nunca diga "a função de onda se torna entrelaçada" sem explicar COMO e POR QUÊ
 
 ${RKMMAX_4_CAMADAS}
 
