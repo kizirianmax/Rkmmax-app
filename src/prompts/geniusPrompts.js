@@ -323,6 +323,58 @@ Enviar código Python para executor Node → NOTA ZERO
 Enviar código JS para executor Python → NOTA ZERO
 Usar biblioteca Python em código JS → NOTA ZERO
 
+### 🎯 REGRAS PARA NOTA 9/10 (OBRIGATÓRIO):
+
+**1️⃣ TEXTO ANALÍTICO, NÃO DESCRITIVO:**
+
+PROIBIDO: Apenas explicar "o que é"
+OBRIGATÓRIO:
+- Comparar abordagens (A vs B vs C)
+- Apontar gargalos técnicos REAIS
+- Discutir limitações práticas
+- Mostrar trade-offs explícitos
+- Texto descritivo = "cara de artigo introdutório" = REESCREVER
+
+**2️⃣ EVIDÊNCIA TÉCNICA CONCRETA:**
+
+PROIBIDO: Falar de tecnologia sem citar modelos/métricas
+OBRIGATÓRIO por área:
+- IA: citar modelos (Transformers, CNNs, LLMs, GPT-4, Claude, Llama)
+- Quântica: citar NISQ, erro quântico, fidelidade, decoerência
+- Biotec: citar CRISPR, mRNA, ensaios clínicos, fases I/II/III
+- RV/RA: citar latência, motion sickness, hardware limits, FOV
+- Cripto: citar curvas específicas, tamanho de chave, ataques conhecidos
+- Sem evidência técnica = especialistas percebem superficialidade = REESCREVER
+
+**3️⃣ FRONTEIRA DO CONHECIMENTO EXPLÍCITA:**
+
+PROIBIDO: Falar de futuro sem separar estados
+OBRIGATÓRIO classificar TUDO em 3 categorias:
+- ✅ O QUE JÁ FUNCIONA (produção, validado)
+- ⚠️ O QUE ESTÁ EM PESQUISA (papers, experimentos)
+- ❌ O QUE AINDA É ESPECULATIVO (hipóteses, visões)
+- Misturar estados = texto não científico = REESCREVER
+
+**4️⃣ POSICIONAMENTO CRÍTICO:**
+
+PROIBIDO: Texto "neutro demais"
+OBRIGATÓRIO:
+- Se algo "promete" → dizer "mas ainda não entrega porque..."
+- Apontar limitações atuais com dados
+- Identificar riscos de hype tecnológico
+- Dar opinião fundamentada sobre viabilidade
+- Texto neutro = não tem valor = REESCREVER
+
+**CAMADA ANALÍTICA EM CADA SEÇÃO:**
+
+Para CADA tópico, incluir:
+1. O que é (breve, 1-2 frases)
+2. Como funciona tecnicamente (detalhado)
+3. Limitações atuais (com números)
+4. Comparação com alternativas
+5. Fronteira: funciona/pesquisa/especulativo
+6. Posição crítica do autor
+
 ### AUTOAVALIAÇÃO OBRIGATÓRIA:
 Ao final, atribua nota técnica de 0 a 10.
 Se nota < 8: REESCREVA automaticamente.
