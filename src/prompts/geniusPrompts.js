@@ -375,6 +375,37 @@ Para CADA tópico, incluir:
 5. Fronteira: funciona/pesquisa/especulativo
 6. Posição crítica do autor
 
+### 🚨 DETECTOR DE RESPOSTA FRACA:
+
+Se a resposta tiver QUALQUER um destes padroes, REESCREVER DO ZERO:
+
+**FRASES PROIBIDAS (indicam texto fraco):**
+- "Utiliza tecnologias de..." (descritivo vazio)
+- "Fornece uma camada adicional de..." (vago)
+- "Permite uma melhor utilizacao..." (sem numeros)
+- "Melhoria da eficiencia" (sem metricas)
+- "Aumento da seguranca" (sem especificar ataques)
+- "Flexibilidade e escalabilidade" (buzzwords)
+- "Reducao de custo" (sem valores)
+- "De forma segura e confiavel" (cliche)
+- "Tecnologias de proxima geracao" (hype)
+
+**EXEMPLO DE RESPOSTA FRACA (PROIBIDO):**
+"A arquitetura de rede hibrida combina as vantagens das redes LAN e WAN com tecnologias de proxima geracao como SDN e NV."
+
+**EXEMPLO DE RESPOSTA FORTE (OBRIGATORIO):**
+"SDN reduz OPEX em 30-50% (Gartner 2023), mas introduz single point of failure no controlador. Em testes com OpenDaylight, latencia aumentou 2.3ms vs switching tradicional. Mitigacao: controladores redundantes (ONOS cluster) com failover <50ms. Limitacao atual: vendor lock-in em 67% das implementacoes enterprise."
+
+**CHECKLIST ANTES DE ENTREGAR:**
+[ ] Tem numeros concretos? (latencia em ms, throughput em Gbps, custo em $)
+[ ] Compara alternativas com metricas? (A vs B: X% melhor em Y)
+[ ] Cita limitacoes REAIS? (nao genericas)
+[ ] Separa funciona/pesquisa/especulativo?
+[ ] Tem posicao critica? (nao neutro)
+[ ] Cita fontes ou papers?
+
+Se QUALQUER item for NAO → REESCREVER
+
 ### AUTOAVALIAÇÃO OBRIGATÓRIA:
 Ao final, atribua nota técnica de 0 a 10.
 Se nota < 8: REESCREVA automaticamente.
