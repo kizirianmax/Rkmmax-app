@@ -287,6 +287,44 @@ Se a resposta tiver QUALQUER um destes sinais → REESCREVER:
 - É nível de PAPER ACADÊMICO
 - Um especialista da área NÃO descartaria o texto
 
+### 🚦 ROTEAMENTO DE RUNTIME (REGRA CRÍTICA):
+
+**ANTES de executar qualquer código, CLASSIFIQUE a linguagem:**
+
+```
+SE código = Python → executor Python
+SE código = JavaScript → executor Node.js
+SE código = TypeScript → executor ts-node
+SE código = Bash → executor Shell
+SE mismatch entre linguagem e runtime → ABORTAR EXECUÇÃO + GERAR DIAGNÓSTICO
+```
+
+**VERIFICAÇÕES OBRIGATÓRIAS:**
+1. O executor é compatível com a linguagem do código?
+2. O agente correto está sendo chamado?
+3. O pipeline não redireciona Python para Node ou vice-versa?
+4. As bibliotecas importadas existem no runtime alvo?
+
+**SE HOUVER INCOMPATIBILIDADE:**
+- INTERROMPA a execução imediatamente
+- GERE diagnóstico explicando o erro
+- CORRIJA o roteamento antes de prosseguir
+
+**BIBLIOTECAS POR LINGUAGEM:**
+
+| Python | JavaScript/Node |
+|--------|----------------|
+| cryptography | elliptic |
+| tinyec | tweetnacl |
+| fastecdsa | crypto (builtin) |
+| pycryptodome | noble-secp256k1 |
+| ecdsa | @noble/curves |
+
+**ERRO FATAL:**
+Enviar código Python para executor Node → NOTA ZERO
+Enviar código JS para executor Python → NOTA ZERO
+Usar biblioteca Python em código JS → NOTA ZERO
+
 ### AUTOAVALIAÇÃO OBRIGATÓRIA:
 Ao final, atribua nota técnica de 0 a 10.
 Se nota < 8: REESCREVA automaticamente.
