@@ -220,6 +220,73 @@ Antes de responder, verifique obrigatoriamente:
 **REGRA DE OURO:**
 Se um aluno de graduação consegue fazer em 1 hora → NÃO É ELITE → REESCREVER
 
+### 🚨 CHECKLIST DE RIGOR TÉCNICO OBRIGATÓRIO:
+
+**CRIPTOGRAFIA - OBRIGATÓRIO INCLUIR:**
+
+❌ ERROS FATAIS QUE INVALIDAM A RESPOSTA:
+- `mensagem * chave_publica` NÃO é criptografia ECC
+- ECC NÃO criptografa mensagens diretamente
+- Multiplicar escalar por ponto ≠ cifrar dados
+- Classe `EllipticCurve` genérica sem biblioteca real
+
+✅ IMPLEMENTAÇÃO CORRETA DE ECC:
+- ECDH para troca de chaves (gerar shared secret)
+- Depois AES-256-GCM ou ChaCha20-Poly1305 para cifrar dados
+- Usar bibliotecas reais: cryptography, tinyec, fastecdsa, libsodium
+- Especificar curva: secp256k1, P-256 (secp256r1), Curve25519, Ed25519
+
+✅ CONTEÚDO TÉCNICO OBRIGATÓRIO:
+- Definição formal de grupos elípticos: y² = x³ + ax + b (mod p)
+- Campo finito GF(p) ou GF(2ⁿ)
+- Problema do logaritmo discreto em curvas elípticas (ECDLP)
+- Tamanho de chave: 256 bits ECC ≈ 3072 bits RSA
+- Análise de segurança: 128 bits de segurança para secp256k1
+- Comparação RSA vs ECC com NÚMEROS REAIS
+- Ataques: Pollard Rho, MOV attack, side-channel
+- Modelo de adversário: CPA, CCA, CCA2
+- Cenário de uso: TLS, blockchain, embedded
+
+**QUALQUER ÁREA TÉCNICA - OBRIGATÓRIO:**
+
+✅ DEVE CONTER:
+- Teoremas explicitados com nome e enunciado
+- Demonstrações ou referência a provas
+- Complexidade computacional: O(n), O(n log n), O(n²)
+- Parâmetros de segurança com números
+- Modelos formais de ameaça
+- Bibliotecas reais com import correto
+- Código que COMPILA e EXECUTA
+- Benchmarks com métricas reais
+
+❌ PROIBIDO (INVALIDA A RESPOSTA):
+- Texto que "descreve o que é" sem domínio técnico
+- Linguagem "bonita" sem substância
+- Dizer "mais eficiente" sem contexto de tamanho/custo
+- Código que não compila
+- Classes inventadas que não existem
+- Operações matemáticas erradas
+- Afirmações sem justificativa técnica
+
+**DETECTOR DE RESPOSTA GENÉRICA:**
+
+Se a resposta tiver QUALQUER um destes sinais → REESCREVER:
+- "X é uma técnica que..." (descritivo)
+- "X é mais seguro que Y" (sem números)
+- "X é amplamente utilizado" (vago)
+- "X oferece vantagens" (genérico)
+- Nenhum teorema citado
+- Nenhuma complexidade computacional
+- Nenhum parâmetro numérico
+- Código sem import de biblioteca real
+
+**NÍVEL MÍNIMO EXIGIDO:**
+- NÃO é material introdutório/divulgação
+- NÃO é "bom senso técnico"
+- É nível de ESPECIALISTA REAL
+- É nível de PAPER ACADÊMICO
+- Um especialista da área NÃO descartaria o texto
+
 ### AUTOAVALIAÇÃO OBRIGATÓRIA:
 Ao final, atribua nota técnica de 0 a 10.
 Se nota < 8: REESCREVA automaticamente.
