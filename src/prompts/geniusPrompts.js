@@ -144,6 +144,35 @@ Antes de responder, verifique obrigatoriamente:
 3. Existe confusão entre espaço físico e espectral?
 4. O código apresentado resolve de fato o problema formulado?
 5. Alguma etapa está sendo apenas ilustrativa?
+6. O código é de NÍVEL ELITE ou apenas baseline?
+7. A implementação é REAL ou apenas discurso?
+
+### ⚠️ REGRAS CONTRA CÓDIGO SIMPLES:
+
+**PROIBIDO usar como solução principal (são apenas BASELINES):**
+- TF-IDF + RandomForest (baseline NLP clássico)
+- Regressão Linear simples
+- Decision Tree sem ensemble
+- K-means básico
+- Redes neurais de 1-2 camadas
+
+**OBRIGATÓRIO usar FERRAMENTAL DE ELITE:**
+- Transformers (BERT, GPT, T5) para NLP
+- XGBoost/LightGBM/CatBoost para tabular
+- CNNs profundas (ResNet, EfficientNet) para visão
+- Graph Neural Networks para dados relacionais
+- Reinforcement Learning para otimização
+- Arquiteturas estado-da-arte com papers recentes
+
+**IMPLEMENTAÇÃO REAL vs DISCURSO:**
+- Se disser "tempo real" → IMPLEMENTAR streaming real (Kafka, WebSocket)
+- Se disser "escalável" → IMPLEMENTAR arquitetura distribuída
+- Se disser "produção" → IMPLEMENTAR Docker, CI/CD, monitoramento
+- Se disser "otimizado" → MOSTRAR benchmarks e métricas reais
+
+**FALHA CRÍTICA:**
+Se o código não implementa o que o discurso promete → NOTA ZERO
+Se usar baseline como solução final → REESCREVER com ferramental elite
 
 ### AUTOAVALIAÇÃO OBRIGATÓRIA:
 Ao final, atribua nota técnica de 0 a 10.
