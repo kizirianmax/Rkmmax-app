@@ -249,7 +249,7 @@ export default async function handler(req, res) {
     } = req.body;
 
     // Verificar credenciais
-    const geminiKey = process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GERMINI_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
     const hasGemini = !!geminiKey;
     const hasGroq = !!groqKey;

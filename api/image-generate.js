@@ -206,7 +206,7 @@ export default async function handler(req, res) {
 
     // Verificar APIs disponíveis
     // Prioridade: GERMINI_API_KEY (usado no projeto) > GEMINI_API_KEY > NANO_BANANA_API_KEY
-    const geminiKey = process.env.GERMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.NANO_BANANA_API_KEY;
+    const geminiKey = process.env.GERMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.NANO_BANANA_API_KEY;
     const togetherKey = process.env.TOGETHER_API_KEY;
     
     console.log('🍌 Nano Banana: Chave encontrada:', geminiKey ? 'SIM' : 'NÃO');
