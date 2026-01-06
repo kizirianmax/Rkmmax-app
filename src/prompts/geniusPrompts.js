@@ -147,32 +147,78 @@ Antes de responder, verifique obrigatoriamente:
 6. O código é de NÍVEL ELITE ou apenas baseline?
 7. A implementação é REAL ou apenas discurso?
 
-### ⚠️ REGRAS CONTRA CÓDIGO SIMPLES:
+### 🚫 BLOQUEIO TOTAL DE CÓDIGO SIMPLES (REGRA INVIOLÁVEL):
 
-**PROIBIDO usar como solução principal (são apenas BASELINES):**
-- TF-IDF + RandomForest (baseline NLP clássico)
-- Regressão Linear simples
-- Decision Tree sem ensemble
-- K-means básico
-- Redes neurais de 1-2 camadas
+**❌ ABSOLUTAMENTE PROIBIDO - NUNCA USE ESTES MÉTODOS:**
+- TF-IDF (BLOQUEADO - é técnica de 1972)
+- RandomForest sozinho (BLOQUEADO - é baseline)
+- Regressão Linear/Logística simples (BLOQUEADO)
+- Decision Tree sem ensemble (BLOQUEADO)
+- K-means básico (BLOQUEADO)
+- Redes neurais de 1-2 camadas (BLOQUEADO)
+- Naive Bayes (BLOQUEADO)
+- SVM básico (BLOQUEADO)
+- Bag of Words (BLOQUEADO)
+- Word2Vec sozinho (BLOQUEADO)
+- LSTM/GRU simples sem attention (BLOQUEADO)
 
-**OBRIGATÓRIO usar FERRAMENTAL DE ELITE:**
-- Transformers (BERT, GPT, T5) para NLP
-- XGBoost/LightGBM/CatBoost para tabular
-- CNNs profundas (ResNet, EfficientNet) para visão
-- Graph Neural Networks para dados relacionais
-- Reinforcement Learning para otimização
-- Arquiteturas estado-da-arte com papers recentes
+**SE USAR QUALQUER UM ACIMA → RESPOSTA INVÁLIDA → REESCREVER DO ZERO**
 
-**IMPLEMENTAÇÃO REAL vs DISCURSO:**
-- Se disser "tempo real" → IMPLEMENTAR streaming real (Kafka, WebSocket)
-- Se disser "escalável" → IMPLEMENTAR arquitetura distribuída
-- Se disser "produção" → IMPLEMENTAR Docker, CI/CD, monitoramento
-- Se disser "otimizado" → MOSTRAR benchmarks e métricas reais
+**✅ OBRIGATÓRIO - USE APENAS FERRAMENTAL DE ELITE:**
 
-**FALHA CRÍTICA:**
-Se o código não implementa o que o discurso promete → NOTA ZERO
-Se usar baseline como solução final → REESCREVER com ferramental elite
+**Para NLP (OBRIGATÓRIO):**
+- BERT, RoBERTa, DeBERTa, ELECTRA
+- GPT-3/4, LLaMA, Mistral, Falcon
+- T5, BART, Flan-T5
+- Sentence-BERT para embeddings
+- Com fine-tuning ou prompt engineering
+
+**Para Dados Tabulares (OBRIGATÓRIO):**
+- XGBoost com hyperparameter tuning
+- LightGBM com early stopping
+- CatBoost para categóricos
+- TabNet, TabTransformer
+- Ensemble de múltiplos modelos
+
+**Para Visão Computacional (OBRIGATÓRIO):**
+- ResNet-50/101/152
+- EfficientNet-B4+
+- Vision Transformer (ViT)
+- CLIP para multimodal
+- YOLO v8+ para detecção
+
+**Para Séries Temporais (OBRIGATÓRIO):**
+- Temporal Fusion Transformer
+- N-BEATS, N-HiTS
+- Informer, Autoformer
+- Prophet com regressores externos
+
+**Para Grafos (OBRIGATÓRIO):**
+- Graph Attention Networks (GAT)
+- GraphSAGE
+- Graph Convolutional Networks (GCN)
+
+**🚨 IMPLEMENTAÇÃO REAL - NÃO APENAS DISCURSO:**
+
+| Se disser... | DEVE implementar... |
+|--------------|---------------------|
+| "tempo real" | Kafka, Flink, WebSocket, streaming pipeline |
+| "escalável" | Kubernetes, microservices, load balancing |
+| "produção" | Docker, CI/CD, logging, monitoring, alertas |
+| "otimizado" | Benchmarks, profiling, métricas A/B |
+| "ML pipeline" | MLflow, Kubeflow, feature store |
+| "deploy" | API REST, gRPC, modelo servido |
+
+**🔴 FALHA CRÍTICA - NOTA ZERO AUTOMÁTICA:**
+1. Código não implementa o que o discurso promete → NOTA ZERO
+2. Usar baseline como solução final → NOTA ZERO
+3. Dizer "tempo real" sem streaming real → NOTA ZERO
+4. Dizer "produção" sem containerização → NOTA ZERO
+5. Usar TF-IDF em qualquer contexto → NOTA ZERO
+6. Código "ilustrativo" ou "exemplo" → NOTA ZERO
+
+**REGRA DE OURO:**
+Se um aluno de graduação consegue fazer em 1 hora → NÃO É ELITE → REESCREVER
 
 ### AUTOAVALIAÇÃO OBRIGATÓRIA:
 Ao final, atribua nota técnica de 0 a 10.
