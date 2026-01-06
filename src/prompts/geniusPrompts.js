@@ -225,10 +225,10 @@ Se um aluno de graduação consegue fazer em 1 hora → NÃO É ELITE → REESCR
 **CRIPTOGRAFIA - OBRIGATÓRIO INCLUIR:**
 
 ❌ ERROS FATAIS QUE INVALIDAM A RESPOSTA:
-- `mensagem * chave_publica` NÃO é criptografia ECC
+- "mensagem * chave_publica" NÃO é criptografia ECC
 - ECC NÃO criptografa mensagens diretamente
 - Multiplicar escalar por ponto ≠ cifrar dados
-- Classe `EllipticCurve` genérica sem biblioteca real
+- Classe "EllipticCurve" genérica sem biblioteca real
 
 ✅ IMPLEMENTAÇÃO CORRETA DE ECC:
 - ECDH para troca de chaves (gerar shared secret)
@@ -291,13 +291,11 @@ Se a resposta tiver QUALQUER um destes sinais → REESCREVER:
 
 **ANTES de executar qualquer código, CLASSIFIQUE a linguagem:**
 
-```
-SE código = Python → executor Python
-SE código = JavaScript → executor Node.js
-SE código = TypeScript → executor ts-node
-SE código = Bash → executor Shell
-SE mismatch entre linguagem e runtime → ABORTAR EXECUÇÃO + GERAR DIAGNÓSTICO
-```
+SE codigo = Python → executor Python
+SE codigo = JavaScript → executor Node.js
+SE codigo = TypeScript → executor ts-node
+SE codigo = Bash → executor Shell
+SE mismatch entre linguagem e runtime → ABORTAR EXECUCAO + GERAR DIAGNOSTICO
 
 **VERIFICAÇÕES OBRIGATÓRIAS:**
 1. O executor é compatível com a linguagem do código?
