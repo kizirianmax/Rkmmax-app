@@ -88,23 +88,36 @@ function analyzeComplexity(messages) {
  * Chamar KIZI 2.5 Pro (Gemini 2.5 Pro - raciocínio avançado)
  */
 async function callKiziPro(messages, systemPrompt, apiKey) {
+  // Construir contents com system prompt integrado
+  const contents = [];
+  
+  // Adicionar system prompt como primeira mensagem do modelo (se existir)
+  if (systemPrompt) {
+    contents.push({
+      role: 'user',
+      parts: [{ text: systemPrompt }]
+    });
+    contents.push({
+      role: 'model', 
+      parts: [{ text: 'Entendido. Vou seguir essas instruções.' }]
+    });
+  }
+  
+  // Adicionar mensagens do usuário
+  for (const msg of messages) {
+    contents.push({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    });
+  }
+
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
-        contents: messages.map(msg => ({
-          role: msg.role === 'user' ? 'user' : 'model',
-          parts: [{ text: msg.content }]
-        })),
-        generationConfig: {
-          temperature: 1.0,
-          maxOutputTokens: 16000,
-          topP: 0.95,
-          topK: 64
-        }
+        contents: contents
       })
     }
   );
