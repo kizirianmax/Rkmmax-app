@@ -16,7 +16,6 @@ export default async function handler(req, res) {
   try {
     const { tipo, requisicao, opcoes = {} } = req.body;
 
-    // Verificar API Key
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
         erro: 'ANTHROPIC_API_KEY não configurada',
@@ -26,26 +25,29 @@ export default async function handler(req, res) {
 
     const rkmmax = new RKMMAXClaudeSystem();
 
-    // Roteamento baseado no tipo
     switch(tipo) {
       case 'texto':
         const resultadoTexto = await rkmmax.processar(requisicao, opcoes);
         return res.status(200).json(resultadoTexto);
 
+      case 'vision':
       case 'imagem':
-        const { prompt, imagemBase64, mediaType = 'image/jpeg' } = opcoes;
-        if (!prompt || !imagemBase64) {
-          return res.status(400).json({ erro: 'Prompt e imagem obrigatórios' });
+        const { prompt, image, imagemBase64, mediaType = 'image/jpeg' } = opcoes;
+        const imgData = imagemBase64 || image;
+        
+        if (!imgData) {
+          return res.status(400).json({ erro: 'Imagem obrigatória' });
         }
-        const resultadoImagem = await rkmmax.claude.processarComImagem(
-          prompt,
-          imagemBase64,
+        
+        const resultadoImg = await rkmmax.claude.processarComImagem(
+          prompt || requisicao,
+          imgData,
           mediaType
         );
-        return res.status(200).json(resultadoImagem);
+        return res.status(200).json(resultadoImg);
 
       default:
-        return res.status(400).json({ erro: 'Tipo inválido. Use: texto ou imagem' });
+        return res.status(400).json({ erro: 'Tipo inválido. Use: texto, imagem ou vision' });
     }
 
   } catch (error) {
