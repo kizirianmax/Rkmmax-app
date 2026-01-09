@@ -197,36 +197,13 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
  * Chamar o motor KIZI apropriado com fallback automático
  */
 async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
-  const hasGemini = !!geminiKey;
   const hasGroq = !!groqKey;
   
-  // Ordem de tentativa baseada na complexidade
-  let attempts = [];
-  
-  switch (complexity) {
-    case 'pro':
-      attempts = [
-        { name: 'kizi-2.5-pro', fn: () => callKiziPro(messages, systemPrompt, geminiKey), requires: hasGemini },
-        { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq },
-        { name: 'kizi-flash', fn: () => callKiziFlash(messages, systemPrompt, geminiKey), requires: hasGemini }
-      ];
-      break;
-    case 'flash':
-      attempts = [
-        { name: 'kizi-flash', fn: () => callKiziFlash(messages, systemPrompt, geminiKey), requires: hasGemini },
-        { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq },
-        { name: 'kizi-2.5-pro', fn: () => callKiziPro(messages, systemPrompt, geminiKey), requires: hasGemini }
-      ];
-      break;
-    case 'speed':
-    default:
-      attempts = [
-        { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq },
-        { name: 'kizi-flash', fn: () => callKiziFlash(messages, systemPrompt, geminiKey), requires: hasGemini },
-        { name: 'kizi-2.5-pro', fn: () => callKiziPro(messages, systemPrompt, geminiKey), requires: hasGemini }
-      ];
-      break;
-  }
+  // USAR APENAS GROQ - Gemini 2.5 Pro não aceita API Key
+  // TODO: Reativar Gemini quando tiver OAuth2 configurado
+  let attempts = [
+    { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq }
+  ];
   
   // Tentar cada motor em ordem
   for (const attempt of attempts) {
