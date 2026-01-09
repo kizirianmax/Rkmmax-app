@@ -12,6 +12,7 @@
 import geniusPrompts from '../src/prompts/geniusPrompts.js';
 import costOptimization from '../src/utils/costOptimization.js';
 import { specialists } from '../src/config/specialists.js';
+import { RKMMAXClaudeSystem } from '../lib/claude-integration.js';
 
 const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
@@ -198,27 +199,37 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
  */
 async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
   const hasGroq = !!groqKey;
+  const hasClaude = !!process.env.ANTHROPIC_API_KEY;
   
-  // USAR APENAS GROQ - Gemini 2.5 Pro não aceita API Key
-  // TODO: Reativar Gemini quando tiver OAuth2 configurado
-  let attempts = [
-    { name: 'kizi-speed', fn: () => callKiziSpeed(messages, systemPrompt, groqKey), requires: hasGroq }
-  ];
-  
-  // Tentar cada motor em ordem
-  for (const attempt of attempts) {
-    if (!attempt.requires) continue;
-    
+  // CLAUDE PRINCIPAL, GROQ FALLBACK
+  // 1. Tentar Claude primeiro
+  if (hasClaude) {
     try {
-      console.log(`🤖 Tentando ${attempt.name}...`);
-      const response = await attempt.fn();
-      return { response, model: attempt.name };
+      console.log('🤖 Tentando Claude 3.5 Sonnet...');
+      const rkmmax = new RKMMAXClaudeSystem();
+      const lastMsg = messages[messages.length - 1]?.content || '';
+      const resultado = await rkmmax.processar(lastMsg, {});
+      if (resultado.status === 'sucesso') {
+        return { response: resultado.resultado.resposta, model: 'claude-3.5-sonnet' };
+      }
+      throw new Error(resultado.erro || 'Claude falhou');
     } catch (error) {
-      console.error(`❌ ${attempt.name} falhou:`, error.message);
+      console.error('❌ Claude falhou:', error.message);
     }
   }
   
-  throw new Error('Todos os motores KIZI falharam');
+  // 2. Fallback para Groq
+  if (hasGroq) {
+    try {
+      console.log('🤖 Fallback: Groq Speed...');
+      const response = await callKiziSpeed(messages, systemPrompt, groqKey);
+      return { response, model: 'groq-llama-70b' };
+    } catch (error) {
+      console.error('❌ Groq falhou:', error.message);
+    }
+  }
+  
+  throw new Error('Todos os motores falharam. Configure ANTHROPIC_API_KEY ou GROQ_API_KEY');
 }
 
 /**
