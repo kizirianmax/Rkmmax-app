@@ -249,16 +249,16 @@ export default async function handler(req, res) {
       forceModel  // Opcional: forçar um modelo específico ('pro', 'speed', 'flash')
     } = req.body;
 
-    // Verificar credenciais
-    const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GERMINI_API_KEY;
+    // Verificar credenciais - CLAUDE PRINCIPAL
+    const claudeKey = process.env.ANTHROPIC_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
-    const hasGemini = !!geminiKey;
+    const hasClaude = !!claudeKey;
     const hasGroq = !!groqKey;
 
-    if (!hasGemini && !hasGroq) {
+    if (!hasClaude && !hasGroq) {
       return res.status(500).json({
         error: 'No AI providers configured',
-        hint: 'Configure GEMINI_API_KEY or GROQ_API_KEY'
+        hint: 'Configure ANTHROPIC_API_KEY ou GROQ_API_KEY'
       });
     }
 
@@ -289,7 +289,7 @@ export default async function handler(req, res) {
         optimized.messages,
         optimized.systemPrompt,
         complexity,
-        geminiKey,
+        null, // Gemini desabilitado
         groqKey
       );
 
@@ -348,7 +348,7 @@ export default async function handler(req, res) {
         optimized.messages,
         optimized.systemPrompt,
         complexity,
-        geminiKey,
+        null, // Gemini desabilitado
         groqKey
       );
 
