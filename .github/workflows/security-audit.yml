@@ -1,0 +1,57 @@
+name: security-audit
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: npm audit (fail on high/critical)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (with npm cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (CI)
+        run: npm ci
+
+      - name: Run npm audit (fails if any vulnerability >= high)
+        run: npm audit --audit-level=high
+
+  audit-json-artifact:
+    name: manual — run npm audit --json and upload artifact (manual/disabled by default)
+    needs: audit
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (with npm cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (CI)
+        run: npm ci
+
+      - name: Run npm audit and write JSON (always produce file)
+        run: npm audit --json > npm-audit.json || true
+
+      - name: Upload npm audit JSON artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: npm-audit.json
