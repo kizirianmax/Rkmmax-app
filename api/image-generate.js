@@ -1,96 +1,42 @@
 /**
  * 🍌 NANO BANANA - Gerador de Imagens RKMMAX
  * 
- * Sistema de geração de imagens usando Google Imagen API
+ * Sistema de geração de imagens usando Google Gemini API (SDK oficial)
  * Integrado com a mesma API key do Gemini
  * 
  * Uso: POST /api/image-generate
  * Body: { prompt: "descrição da imagem", style?: "realistic|anime|artistic" }
  */
 
-/**
- * Gerar imagem usando Google Imagen 3 (via Gemini API)
- */
-async function generateWithGoogleImagen(prompt, apiKey) {
-  console.log('🍌 Nano Banana: Usando Google Imagen 3...');
-  
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        instances: [
-          {
-            prompt: prompt
-          }
-        ],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: '1:1',
-          safetyFilterLevel: 'block_some',
-          personGeneration: 'allow_adult'
-        }
-      })
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('Google Imagen error:', error);
-    throw new Error(`Google Imagen error: ${error}`);
-  }
-
-  const data = await response.json();
-  
-  if (data.predictions && data.predictions[0] && data.predictions[0].bytesBase64Encoded) {
-    return {
-      image: data.predictions[0].bytesBase64Encoded,
-      format: 'base64',
-      mimeType: data.predictions[0].mimeType || 'image/png',
-      provider: 'google-imagen',
-      model: 'imagen-3.0-generate-002'
-    };
-  }
-  
-  throw new Error('Google Imagen: Nenhuma imagem gerada');
-}
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 /**
- * Fallback: Gerar imagem usando Gemini 2.0 Flash (experimental image generation)
+ * Gerar imagem usando Gemini 2.0 Flash com SDK oficial
  */
 async function generateWithGeminiFlash(prompt, apiKey) {
-  console.log('🍌 Nano Banana: Usando Gemini 2.0 Flash (experimental)...');
+  console.log('🍌 Nano Banana: Usando Gemini 2.0 Flash (image generation)...');
   
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `Generate an image: ${prompt}`
-          }]
-        }],
-        generationConfig: {
-          responseModalities: ['image', 'text'],
-          responseMimeType: 'image/png'
-        }
-      })
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ 
+    model: 'gemini-2.0-flash-preview-image-generation'
+  });
+
+  const result = await model.generateContent({
+    contents: [{
+      parts: [{
+        text: prompt
+      }]
+    }],
+    generationConfig: {
+      responseModalities: ['IMAGE', 'TEXT']
     }
-  );
+  });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Gemini Flash error: ${error}`);
-  }
-
-  const data = await response.json();
+  const response = result.response;
   
   // Procurar por imagem na resposta
-  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-    const parts = data.candidates[0].content.parts;
+  if (response.candidates && response.candidates[0] && response.candidates[0].content) {
+    const parts = response.candidates[0].content.parts;
     for (const part of parts) {
       if (part.inlineData && part.inlineData.data) {
         return {
@@ -98,7 +44,7 @@ async function generateWithGeminiFlash(prompt, apiKey) {
           format: 'base64',
           mimeType: part.inlineData.mimeType || 'image/png',
           provider: 'gemini-flash',
-          model: 'gemini-2.0-flash-exp'
+          model: 'gemini-2.0-flash-preview-image-generation'
         };
       }
     }
@@ -214,12 +160,8 @@ export default async function handler(req, res) {
     // Lista de providers para tentar
     const providers = [];
     
-    // Ordem: Google Imagen > Gemini Flash > Together AI
+    // Ordem: Gemini Flash > Together AI
     if (geminiKey) {
-      providers.push({ 
-        name: 'google-imagen', 
-        fn: () => generateWithGoogleImagen(enhancedPrompt, geminiKey) 
-      });
       providers.push({ 
         name: 'gemini-flash', 
         fn: () => generateWithGeminiFlash(enhancedPrompt, geminiKey) 

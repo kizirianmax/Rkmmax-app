@@ -6,56 +6,49 @@
  * Compatível com Vercel Serverless (ESM)
  */
 
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-// Transcrição com Gemini 2.0 Flash (inline data para áudios pequenos)
+// Transcrição com Gemini 2.0 Flash usando SDK oficial
 async function transcribeWithGemini(audioBase64, apiKey, mimeType = 'audio/webm') {
   console.log('🔄 Tentando transcrição com Gemini 2.0 Flash...');
   
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                inlineData: {
-                  mimeType: mimeType,
-                  data: audioBase64
-                }
-              },
-              {
-                text: 'Transcreva este áudio em português brasileiro. Retorne APENAS o texto transcrito, sem explicações ou comentários adicionais.'
-              }
-            ]
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+  const result = await model.generateContent({
+    contents: [{
+      parts: [
+        {
+          inlineData: {
+            mimeType: mimeType,
+            data: audioBase64
           }
-        ],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 2048
+        },
+        {
+          text: 'Transcreva este áudio em português brasileiro. Retorne APENAS o texto transcrito, sem explicações ou comentários adicionais.'
         }
-      })
+      ]
+    }],
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 2048
     }
-  );
+  });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`Gemini error: ${error.error?.message || JSON.stringify(error)}`);
-  }
-
-  const data = await response.json();
-  if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+  const response = result.response;
+  const text = response.text();
+  
+  if (!text) {
     throw new Error('Resposta inválida do Gemini - sem texto');
   }
 
-  return data.candidates[0].content.parts[0].text.trim();
+  return text.trim();
 }
 
 // Transcrição com Groq Whisper (fallback confiável)
