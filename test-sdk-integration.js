@@ -19,7 +19,7 @@ try {
 
 // Test 2: SDK Instantiation
 try {
-  const genAI = new GoogleGenerativeAI('test-api-key');
+  const genAI = new GoogleGenerativeAI('DUMMY_API_KEY_FOR_TESTING');
   console.log('✅ Test 2: SDK Instantiation - SUCCESS');
   console.log('   GoogleGenerativeAI instance created');
 } catch (error) {
@@ -30,7 +30,7 @@ try {
 
 // Test 3: Model Creation (Image Generation)
 try {
-  const genAI = new GoogleGenerativeAI('test-api-key');
+  const genAI = new GoogleGenerativeAI('DUMMY_API_KEY_FOR_TESTING');
   const imageModel = genAI.getGenerativeModel({ 
     model: 'gemini-2.0-flash-preview-image-generation' 
   });
@@ -44,7 +44,7 @@ try {
 
 // Test 4: Model Creation (Transcription)
 try {
-  const genAI = new GoogleGenerativeAI('test-api-key');
+  const genAI = new GoogleGenerativeAI('DUMMY_API_KEY_FOR_TESTING');
   const transcribeModel = genAI.getGenerativeModel({ 
     model: 'gemini-2.0-flash' 
   });
@@ -58,7 +58,7 @@ try {
 
 // Test 5: API Structure (Image Generation)
 try {
-  const genAI = new GoogleGenerativeAI('test-api-key');
+  const genAI = new GoogleGenerativeAI('DUMMY_API_KEY_FOR_TESTING');
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
   
   // Check that required methods exist
