@@ -199,7 +199,6 @@ export const getAIModel = (userPlan, mode = 'standard') => {
   
   // Premium Plan: Gemini 1.5 Pro
   if (planId === 'premium') {
-    if (mode === 'advanced' || mode === 'standard') return 'gemini-1.5-pro';
     return 'gemini-1.5-pro';
   }
   
@@ -222,11 +221,11 @@ export const estimateMessageCost = (userPlan, tokens, mode = 'standard') => {
   const model = getAIModel(userPlan, mode);
   
   const pricing = {
-    'gemini-2.0-flash': 0.000000075, // $0.075 / 1M tokens
-    'gemini-1.5-pro': 0.0000025, // $2.50 / 1M tokens
-    'claude-3.5-sonnet': 0.000003, // $3.00 / 1M tokens
-    'groq-llama-70b': 0.0000008, // $0.80 / 1M tokens
-    'gpt-4.1-mini': 0.0000008, // $0.80 / 1M tokens
+    'gemini-2.0-flash': 0.000000075, // $0.075 per 1M tokens (= $0.000000075 per token)
+    'gemini-1.5-pro': 0.0000025, // $2.50 per 1M tokens
+    'claude-3.5-sonnet': 0.000003, // $3.00 per 1M tokens
+    'groq-llama-70b': 0.0000008, // $0.80 per 1M tokens
+    'gpt-4.1-mini': 0.0000008, // $0.80 per 1M tokens
   };
   
   const costPerToken = pricing[model] || pricing['gemini-2.0-flash'];

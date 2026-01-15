@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient.js";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,8 +25,8 @@ export default function Login() {
       if (error) throw error;
 
       setMessage("Login realizado com sucesso!");
-      // Redirect or update UI as needed
-      window.location.href = "/";
+      // Use React Router navigation instead of window.location
+      setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       setError(err.message || "Erro ao fazer login");
     } finally {
