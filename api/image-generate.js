@@ -139,7 +139,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt, style = "realistic", provider: preferredProvider } = req.body;
+    const { prompt, style = "realistic" } = req.body;
 
     if (!prompt) {
       return res.status(400).json({
