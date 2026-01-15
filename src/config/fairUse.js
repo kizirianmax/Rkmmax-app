@@ -70,6 +70,43 @@ export const plans = {
       },
     },
   },
+  ultra: {
+    id: 'ultra',
+    name: 'Ultra',
+    price: 150,
+    currency: 'BRL',
+    limits: {
+      messagesPerDay: 800,
+      messagesPerMonth: 24000,
+      specialists: 'all',
+      maxTokensPerMessage: 16000,
+      features: {
+        studyLab: true,
+        prioritySupport: true,
+        advancedModels: true,
+        ultraAIStack: true, // Hybrid AI with Gemini + Claude + Groq
+      },
+    },
+  },
+  dev: {
+    id: 'dev',
+    name: 'Dev',
+    price: 200,
+    currency: 'BRL',
+    limits: {
+      messagesPerDay: 1000,
+      messagesPerMonth: 30000,
+      specialists: 'all',
+      maxTokensPerMessage: 32000,
+      features: {
+        studyLab: true,
+        prioritySupport: true,
+        advancedModels: true,
+        ultraAIStack: true,
+        devAIStack: true, // Full Hybrid AI Stack
+      },
+    },
+  },
 };
 
 // Verificar se usuário atingiu limite
@@ -139,25 +176,56 @@ export const canUseSpecialist = (userPlan, specialistId) => {
   return plan.limits.specialists.includes(specialistId);
 };
 
-// Obter modelo de IA baseado no plano
-export const getAIModel = (userPlan, messageType = 'standard') => {
+// Obter modelo de IA baseado no plano e modo
+export const getAIModel = (userPlan, mode = 'standard') => {
   const plan = plans[userPlan] || plans.free;
+  const planId = plan.id;
   
-  // Premium pode escolher modelo avançado
-  if (plan.limits.features.advancedModels && messageType === 'advanced') {
-    return 'gpt-4.1-mini'; // Ou GPT-4.1 se usuário escolher
+  // Dev Plan: Full Hybrid Stack
+  if (planId === 'dev') {
+    if (mode === 'turbo') return 'groq-llama-70b';
+    if (mode === 'fallback') return 'claude-3.5-sonnet';
+    if (mode === 'advanced') return 'gemini-1.5-pro';
+    return 'gemini-2.0-flash'; // Default: Gemini 2.0 Flash
   }
   
-  // Todos os outros usam Gemini Flash (mais barato)
+  // Ultra Plan: Hybrid Stack (Gemini + Claude + Groq)
+  if (planId === 'ultra') {
+    if (mode === 'turbo') return 'groq-llama-70b';
+    if (mode === 'fallback') return 'claude-3.5-sonnet';
+    if (mode === 'advanced') return 'gemini-1.5-pro';
+    return 'gemini-2.0-flash'; // Default: Gemini 2.0 Flash
+  }
+  
+  // Premium Plan: Gemini 1.5 Pro
+  if (planId === 'premium') {
+    if (mode === 'advanced' || mode === 'standard') return 'gemini-1.5-pro';
+    return 'gemini-1.5-pro';
+  }
+  
+  // Intermediate Plan: Gemini 2.0 Flash
+  if (planId === 'intermediate') {
+    return 'gemini-2.0-flash';
+  }
+  
+  // Basic Plan: Gemini 2.0 Flash
+  if (planId === 'basic') {
+    return 'gemini-2.0-flash';
+  }
+  
+  // Free Plan: Gemini 2.0 Flash (default)
   return 'gemini-2.0-flash';
 };
 
 // Calcular custo estimado por mensagem
-export const estimateMessageCost = (userPlan, tokens) => {
-  const model = getAIModel(userPlan);
+export const estimateMessageCost = (userPlan, tokens, mode = 'standard') => {
+  const model = getAIModel(userPlan, mode);
   
   const pricing = {
     'gemini-2.0-flash': 0.000000075, // $0.075 / 1M tokens
+    'gemini-1.5-pro': 0.0000025, // $2.50 / 1M tokens
+    'claude-3.5-sonnet': 0.000003, // $3.00 / 1M tokens
+    'groq-llama-70b': 0.0000008, // $0.80 / 1M tokens
     'gpt-4.1-mini': 0.0000008, // $0.80 / 1M tokens
   };
   

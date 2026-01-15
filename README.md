@@ -63,11 +63,13 @@ Agente generalista que analisa sua tarefa e consulta automaticamente os especial
 
 ### 💰 Planos Acessíveis
 
-| Plano | Preço | Mensagens/dia |
-|-------|-------|---------------|
-| **Básico** | R$ 14,90 | 100 |
-| **Intermediário** | R$ 50,00 | 300 |
-| **Premium** | R$ 90,00 | 500 |
+| Plano | Preço | Mensagens/dia | Stack de IA |
+|-------|-------|---------------|-------------|
+| **Básico** | R$ 14,90 | 100 | Gemini 2.0 Flash |
+| **Intermediário** | R$ 50,00 | 300 | Gemini 2.0 Flash |
+| **Premium** | R$ 90,00 | 500 | Gemini 1.5 Pro |
+| **Ultra** | R$ 150,00 | 800 | Hybrid (Gemini + Claude + Groq) |
+| **Dev** | R$ 200,00 | 1000 | Full Hybrid Stack |
 
 ### 🎮 Controle de Visibilidade
 
@@ -98,10 +100,19 @@ Ative/desative especialistas conforme sua necessidade. Interface limpa e persona
 - **Auth:** Supabase Auth
 
 ### IA
-- **Modelo primário:** Gemini 2.0 Flash ($0.075/1M tokens)
-- **Modelo secundário:** GPT-4.1-mini ($0.75/1M tokens)
+- **Arquitetura Multi-Modelo:** Sistema híbrido inteligente
+- **Modelo Primário:** Vertex AI - Gemini 2.0 Flash ($0.075/1M tokens)
+- **Fallback 1:** Claude 3.5 Sonnet ($3.00/1M tokens)
+- **Fallback 2 (Turbo):** Groq Llama 70b ($0.80/1M tokens)
+- **Premium Model:** Gemini 1.5 Pro ($2.50/1M tokens)
 - **Orquestração:** Sistema proprietário otimizado
-- **Contexto:** 1M tokens
+- **Contexto:** 1M tokens (Gemini)
+
+#### Stacks por Plano:
+- **Básico/Intermediário:** Gemini 2.0 Flash
+- **Premium:** Gemini 1.5 Pro
+- **Ultra:** Hybrid - Gemini 2.0 Flash (padrão) + Claude 3.5 Sonnet (fallback) + Groq 70b (turbo)
+- **Dev:** Full Hybrid - Acesso a todos os modelos com seleção dinâmica
 
 ### Observabilidade
 - **Errors:** Sentry (5% sampling)
