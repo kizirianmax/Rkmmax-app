@@ -195,17 +195,64 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
 }
 
 /**
+ * Chamar Vertex AI (Google)
+ */
+async function callVertex(messages, systemPrompt) {
+  const vertexKey = process.env.VERTEX_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  if (!vertexKey) throw new Error('VERTEX_API_KEY não configurada');
+  
+  const lastMsg = messages[messages.length - 1]?.content || '';
+  const fullPrompt = systemPrompt ? `${systemPrompt}\n\nUsuário: ${lastMsg}` : lastMsg;
+  
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${vertexKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: {
+          temperature: 0.8,
+          topP: 0.25,
+          maxOutputTokens: 8192
+        }
+      })
+    }
+  );
+  
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+  
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Resposta vazia do Vertex');
+  
+  return text;
+}
+
+/**
  * Chamar o motor KIZI apropriado com fallback automático
+ * ORDEM: Vertex AI → Claude → Groq
  */
 async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
-  const hasGroq = !!groqKey;
+  const hasVertex = !!(process.env.VERTEX_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY);
   const hasClaude = !!process.env.ANTHROPIC_API_KEY;
+  const hasGroq = !!groqKey;
   
-  // CLAUDE PRINCIPAL, GROQ FALLBACK
-  // 1. Tentar Claude primeiro
+  // 1. Tentar Vertex AI primeiro
+  if (hasVertex) {
+    try {
+      console.log('🤖 Tentando Vertex AI (Gemini 2.0 Flash)...');
+      const response = await callVertex(messages, systemPrompt);
+      return { response, model: 'vertex-gemini-2.0-flash' };
+    } catch (error) {
+      console.error('❌ Vertex falhou:', error.message);
+    }
+  }
+  
+  // 2. Fallback para Claude
   if (hasClaude) {
     try {
-      console.log('🤖 Tentando Claude 3.5 Sonnet...');
+      console.log('🤖 Fallback: Claude 3.5 Sonnet...');
       const rkmmax = new RKMMAXClaudeSystem();
       const lastMsg = messages[messages.length - 1]?.content || '';
       const resultado = await rkmmax.processar(lastMsg, {});
@@ -218,7 +265,7 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
     }
   }
   
-  // 2. Fallback para Groq
+  // 3. Fallback para Groq
   if (hasGroq) {
     try {
       console.log('🤖 Fallback: Groq Speed...');
@@ -229,7 +276,7 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
     }
   }
   
-  throw new Error('Todos os motores falharam. Configure ANTHROPIC_API_KEY ou GROQ_API_KEY');
+  throw new Error('Todos os motores falharam. Configure VERTEX_API_KEY, ANTHROPIC_API_KEY ou GROQ_API_KEY');
 }
 
 /**
