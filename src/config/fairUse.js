@@ -1,24 +1,7 @@
 // Sistema de Fair Use - Limites por Plano
-// Garante uso sustentável e controle de custos
+// PROJETO 100% PAGO - SEM OPÇÃO GRATUITA
 
 export const plans = {
-  free: {
-    id: 'free',
-    name: 'Gratuito',
-    price: 0,
-    currency: 'BRL',
-    limits: {
-      messagesPerDay: 10,
-      messagesPerMonth: 100,
-      specialists: ['serginho', 'didak', 'edu'], // Apenas 3 especialistas
-      maxTokensPerMessage: 1000,
-      features: {
-        studyLab: false,
-        prioritySupport: false,
-        advancedModels: false,
-      },
-    },
-  },
   basic: {
     id: 'basic',
     name: 'Básico',
@@ -66,7 +49,7 @@ export const plans = {
       features: {
         studyLab: true,
         prioritySupport: true,
-        advancedModels: true, // GPT-4.1 opcional
+        advancedModels: true, // Gemini 2.5 Pro
       },
     },
   },
@@ -74,7 +57,7 @@ export const plans = {
 
 // Verificar se usuário atingiu limite
 export const checkLimit = (userPlan, usage) => {
-  const plan = plans[userPlan] || plans.free;
+  const plan = plans[userPlan] || plans.basic;
   
   const dailyRemaining = plan.limits.messagesPerDay - (usage.messagesToday || 0);
   const monthlyRemaining = plan.limits.messagesPerMonth - (usage.messagesThisMonth || 0);
@@ -130,7 +113,7 @@ export const getLimitMessage = (limitStatus) => {
 
 // Verificar se especialista está disponível no plano
 export const canUseSpecialist = (userPlan, specialistId) => {
-  const plan = plans[userPlan] || plans.free;
+  const plan = plans[userPlan] || plans.basic;
   
   if (plan.limits.specialists === 'all') {
     return true;
@@ -140,16 +123,9 @@ export const canUseSpecialist = (userPlan, specialistId) => {
 };
 
 // Obter modelo de IA baseado no plano
+// TODOS OS PLANOS USAM GEMINI 2.5 PRO
 export const getAIModel = (userPlan, messageType = 'standard') => {
-  const plan = plans[userPlan] || plans.free;
-  
-  // Premium pode escolher modelo avançado
-  if (plan.limits.features.advancedModels && messageType === 'advanced') {
-    return 'gpt-4.1-mini'; // Ou GPT-4.1 se usuário escolher
-  }
-  
-  // Todos os outros usam Gemini Flash (mais barato)
-  return 'gemini-2.0-flash';
+  return 'gemini-2.5-pro';
 };
 
 // Calcular custo estimado por mensagem
@@ -157,11 +133,10 @@ export const estimateMessageCost = (userPlan, tokens) => {
   const model = getAIModel(userPlan);
   
   const pricing = {
-    'gemini-2.0-flash': 0.000000075, // $0.075 / 1M tokens
-    'gpt-4.1-mini': 0.0000008, // $0.80 / 1M tokens
+    'gemini-2.5-pro': 0.00000125, // $1.25 / 1M tokens input
   };
   
-  const costPerToken = pricing[model] || pricing['gemini-2.0-flash'];
+  const costPerToken = pricing[model] || pricing['gemini-2.5-pro'];
   const costUSD = tokens * costPerToken;
   const costBRL = costUSD * 5; // Conversão aproximada
   
@@ -172,4 +147,3 @@ export const estimateMessageCost = (userPlan, tokens) => {
     costBRL,
   };
 };
-

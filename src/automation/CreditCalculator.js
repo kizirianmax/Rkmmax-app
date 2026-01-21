@@ -34,27 +34,7 @@ class CreditCalculator {
 
     // Definição de planos com limites rígidos
     this.plans = {
-      'free': {
-        name: 'Plano Gratuito',
-        monthlyPrice: 0,
-        dailyLimits: {
-          automations: -1,        // Sem limite
-          aiRequests: -1,         // Sem limite
-          totalCredits: -1,       // Sem limite
-        },
-        features: {
-          specialists: 1,         // Apenas Serginho
-          modes: ['MANUAL'],
-          maxFilesPerAutomation: 5,
-          maxLinesOfCode: 1000,
-          gitIntegration: false,
-          prCreation: false,
-        },
-        marginTarget: 0,          // Gratuito não tem margem
-        status: 'ACTIVE',
-        deprecationWarning: true, // Aviso de descontinuação
-      },
-
+      // PROJETO 100% PAGO - SEM PLANO GRATUITO
       'basic': {
         name: 'Plano Básico',
         monthlyPrice: 4990,       // R$ 49,90
@@ -256,8 +236,8 @@ class CreditCalculator {
 
     const limits = plan.dailyLimits;
 
-    // Plano gratuito não tem limite
-    if (planName === 'free') {
+    // Plano básico é o mínimo
+    if (!this.plans[planName]) {
       return { valid: true, message: 'Sem limite' };
     }
 
@@ -299,7 +279,7 @@ class CreditCalculator {
     const prices = {};
 
     for (const [planId, plan] of Object.entries(this.plans)) {
-      if (planId === 'free' || planId === 'enterprise') continue;
+      if (planId === 'enterprise') continue;
 
       // Estimar custo mensal (assumindo 20 automações por dia)
       const automationsPerMonth = 20 * 30; // 20 por dia, 30 dias

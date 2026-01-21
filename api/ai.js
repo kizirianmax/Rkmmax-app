@@ -137,7 +137,7 @@ async function callKiziPro(messages, systemPrompt, apiKey) {
  */
 async function callKiziFlash(messages, systemPrompt, apiKey) {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -205,7 +205,7 @@ async function callVertex(messages, systemPrompt) {
   const fullPrompt = systemPrompt ? `${systemPrompt}\n\nUsuário: ${lastMsg}` : lastMsg;
   
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${vertexKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${vertexKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -241,9 +241,9 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
   // 1. Tentar Vertex AI primeiro
   if (hasVertex) {
     try {
-      console.log('🤖 Tentando Vertex AI (Gemini 2.0 Flash)...');
+      console.log('🤖 Tentando Vertex AI (Gemini 2.5 Pro)...');
       const response = await callVertex(messages, systemPrompt);
-      return { response, model: 'vertex-gemini-2.0-flash' };
+      return { response, model: 'vertex-gemini-2.5-pro' };
     } catch (error) {
       console.error('❌ Vertex falhou:', error.message);
     }
