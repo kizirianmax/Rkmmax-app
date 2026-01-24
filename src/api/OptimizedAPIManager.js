@@ -143,7 +143,7 @@ class OptimizedAPIManager {
         },
       },
       defaultModel: 'claude-sonnet-4-5-20250929',
-      version: '2023-06-01',
+      version: '2023-06-01', // API version
     };
   }
 
@@ -157,9 +157,10 @@ class OptimizedAPIManager {
    * - Gemini: Apenas com forceProvider (legacy)
    */
   selectModel(complexity = 'simple', options = {}) {
-    // Verificar se providers estão inicializados
-    if (!this.providers.groq && !this.providers.claude) {
-      console.warn('⚠️ Providers não inicializados corretamente!');
+    // Verificar se pelo menos um provider está inicializado
+    if (!this.providers.groq && !this.providers.claude && !this.providers.gemini) {
+      console.warn('⚠️ Nenhum provider inicializado!');
+      // Retornar fallback default mesmo sem configuração
       return {
         provider: 'groq',
         model: 'openai/gpt-oss-120b',
