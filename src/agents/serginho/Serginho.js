@@ -536,7 +536,7 @@ export default function App() {
   const formatTime = (secs) => {
     const mins = Math.floor(secs / 60);
     const remainingSecs = secs % 60;
-    return \`\${mins.toString().padStart(2, '0')}:\${remainingSecs.toString().padStart(2, '0')}\`;
+    return `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
   };
 
   return (
