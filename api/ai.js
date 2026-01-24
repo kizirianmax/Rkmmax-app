@@ -18,6 +18,17 @@ const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
 
 /**
+ * Get Google AI API key from environment variables
+ * Supports multiple alias names for flexibility
+ * @returns {string|undefined} API key or undefined if not set
+ */
+function getGoogleApiKey() {
+  return process.env.VERTEX_API_KEY || 
+         process.env.GOOGLE_API_KEY || 
+         process.env.GEMINI_API_KEY;
+}
+
+/**
  * Analisar complexidade da mensagem para escolher o motor ideal
  */
 function analyzeComplexity(messages) {
@@ -198,8 +209,16 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
  * Chamar Vertex AI (Google)
  */
 async function callVertex(messages, systemPrompt) {
-  const vertexKey = process.env.VERTEX_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-  if (!vertexKey) throw new Error('VERTEX_API_KEY não configurada');
+  // Try multiple environment variable names for flexibility
+  const vertexKey = getGoogleApiKey();
+  
+  if (!vertexKey) {
+    throw new Error(
+      'Google AI API key not configured. Please set one of: ' +
+      'GOOGLE_API_KEY, GEMINI_API_KEY, or VERTEX_API_KEY. ' +
+      'Get your key at https://aistudio.google.com/app/apikey'
+    );
+  }
   
   const lastMsg = messages[messages.length - 1]?.content || '';
   const fullPrompt = systemPrompt ? `${systemPrompt}\n\nUsuário: ${lastMsg}` : lastMsg;
@@ -234,7 +253,7 @@ async function callVertex(messages, systemPrompt) {
  * ORDEM: Vertex AI → Claude → Groq
  */
 async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
-  const hasVertex = !!(process.env.VERTEX_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY);
+  const hasVertex = !!getGoogleApiKey();
   const hasClaude = !!process.env.ANTHROPIC_API_KEY;
   const hasGroq = !!groqKey;
   
@@ -276,7 +295,13 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
     }
   }
   
-  throw new Error('Todos os motores falharam. Configure VERTEX_API_KEY, ANTHROPIC_API_KEY ou GROQ_API_KEY');
+  throw new Error(
+    'All AI providers failed. Please check your configuration:\n' +
+    '- VERTEX_API_KEY / GOOGLE_API_KEY / GEMINI_API_KEY for Google AI\n' +
+    '- ANTHROPIC_API_KEY for Claude\n' +
+    '- GROQ_API_KEY for Groq\n' +
+    'See .env.template for setup instructions.'
+  );
 }
 
 /**
@@ -296,16 +321,18 @@ export default async function handler(req, res) {
       forceModel  // Opcional: forçar um modelo específico ('pro', 'speed', 'flash')
     } = req.body;
 
-    // Verificar credenciais - CLAUDE PRINCIPAL
-    const claudeKey = process.env.ANTHROPIC_API_KEY;
+    // Verificar credenciais - pelo menos um provider necessário
+    const hasVertex = !!getGoogleApiKey();
+    const hasClaude = !!process.env.ANTHROPIC_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
-    const hasClaude = !!claudeKey;
     const hasGroq = !!groqKey;
 
-    if (!hasClaude && !hasGroq) {
+    if (!hasVertex && !hasClaude && !hasGroq) {
       return res.status(500).json({
         error: 'No AI providers configured',
-        hint: 'Configure ANTHROPIC_API_KEY ou GROQ_API_KEY'
+        message: 'Please configure at least one AI provider',
+        hint: 'Set one of: ANTHROPIC_API_KEY, GOOGLE_API_KEY/GEMINI_API_KEY, or GROQ_API_KEY',
+        documentation: 'See .env.template for configuration instructions'
       });
     }
 

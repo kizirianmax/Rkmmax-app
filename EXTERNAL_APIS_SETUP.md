@@ -185,7 +185,7 @@ console.log(result.text);
 
 ## ⚙️ Configuração do Projeto
 
-### 1. Adicionar Secrets no GitHub
+### 1. Adicionar Secrets no GitHub (Para CI/CD)
 
 ```
 https://github.com/kizirianmax/Rkmmax-app/settings/secrets/actions
@@ -199,19 +199,36 @@ GOOGLE_API_KEY = AIza...
 GROQ_API_KEY = gsk_...
 ```
 
-### 2. Adicionar ao `.env.local`
+### 2. Adicionar ao `.env.local` (Para Desenvolvimento Local)
 
 ```env
-OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_API_KEY=AIza...
 GROQ_API_KEY=gsk_...
 ```
 
-### 3. Adicionar ao `.env.example`
+### 3. Configurar no Vercel (Para Produção)
+
+**IMPORTANTE:** Para deploy em produção no Vercel, siga o guia completo: **[VERCEL_SETUP.md](./VERCEL_SETUP.md)**
+
+Resumo rápido:
+1. Acesse: https://vercel.com/dashboard
+2. Selecione seu projeto
+3. Vá em: **Settings** → **Environment Variables**
+4. Adicione as variáveis necessárias:
+   ```
+   ANTHROPIC_API_KEY=sk-ant-...
+   GOOGLE_API_KEY=AIza... (ou GEMINI_API_KEY ou VERTEX_API_KEY)
+   GROQ_API_KEY=gsk_...
+   ```
+5. Selecione os ambientes: Production, Preview
+6. Clique em "Save" e faça redeploy
+
+**Nota:** Pelo menos UM provider de IA é obrigatório para o funcionamento do sistema.
+
+### 4. Adicionar ao `.env.example`
 
 ```env
-OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here
 GOOGLE_API_KEY=your_key_here
 GROQ_API_KEY=your_key_here
