@@ -18,6 +18,17 @@ const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
 
 /**
+ * Get Google AI API key from environment variables
+ * Supports multiple alias names for flexibility
+ * @returns {string|undefined} API key or undefined if not set
+ */
+function getGoogleApiKey() {
+  return process.env.VERTEX_API_KEY || 
+         process.env.GOOGLE_API_KEY || 
+         process.env.GEMINI_API_KEY;
+}
+
+/**
  * Analisar complexidade da mensagem para escolher o motor ideal
  */
 function analyzeComplexity(messages) {
@@ -199,9 +210,7 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
  */
 async function callVertex(messages, systemPrompt) {
   // Try multiple environment variable names for flexibility
-  const vertexKey = process.env.VERTEX_API_KEY || 
-                    process.env.GOOGLE_API_KEY || 
-                    process.env.GEMINI_API_KEY;
+  const vertexKey = getGoogleApiKey();
   
   if (!vertexKey) {
     throw new Error(
@@ -244,7 +253,7 @@ async function callVertex(messages, systemPrompt) {
  * ORDEM: Vertex AI → Claude → Groq
  */
 async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
-  const hasVertex = !!(process.env.VERTEX_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY);
+  const hasVertex = !!getGoogleApiKey();
   const hasClaude = !!process.env.ANTHROPIC_API_KEY;
   const hasGroq = !!groqKey;
   
@@ -313,7 +322,7 @@ export default async function handler(req, res) {
     } = req.body;
 
     // Verificar credenciais - pelo menos um provider necessário
-    const hasVertex = !!(process.env.VERTEX_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY);
+    const hasVertex = !!getGoogleApiKey();
     const hasClaude = !!process.env.ANTHROPIC_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
     const hasGroq = !!groqKey;
