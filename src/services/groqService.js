@@ -1,7 +1,7 @@
 /**
  * Groq API Service
- * Serviço para integração com Groq AI (Llama 3.1 70B)
- * Gratuito com rate limits generosos
+ * Serviço para integração com Groq AI
+ * PRIMARY MODEL: openai/gpt-oss-120b para raciocínio
  */
 
 // Usar API serverless do Vercel ao invés de chamar Groq diretamente
@@ -86,18 +86,25 @@ export async function sendMessageToGroqStream(messages, onChunk) {
 
 /**
  * Modelos disponíveis no Groq
+ * PRIMARY: GPT-OSS-120B para raciocínio principal
  */
 export const GROQ_MODELS = {
-  LLAMA_70B: 'llama-3.3-70b-versatile', // Atualizado: 3.1 foi descontinuado
+  GPT_OSS_120B: 'openai/gpt-oss-120b', // PRIMARY - Raciocínio avançado
+  GPT_OSS_20B: 'openai/gpt-oss-20b',   // Alternativo
+  MIXTRAL_8X7B: 'mixtral-8x7b-32768',  // Alternativo
+  // Llama models mantidos apenas para compatibilidade (não devem ser primários)
+  LLAMA_70B: 'llama-3.3-70b-versatile',
   LLAMA_8B: 'llama-3.1-8b-instant',
-  GPT_OSS_120B: 'openai/gpt-oss-120b',
-  GPT_OSS_20B: 'openai/gpt-oss-20b',
 };
+
+// Modelo padrão/primário
+export const DEFAULT_MODEL = GROQ_MODELS.GPT_OSS_120B;
 
 const groqService = {
   sendMessageToGroq,
   sendMessageToGroqStream,
   GROQ_MODELS,
+  DEFAULT_MODEL,
 };
 
 export default groqService;
