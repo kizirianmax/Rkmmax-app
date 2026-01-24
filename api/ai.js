@@ -177,7 +177,7 @@ async function callKiziFlash(messages, systemPrompt, apiKey) {
 }
 
 /**
- * Chamar KIZI Speed (Groq Llama 70B - ultra-rápido)
+ * Chamar KIZI Speed (Groq - ultra-rápido)
  */
 async function callKiziSpeed(messages, systemPrompt, apiKey) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -187,7 +187,7 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b',
       messages: systemPrompt 
         ? [{ role: 'system', content: systemPrompt }, ...messages]
         : messages,
@@ -271,12 +271,12 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
   // 2. Fallback para Claude
   if (hasClaude) {
     try {
-      console.log('🤖 Fallback: Claude 3.5 Sonnet...');
+      console.log('🤖 Fallback: Claude 4.5 Sonnet...');
       const rkmmax = new RKMMAXClaudeSystem();
       const lastMsg = messages[messages.length - 1]?.content || '';
       const resultado = await rkmmax.processar(lastMsg, {});
       if (resultado.status === 'sucesso') {
-        return { response: resultado.resultado.resposta, model: 'claude-3.5-sonnet' };
+        return { response: resultado.resultado.resposta, model: 'claude-4.5-sonnet' };
       }
       throw new Error(resultado.erro || 'Claude falhou');
     } catch (error) {
