@@ -225,7 +225,7 @@ Usuário → /specialists → Escolher especialista
 |----------|--------|-----------------|-----------|
 | **Groq** | Llama 3.3 70B | $0.05-0.10 | ✅ 14.4k/dia |
 | OpenAI | GPT-4o | $2.50-5.00 | ❌ $5 crédito |
-| Anthropic | Claude 3.5 | $3.00-15.00 | ❌ Nenhum |
+| Anthropic | Claude 4.5 | $3.00-15.00 | ❌ Nenhum |
 | Google | Gemini Pro | $0.50-1.50 | ✅ 60 req/min |
 
 **Vencedor:** Groq (melhor custo-benefício)
