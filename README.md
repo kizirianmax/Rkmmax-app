@@ -98,10 +98,12 @@ Ative/desative especialistas conforme sua necessidade. Interface limpa e persona
 - **Auth:** Supabase Auth
 
 ### IA
-- **Modelo primário:** Gemini 2.0 Flash ($0.075/1M tokens)
-- **Modelo secundário:** GPT-4.1-mini ($0.75/1M tokens)
+- **Modelo primário:** Claude 3.5 Sonnet (Anthropic)
+- **Modelo secundário:** Gemini 2.5 Pro (Google AI)
+- **Modelo rápido:** Llama 3.3 70B via Groq
+- **Fallback automático:** Vertex AI → Claude → Groq
 - **Orquestração:** Sistema proprietário otimizado
-- **Contexto:** 1M tokens
+- **Contexto:** Até 200K tokens (Claude)
 
 ### Observabilidade
 - **Errors:** Sentry (5% sampling)
@@ -147,6 +149,12 @@ npm start
 
 ### Variáveis de Ambiente
 
+**📚 Para configuração completa, consulte:**
+- [`.env.template`](./.env.template) - Documentação completa de todas as variáveis
+- [`VERCEL_SETUP.md`](./VERCEL_SETUP.md) - Guia de deploy no Vercel
+- [`EXTERNAL_APIS_SETUP.md`](./EXTERNAL_APIS_SETUP.md) - Configuração de APIs externas
+
+**Frontend (React):**
 ```bash
 # Supabase
 REACT_APP_SUPABASE_URL=https://seu-projeto.supabase.co
@@ -168,12 +176,27 @@ REACT_APP_VERSION=2.0.0
 
 **Backend (Serverless Functions):**
 ```bash
+# AI Providers (pelo menos UM obrigatório)
+ANTHROPIC_API_KEY=sk-ant-...       # Claude 3.5 Sonnet
+GOOGLE_API_KEY=AIza...             # Gemini 2.5 Pro / Flash
+GROQ_API_KEY=gsk_...               # Llama 3.3 70B (rápido)
+
+# Supabase
+SUPABASE_URL=https://...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Stripe
 STRIPE_SECRET_KEY_RKMMAX=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-SUPABASE_URL=https://...
-SUPABASE_SERVICE_ROLE=eyJ...
+
+# GitHub (Feedback)
 GITHUB_TOKEN=ghp_...
 GITHUB_REPO=kizirianmax/Rkmmax-app
+
+# Email (Resend)
+RESEND_API_KEY=re_...
+FROM_EMAIL=noreply@yourdomain.com
+OWNER_EMAIL=admin@yourdomain.com
 ```
 
 ---
@@ -188,6 +211,10 @@ npm run build
 
 ### Deploy na Vercel
 
+**📚 Guia Completo:** Consulte [`VERCEL_SETUP.md`](./VERCEL_SETUP.md) para instruções detalhadas de deploy.
+
+**Resumo rápido:**
+
 ```bash
 # Via CLI
 npm install -g vercel
@@ -196,6 +223,17 @@ vercel
 # Ou conecte o repositório no Vercel Dashboard
 # Deploy automático a cada push para main
 ```
+
+**Passos essenciais:**
+1. Conecte o repositório GitHub ao Vercel
+2. Configure as variáveis de ambiente (pelo menos um provider de IA)
+3. Deploy automático será acionado
+4. Teste os endpoints de API
+
+**Variáveis obrigatórias no Vercel:**
+- `ANTHROPIC_API_KEY` OU `GOOGLE_API_KEY` OU `GROQ_API_KEY` (pelo menos uma)
+- `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`
+- Outras variáveis conforme necessidade (Stripe, Email, etc.)
 
 ### Testes
 
