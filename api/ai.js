@@ -250,28 +250,28 @@ async function callVertex(messages, systemPrompt) {
 
 /**
  * Chamar o motor KIZI apropriado com fallback automático
- * ORDEM: Vertex AI → Claude → Groq
+ * ATUALIZADO: Groq → Claude → Fail (Vertex AI removido da sequência primária)
  */
 async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
-  const hasVertex = !!getGoogleApiKey();
   const hasClaude = !!process.env.ANTHROPIC_API_KEY;
   const hasGroq = !!groqKey;
+  const hasVertex = !!getGoogleApiKey();
   
-  // 1. Tentar Vertex AI primeiro
-  if (hasVertex) {
+  // 1. Tentar Groq primeiro (PRIMARY)
+  if (hasGroq) {
     try {
-      console.log('🤖 Tentando Vertex AI (Gemini 2.5 Pro)...');
-      const response = await callVertex(messages, systemPrompt);
-      return { response, model: 'vertex-gemini-2.5-pro' };
+      console.log('🤖 PRIMARY: Groq GPT-OSS-120B...');
+      const response = await callKiziSpeed(messages, systemPrompt, groqKey);
+      return { response, model: 'groq-gpt-oss-120b' };
     } catch (error) {
-      console.error('❌ Vertex falhou:', error.message);
+      console.error('❌ Groq falhou:', error.message);
     }
   }
   
   // 2. Fallback para Claude
   if (hasClaude) {
     try {
-      console.log('🤖 Fallback: Claude 4.5 Sonnet...');
+      console.log('🤖 FALLBACK: Claude 4.5 Sonnet...');
       const rkmmax = new RKMMAXClaudeSystem();
       const lastMsg = messages[messages.length - 1]?.content || '';
       const resultado = await rkmmax.processar(lastMsg, {});
@@ -284,22 +284,22 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
     }
   }
   
-  // 3. Fallback para Groq
-  if (hasGroq) {
+  // 3. Fallback para Vertex (apenas se Groq e Claude falharem)
+  if (hasVertex) {
     try {
-      console.log('🤖 Fallback: Groq Speed...');
-      const response = await callKiziSpeed(messages, systemPrompt, groqKey);
-      return { response, model: 'groq-llama-70b' };
+      console.log('🤖 FALLBACK FINAL: Vertex AI (Gemini 2.5 Pro)...');
+      const response = await callVertex(messages, systemPrompt);
+      return { response, model: 'vertex-gemini-2.5-pro' };
     } catch (error) {
-      console.error('❌ Groq falhou:', error.message);
+      console.error('❌ Vertex falhou:', error.message);
     }
   }
   
   throw new Error(
     'All AI providers failed. Please check your configuration:\n' +
-    '- VERTEX_API_KEY / GOOGLE_API_KEY / GEMINI_API_KEY for Google AI\n' +
-    '- ANTHROPIC_API_KEY for Claude\n' +
-    '- GROQ_API_KEY for Groq\n' +
+    '- GROQ_API_KEY for Groq (Primary)\n' +
+    '- ANTHROPIC_API_KEY for Claude (Fallback)\n' +
+    '- VERTEX_API_KEY / GOOGLE_API_KEY / GEMINI_API_KEY for Google AI (Final Fallback)\n' +
     'See .env.template for setup instructions.'
   );
 }
@@ -322,16 +322,16 @@ export default async function handler(req, res) {
     } = req.body;
 
     // Verificar credenciais - pelo menos um provider necessário
-    const hasVertex = !!getGoogleApiKey();
-    const hasClaude = !!process.env.ANTHROPIC_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
     const hasGroq = !!groqKey;
+    const hasClaude = !!process.env.ANTHROPIC_API_KEY;
+    const hasVertex = !!getGoogleApiKey();
 
-    if (!hasVertex && !hasClaude && !hasGroq) {
+    if (!hasGroq && !hasClaude && !hasVertex) {
       return res.status(500).json({
         error: 'No AI providers configured',
         message: 'Please configure at least one AI provider',
-        hint: 'Set one of: ANTHROPIC_API_KEY, GOOGLE_API_KEY/GEMINI_API_KEY, or GROQ_API_KEY',
+        hint: 'Set one of: GROQ_API_KEY (Primary), ANTHROPIC_API_KEY (Fallback), or GOOGLE_API_KEY/GEMINI_API_KEY (Final Fallback)',
         documentation: 'See .env.template for configuration instructions'
       });
     }
