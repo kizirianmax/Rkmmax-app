@@ -37,7 +37,9 @@ export default function AutomationStatus({
       const stepStatus = step.status?.toUpperCase();
       if (stepStatus === 'COMPLETED') return 'completed';
       if (stepStatus === 'FAILED' || stepStatus === 'BLOCKED') return 'failed';
-      return 'completed';
+      if (stepStatus === 'PENDING' || stepStatus === 'WAITING') return 'pending';
+      // If status exists but is unrecognized, return as active
+      return 'active';
     }
     
     if (currentStep === stepId) return 'active';

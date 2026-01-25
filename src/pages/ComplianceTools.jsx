@@ -9,6 +9,25 @@ import { FileText, Send, Loader2, Download, Copy, CheckCircle } from 'lucide-rea
 import ComplianceViewer from '../components/tools/ComplianceViewer';
 import './ComplianceTools.css';
 
+// Sample text for demonstration purposes
+const SAMPLE_TEXT = `Introdução
+
+Este trabalho apresenta uma análise sobre a Lei Geral de Proteção de Dados (LGPD), conforme estabelecido pela Lei nº 13.709/2018. O objetivo é compreender os impactos da legislação nas organizações brasileiras.
+
+De acordo com Silva (2020), a LGPD representa um marco importante na proteção dos dados pessoais dos cidadãos. O autor afirma que "a privacidade é um direito fundamental que deve ser respeitado por todas as organizações" (SILVA, 2020, p. 45).
+
+Metodologia
+
+A pesquisa utilizou metodologia qualitativa, baseada em revisão bibliográfica de autores como Bioni (2019) e Doneda (2018).
+
+Referências
+
+BIONI, Bruno Ricardo. Proteção de Dados Pessoais: a função e os limites do consentimento. Rio de Janeiro: Forense, 2019.
+
+DONEDA, Danilo. Da privacidade à proteção de dados pessoais. São Paulo: Thomson Reuters Brasil, 2018.
+
+SILVA, João. LGPD e suas implicações. São Paulo: Atlas, 2020.`;
+
 export default function ComplianceTools() {
   const [text, setText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -158,10 +177,31 @@ export default function ComplianceTools() {
   /**
    * Copy text to clipboard
    */
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      // Fallback for browsers that don't support clipboard API
+      console.error('Clipboard API not available:', error);
+      // Try the old execCommand method as fallback
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (fallbackError) {
+        console.error('Copy fallback failed:', fallbackError);
+        alert('Falha ao copiar texto. Por favor, copie manualmente.');
+      }
+    }
   };
 
   /**
@@ -222,25 +262,7 @@ export default function ComplianceTools() {
    * Load sample text
    */
   const loadSample = () => {
-    const sample = `Introdução
-
-Este trabalho apresenta uma análise sobre a Lei Geral de Proteção de Dados (LGPD), conforme estabelecido pela Lei nº 13.709/2018. O objetivo é compreender os impactos da legislação nas organizações brasileiras.
-
-De acordo com Silva (2020), a LGPD representa um marco importante na proteção dos dados pessoais dos cidadãos. O autor afirma que "a privacidade é um direito fundamental que deve ser respeitado por todas as organizações" (SILVA, 2020, p. 45).
-
-Metodologia
-
-A pesquisa utilizou metodologia qualitativa, baseada em revisão bibliográfica de autores como Bioni (2019) e Doneda (2018).
-
-Referências
-
-BIONI, Bruno Ricardo. Proteção de Dados Pessoais: a função e os limites do consentimento. Rio de Janeiro: Forense, 2019.
-
-DONEDA, Danilo. Da privacidade à proteção de dados pessoais. São Paulo: Thomson Reuters Brasil, 2018.
-
-SILVA, João. LGPD e suas implicações. São Paulo: Atlas, 2020.`;
-    
-    setText(sample);
+    setText(SAMPLE_TEXT);
   };
 
   return (

@@ -863,7 +863,7 @@ What would you like to automate?`;
    * Handle Compliance Intent (Layer 4)
    * Provides information about ABNT/LGPD compliance checking
    * @param {string} prompt - User request
-   * @param {Object} context - Additional context  
+   * @param {Object} context - Additional context (may include { text: string })
    * @returns {Object} - Response and compliance data
    */
   _handleComplianceIntent(prompt, context) {
