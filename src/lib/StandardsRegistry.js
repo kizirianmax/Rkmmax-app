@@ -3,28 +3,36 @@ class StandardsRegistry {
         this.standards = {};
     }
 
-    registerStandard(key, description) {
-        if (!this.standards[key]) {
-            this.standards[key] = description;
+    addStandard(standardId, details) {
+        if (!this.standards[standardId]) {
+            this.standards[standardId] = details;
         } else {
-            throw new Error(`Standard ${key} is already registered.`);
+            throw new Error('Standard already exists.');
         }
     }
 
-    getStandard(key) {
-        return this.standards[key] || null;
+    getStandard(standardId) {
+        return this.standards[standardId] || null;
+    }
+
+    removeStandard(standardId) {
+        if (this.standards[standardId]) {
+            delete this.standards[standardId];
+        } else {
+            throw new Error('Standard does not exist.');
+        }
     }
 
     listStandards() {
-        return Object.keys(this.standards);
+        return this.standards;
     }
 }
 
-// Example usage:
+// Usage
 const registry = new StandardsRegistry();
-registry.registerStandard('ABNT', 'Associação Brasileira de Normas Técnicas');
-registry.registerStandard('APA', 'American Psychological Association');
-registry.registerStandard('IEEE', 'Institute of Electrical and Electronics Engineers');
-registry.registerStandard('ISO', 'International Organization for Standardization');
+registry.addStandard('ABNT', { name: 'Associação Brasileira de Normas Técnicas', year: 1940 });
+registry.addStandard('APA', { name: 'American Psychological Association', year: 1929 });
+registry.addStandard('IEEE', { name: 'Institute of Electrical and Electronics Engineers', year: 1963 });
+registry.addStandard('ISO', { name: 'International Organization for Standardization', year: 1947 });
 
-console.log(registry.listStandards()); // ['ABNT', 'APA', 'IEEE', 'ISO']
+export default StandardsRegistry;
