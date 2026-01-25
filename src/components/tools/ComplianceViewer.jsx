@@ -1,172 +1,330 @@
 /**
- * COMPLIANCE VIEWER COMPONENT
- * Displays ABNT formatting rules, LGPD checks, and legal compliance validation
- * Shows visual indicators (Green checkmarks for passed checks)
+ * ComplianceViewer - Layer 4 Compliance Status Visualizer
+ * Displays ABNT formatting, Legal checks, and Privacy/LGPD compliance
+ * Uses Dracula theme to match the app style
  */
 
 import React from 'react';
-import { CheckCircle, XCircle, AlertTriangle, FileText, Shield, Scale } from 'lucide-react';
-import './ComplianceViewer.css';
 
 /**
  * ComplianceViewer Component
- * @param {Object} props
- * @param {Object} props.complianceData - Compliance check results
- * @param {string} props.text - Text being analyzed
- * @param {boolean} props.embedded - If true, uses compact mode for chat embedding
+ * Visualizes Layer 4 compliance checks and status
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.compliance - Compliance data with ABNT, legal, and privacy checks
+ * @param {string} props.content - The content being checked for compliance
+ * @returns {JSX.Element} - Rendered compliance viewer
  */
-export default function ComplianceViewer({ 
-  complianceData = null, 
-  text = '',
-  embedded = false 
-}) {
-  // Default compliance data if none provided
-  const defaultData = {
-    abnt: {
-      status: 'checking',
-      checks: [
-        { id: 'formatting', label: 'Formatação NBR', passed: false, message: 'Verificando...' },
-        { id: 'references', label: 'Referências (NBR 6023)', passed: false, message: 'Verificando...' },
-        { id: 'citations', label: 'Citações (NBR 10520)', passed: false, message: 'Verificando...' },
-        { id: 'structure', label: 'Estrutura de Trabalho', passed: false, message: 'Verificando...' },
-      ],
+const ComplianceViewer = ({ 
+  compliance = {
+    abnt: { status: 'PENDING', checks: [] },
+    legal: { status: 'PENDING', checks: [] },
+    privacy: { status: 'PENDING', checks: [] },
+  },
+  content = ''
+}) => {
+  // Compliance categories
+  const categories = [
+    {
+      key: 'abnt',
+      label: 'ABNT Formatting',
+      icon: '📄',
+      description: 'Academic standards compliance',
+      color: '#bd93f9', // Dracula purple
     },
-    lgpd: {
-      status: 'checking',
-      checks: [
-        { id: 'personal_data', label: 'Dados Pessoais', passed: false, message: 'Verificando...' },
-        { id: 'sensitive_data', label: 'Dados Sensíveis', passed: false, message: 'Verificando...' },
-        { id: 'consent', label: 'Consentimento', passed: false, message: 'Verificando...' },
-        { id: 'security', label: 'Medidas de Segurança', passed: false, message: 'Verificando...' },
-      ],
+    {
+      key: 'legal',
+      label: 'Legal Checks',
+      icon: '⚖️',
+      description: 'Legal and regulatory compliance',
+      color: '#ffb86c', // Dracula orange
     },
-    legal: {
-      status: 'checking',
-      checks: [
-        { id: 'copyright', label: 'Direitos Autorais', passed: false, message: 'Verificando...' },
-        { id: 'terms', label: 'Termos e Condições', passed: false, message: 'Verificando...' },
-        { id: 'accessibility', label: 'Acessibilidade', passed: false, message: 'Verificando...' },
-      ],
+    {
+      key: 'privacy',
+      label: 'Privacy/LGPD',
+      icon: '🔒',
+      description: 'Data protection and privacy',
+      color: '#8be9fd', // Dracula cyan
     },
-  };
+  ];
 
-  const data = complianceData || defaultData;
-
-  const getOverallStatus = (section) => {
-    if (!data[section]) return 'unknown';
-    
-    const checks = data[section].checks || [];
-    if (checks.length === 0) return 'unknown';
-    
-    const allPassed = checks.every(check => check.passed === true);
-    const anyFailed = checks.some(check => check.passed === false);
-    const allChecking = checks.every(check => check.passed === undefined || check.passed === null);
-    
-    if (allPassed) return 'passed';
-    if (anyFailed) return 'failed';
-    if (allChecking) return 'checking';
-    return 'warning';
-  };
-
-  const renderCheckIcon = (check) => {
-    if (check.passed === true) {
-      return <CheckCircle className="check-icon passed" />;
-    } else if (check.passed === false) {
-      return <XCircle className="check-icon failed" />;
-    } else {
-      return <AlertTriangle className="check-icon warning" />;
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'PASS':
+      case 'COMPLIANT':
+        return '#50fa7b'; // Dracula green
+      case 'FAIL':
+      case 'NON_COMPLIANT':
+        return '#ff5555'; // Dracula red
+      case 'WARNING':
+        return '#f1fa8c'; // Dracula yellow
+      case 'PENDING':
+      default:
+        return '#6272a4'; // Dracula comment (gray)
     }
   };
 
-  const renderSection = (sectionKey, sectionData, icon, title) => {
-    const status = getOverallStatus(sectionKey);
-    
+  // Get status icon
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'PASS':
+      case 'COMPLIANT':
+        return '✓';
+      case 'FAIL':
+      case 'NON_COMPLIANT':
+        return '✗';
+      case 'WARNING':
+        return '⚠';
+      case 'PENDING':
+      default:
+        return '○';
+    }
+  };
+
+  // Render compliance category
+  const renderCategory = (category) => {
+    const data = compliance[category.key] || { status: 'PENDING', checks: [] };
+    const statusColor = getStatusColor(data.status);
+    const statusIcon = getStatusIcon(data.status);
+
     return (
-      <div className={`compliance-section ${status}`}>
-        <div className="section-header">
-          <div className="section-title-wrapper">
-            {icon}
-            <h3 className="section-title">{title}</h3>
+      <div
+        key={category.key}
+        style={{
+          background: '#44475a', // Dracula current line
+          borderRadius: '8px',
+          padding: '16px',
+          border: `2px solid ${statusColor}44`,
+        }}
+      >
+        {/* Category header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '12px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <span style={{ fontSize: '24px' }}>{category.icon}</span>
+            <div>
+              <div style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#f8f8f2',
+              }}>
+                {category.label}
+              </div>
+              <div style={{
+                fontSize: '11px',
+                color: '#6272a4',
+              }}>
+                {category.description}
+              </div>
+            </div>
           </div>
-          <span className={`status-badge ${status}`}>
-            {status === 'passed' && 'Aprovado'}
-            {status === 'failed' && 'Reprovado'}
-            {status === 'warning' && 'Atenção'}
-            {status === 'checking' && 'Verificando...'}
-          </span>
+
+          {/* Status badge */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            borderRadius: '6px',
+            background: `${statusColor}22`,
+            border: `1px solid ${statusColor}`,
+            fontSize: '14px',
+            fontWeight: '600',
+            color: statusColor,
+          }}>
+            <span>{statusIcon}</span>
+            <span>{data.status}</span>
+          </div>
         </div>
 
-        <div className="checks-list">
-          {sectionData.checks.map((check) => (
-            <div key={check.id} className={`check-item ${check.passed ? 'passed' : check.passed === false ? 'failed' : 'checking'}`}>
-              <div className="check-header">
-                {renderCheckIcon(check)}
-                <span className="check-label">{check.label}</span>
+        {/* Checks list */}
+        {data.checks && data.checks.length > 0 && (
+          <div style={{
+            marginTop: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+          }}>
+            {data.checks.map((check, index) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                  fontSize: '13px',
+                  color: '#f8f8f2',
+                  padding: '8px',
+                  background: '#282a36',
+                  borderRadius: '4px',
+                  borderLeft: `3px solid ${getStatusColor(check.status)}`,
+                }}
+              >
+                <span style={{ color: getStatusColor(check.status) }}>
+                  {getStatusIcon(check.status)}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: '500' }}>{check.name}</div>
+                  {check.message && (
+                    <div style={{
+                      fontSize: '11px',
+                      color: '#6272a4',
+                      marginTop: '4px',
+                    }}>
+                      {check.message}
+                    </div>
+                  )}
+                </div>
               </div>
-              {check.message && !embedded && (
-                <p className="check-message">{check.message}</p>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
 
-  const overallPassed = ['abnt', 'lgpd', 'legal'].every(
-    section => getOverallStatus(section) === 'passed'
-  );
+  // Calculate overall compliance score
+  const calculateScore = () => {
+    let total = 0;
+    let passed = 0;
 
-  const hasFailures = ['abnt', 'lgpd', 'legal'].some(
-    section => getOverallStatus(section) === 'failed'
-  );
+    categories.forEach(cat => {
+      const data = compliance[cat.key];
+      if (data && data.checks) {
+        total += data.checks.length;
+        passed += data.checks.filter(c => 
+          c.status === 'PASS' || c.status === 'COMPLIANT'
+        ).length;
+      }
+    });
+
+    return total > 0 ? Math.round((passed / total) * 100) : 0;
+  };
+
+  const complianceScore = calculateScore();
 
   return (
-    <div className={`compliance-viewer ${embedded ? 'embedded' : 'standalone'}`}>
-      <div className={`viewer-header ${overallPassed ? 'success' : hasFailures ? 'failed' : 'neutral'}`}>
-        <h2 className="viewer-title">
-          {overallPassed && <CheckCircle className="title-icon" />}
-          {hasFailures && <XCircle className="title-icon" />}
-          {!overallPassed && !hasFailures && <Shield className="title-icon" />}
-          Relatório de Conformidade
-        </h2>
-        {text && !embedded && (
-          <p className="viewer-subtitle">
-            Analisando {text.length} caracteres
+    <div style={{
+      background: '#282a36', // Dracula background
+      borderRadius: '12px',
+      padding: '24px',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      color: '#f8f8f2', // Dracula foreground
+      border: '2px solid #44475a', // Dracula current line
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+    }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '24px',
+      }}>
+        <div>
+          <h3 style={{
+            margin: 0,
+            fontSize: '20px',
+            fontWeight: '600',
+            color: '#f8f8f2',
+          }}>
+            🛡️ Layer 4: Compliance Check
+          </h3>
+          <p style={{
+            margin: '4px 0 0 0',
+            fontSize: '13px',
+            color: '#6272a4',
+          }}>
+            ABNT, Legal, and Privacy compliance verification
           </p>
-        )}
+        </div>
+
+        {/* Compliance score */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '4px',
+        }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            background: `conic-gradient(
+              #50fa7b 0% ${complianceScore}%,
+              #44475a ${complianceScore}% 100%
+            )`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+          }}>
+            <div style={{
+              width: '68px',
+              height: '68px',
+              borderRadius: '50%',
+              background: '#282a36',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px',
+              fontWeight: '700',
+              color: complianceScore >= 80 ? '#50fa7b' : 
+                     complianceScore >= 60 ? '#f1fa8c' : '#ff5555',
+            }}>
+              {complianceScore}%
+            </div>
+          </div>
+          <div style={{
+            fontSize: '11px',
+            color: '#6272a4',
+          }}>
+            Compliance Score
+          </div>
+        </div>
       </div>
 
-      <div className="sections-container">
-        {data.abnt && renderSection(
-          'abnt',
-          data.abnt,
-          <FileText className="section-icon" />,
-          'ABNT - Normas Brasileiras'
-        )}
-
-        {data.lgpd && renderSection(
-          'lgpd',
-          data.lgpd,
-          <Shield className="section-icon" />,
-          'LGPD - Lei Geral de Proteção de Dados'
-        )}
-
-        {data.legal && renderSection(
-          'legal',
-          data.legal,
-          <Scale className="section-icon" />,
-          'Conformidade Legal'
-        )}
+      {/* Categories */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+      }}>
+        {categories.map(category => renderCategory(category))}
       </div>
 
-      {!embedded && (
-        <div className="viewer-footer">
-          <p className="footer-note">
-            ⚠️ Este é um relatório automatizado. Para análise completa, consulte um especialista.
-          </p>
+      {/* Applied compliance info */}
+      {content && (
+        <div style={{
+          marginTop: '24px',
+          padding: '12px',
+          background: '#44475a',
+          borderRadius: '8px',
+          fontSize: '12px',
+          color: '#bd93f9',
+          fontFamily: 'monospace',
+        }}>
+          <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+            ℹ️ Compliance Applied
+          </div>
+          <div style={{ color: '#6272a4' }}>
+            Content has been processed through Layer 4 compliance checks.
+            {complianceScore >= 80 ? ' All checks passed!' : 
+             complianceScore >= 60 ? ' Some warnings detected.' : 
+             ' Issues found - please review.'}
+          </div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default ComplianceViewer;
