@@ -38,6 +38,8 @@ import GeradorResumos from "./pages/GeradorResumos.jsx";
 import Flashcards from "./pages/Flashcards.jsx";
 import MapasMentais from "./pages/MapasMentais.jsx";
 import Regulamento from "./pages/Regulamento.jsx";
+import AutomationDashboard from "./pages/AutomationDashboard.jsx";
+import ComplianceTools from "./pages/ComplianceTools.jsx";
 
 // Wrapper para esconder Footer em páginas de chat
 function FooterWrapper() {
@@ -135,6 +137,10 @@ export default function App() {
         <Route path="/hybrid" element={<HybridAgentSimple />} />
         <Route path="/agent" element={<HybridAgentSimple />} />
         <Route path="/github-callback" element={<GitHubCallback />} />
+
+        {/* Automation & Compliance Tools */}
+        <Route path="/automation" element={<AutomationDashboard />} />
+        <Route path="/compliance" element={<ComplianceTools />} />
 
         {/* Políticas */}
         <Route path="/privacy" element={<Privacy />} />

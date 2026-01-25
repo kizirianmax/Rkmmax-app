@@ -1,0 +1,242 @@
+/* AUTOMATION STATUS - Dracula Dark Theme */
+
+.automation-status {
+  background: linear-gradient(135deg, #282a36 0%, #1e1f29 100%);
+  border: 1px solid #44475a;
+  border-radius: 12px;
+  padding: 24px;
+  color: #f8f8f2;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.automation-status.embedded {
+  padding: 16px;
+  max-width: 600px;
+}
+
+.automation-status.standalone {
+  min-height: 400px;
+}
+
+/* Header */
+.status-header {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.status-header.status-pending {
+  background: rgba(189, 147, 249, 0.15);
+  border-color: #bd93f9;
+  color: #bd93f9;
+}
+
+.status-header.status-running {
+  background: rgba(139, 233, 253, 0.15);
+  border-color: #8be9fd;
+  color: #8be9fd;
+}
+
+.status-header.status-success {
+  background: rgba(80, 250, 123, 0.15);
+  border-color: #50fa7b;
+  color: #50fa7b;
+}
+
+.status-header.status-failed {
+  background: rgba(255, 85, 85, 0.15);
+  border-color: #ff5555;
+  color: #ff5555;
+}
+
+/* Steps Container */
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Step Item */
+.step-item {
+  display: flex;
+  gap: 16px;
+  position: relative;
+  padding: 12px 0;
+}
+
+/* Step Indicator */
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.step-icon.pending {
+  color: #6272a4;
+}
+
+.step-icon.active {
+  color: #8be9fd;
+}
+
+.step-icon.completed {
+  color: #50fa7b;
+}
+
+.step-icon.failed {
+  color: #ff5555;
+}
+
+.step-connector {
+  width: 2px;
+  height: 32px;
+  background: #44475a;
+  margin-top: 4px;
+}
+
+.step-connector.completed {
+  background: #50fa7b;
+}
+
+/* Step Content */
+.step-content {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.step-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8f8f2;
+}
+
+.step-item.pending .step-label {
+  color: #6272a4;
+}
+
+.step-badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.step-badge.active {
+  background: rgba(139, 233, 253, 0.2);
+  color: #8be9fd;
+  border: 1px solid #8be9fd;
+}
+
+.step-badge.completed {
+  background: rgba(80, 250, 123, 0.2);
+  color: #50fa7b;
+  border: 1px solid #50fa7b;
+}
+
+.step-badge.failed {
+  background: rgba(255, 85, 85, 0.2);
+  color: #ff5555;
+  border: 1px solid #ff5555;
+}
+
+.step-description {
+  font-size: 0.9rem;
+  color: #6272a4;
+  margin: 4px 0 8px 0;
+}
+
+/* Step Details */
+.step-details {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(68, 71, 90, 0.3);
+  border-radius: 6px;
+  border: 1px solid #44475a;
+}
+
+.detail-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  color: #8be9fd;
+  font-weight: 600;
+}
+
+.detail-value {
+  color: #f8f8f2;
+}
+
+/* Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .automation-status {
+    padding: 16px;
+  }
+
+  .status-title {
+    font-size: 1rem;
+  }
+
+  .step-label {
+    font-size: 0.95rem;
+  }
+
+  .step-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
