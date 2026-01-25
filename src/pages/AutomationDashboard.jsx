@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Send, Mic, Image as ImageIcon, AlertCircle, CheckCircle, Clock, PlayCircle } from 'lucide-react';
+import { Loader2, Send, Mic, Image as ImageIcon, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import AutomationStatus from '../components/tools/AutomationStatus';
 import './AutomationDashboard.css';
 
@@ -18,7 +18,6 @@ export default function AutomationDashboard() {
   const [automations, setAutomations] = useState([]);
   const [stats, setStats] = useState(null);
   const [specialists, setSpecialists] = useState([]);
-  const [userPlan, setUserPlan] = useState('basic');
   const [dailyUsage, setDailyUsage] = useState({
     automations: 0,
     aiRequests: 0,
