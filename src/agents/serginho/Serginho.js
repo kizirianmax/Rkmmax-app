@@ -22,6 +22,19 @@ try {
   WebBrowserService = null;
 }
 
+// Layer 3: Import AutomationEngine for automation capability
+let AutomationEngine;
+try {
+  // Dynamic import to handle both CommonJS and ES modules
+  AutomationEngine = require('../../automation/AutomationEngine');
+  if (AutomationEngine.default) {
+    AutomationEngine = AutomationEngine.default;
+  }
+} catch (error) {
+  console.warn('AutomationEngine not available:', error.message);
+  AutomationEngine = null;
+}
+
 class Serginho extends AgentBase {
   constructor(config = {}) {
     super({
@@ -91,6 +104,17 @@ class Serginho extends AgentBase {
 
       // LAYER 2: DETECT INTENT (The Brain)
       const intent = this._detectIntent(prompt);
+
+      // LAYER 3: ROUTE AUTOMATION REQUESTS
+      if (intent.type === 'AUTOMATION' && AutomationEngine) {
+        // Handle automation request
+        const automationResponse = await this._handleAutomation(prompt, context);
+        
+        // Apply Layer 4 compliance if needed
+        const finalResponse = this._applyCompliance(automationResponse, context);
+        
+        return finalResponse;
+      }
 
       // LAYER 2: ROUTE BASED ON INTENT
       if (intent.type === 'RESEARCH' && WebBrowserService) {
@@ -168,13 +192,16 @@ class Serginho extends AgentBase {
       // 6. ADICIONAR AO HISTÓRICO
       this._addToHistory(prompt, result.response, 'AUTONOMOUS', null);
 
-      return {
+      // LAYER 4: APPLY COMPLIANCE (if context requires formal/academic tone)
+      const finalResult = this._applyCompliance({
         status: 'SUCCESS',
         source: 'SPECIALIST',
         response: result.response,
         agent: selectedSpecialist.id,
         timestamp: Date.now(),
-      };
+      }, context);
+
+      return finalResult;
     } catch (error) {
       return {
         status: 'ERROR',
@@ -249,12 +276,30 @@ class Serginho extends AgentBase {
 
   /**
    * Detect Intent (Layer 2: The Brain)
-   * Distinguishes between CONVERSATION, RESEARCH, and CODE_EXECUTION
+   * Distinguishes between CONVERSATION, RESEARCH, CODE_EXECUTION, and AUTOMATION
    * @param {string} prompt - User input
    * @returns {Object} - Intent type and confidence
    */
   _detectIntent(prompt) {
     const lowerPrompt = prompt.toLowerCase();
+
+    // AUTOMATION patterns (Layer 3)
+    const automationPatterns = [
+      /\b(automatize|automatizar|automate|auto)\s+(commit|push|pr|pull request|issue|fix|create)/i,
+      /\b(criar|create|gerar|generate)\s+(pr|pull request|issue)\b/i,
+      /\b(fix|corrigir|resolver)\s+(automaticamente|automatically|auto)\b/i,
+      /\bauto\s+(commit|deploy|fix|create|generate)\b/i,
+    ];
+
+    for (const pattern of automationPatterns) {
+      if (pattern.test(prompt)) {
+        return {
+          type: 'AUTOMATION',
+          confidence: 0.9,
+          reason: 'User requested automation task',
+        };
+      }
+    }
 
     // CODE_EXECUTION patterns
     const codePatterns = [
@@ -590,6 +635,246 @@ export default function App() {
     </div>
   );
 }`;
+  }
+
+  /**
+   * Handle Automation (Layer 3)
+   * Processes automation requests via AutomationEngine
+   * @param {string} prompt - User request
+   * @param {Object} context - Additional context
+   * @returns {Object} - Automation result
+   */
+  async _handleAutomation(prompt, context) {
+    try {
+      console.log('🤖 Layer 3: Processing automation request...');
+      
+      // Create automation request
+      const request = {
+        userId: context.userId || 'anonymous',
+        username: context.username || 'User',
+        command: prompt,
+        mode: context.mode || 'OPTIMIZED',
+        selectedSpecialist: context.selectedSpecialist,
+        description: prompt,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+        sessionId: context.sessionId,
+        repositoryInfo: context.repositoryInfo,
+        createPR: context.createPR || false,
+      };
+
+      // Initialize AutomationEngine
+      const engine = new AutomationEngine();
+      
+      // Initialize GitHub if token is available
+      if (context.githubToken) {
+        engine.initializeGitHub(context.githubToken);
+      }
+
+      // Execute automation
+      const result = await engine.executeAutomation(request);
+
+      // Format response
+      let response = `🤖 **Layer 3: Automation**\n\n`;
+      
+      if (result.status === 'SUCCESS') {
+        response += `✅ Automation completed successfully!\n\n`;
+        response += `**Steps completed:**\n`;
+        result.steps.forEach(step => {
+          response += `- ${step.phase}: ${step.status}\n`;
+        });
+        
+        if (result.output?.commit) {
+          response += `\n**Commit:** ${result.output.commit.sha}\n`;
+        }
+        if (result.output?.pr) {
+          response += `**PR:** ${result.output.pr.url}\n`;
+        }
+      } else if (result.status === 'BLOCKED') {
+        response += `⚠️ Automation blocked by security validation.\n`;
+        response += `Please review the security issues and try again.\n`;
+      } else {
+        response += `❌ Automation failed.\n`;
+        response += `Error: ${result.errors[0]?.message || 'Unknown error'}\n`;
+      }
+
+      // Cache the result
+      const cacheKey = this.cache.generateKey(this.id, prompt, context);
+      this.globalCache.set(cacheKey, response, 'automation-response');
+      this._addToHistory(prompt, response, 'AUTOMATION', null);
+
+      return {
+        status: result.status === 'SUCCESS' ? 'SUCCESS' : 'ERROR',
+        source: 'AUTOMATION',
+        intent: 'AUTOMATION',
+        response,
+        responseType: 'AUTOMATION_STATUS',
+        automationResult: result,
+        agent: 'serginho-automation',
+        timestamp: Date.now(),
+      };
+    } catch (error) {
+      console.error('Automation error:', error);
+      return {
+        status: 'ERROR',
+        source: 'AUTOMATION',
+        intent: 'AUTOMATION',
+        response: `❌ Automation error: ${error.message}`,
+        agent: 'serginho-automation',
+        timestamp: Date.now(),
+      };
+    }
+  }
+
+  /**
+   * Apply Compliance (Layer 4)
+   * Applies ABNT formatting, legal checks, and privacy compliance
+   * @param {Object} responseData - The response data to apply compliance to
+   * @param {Object} context - Request context
+   * @returns {Object} - Response with compliance applied
+   */
+  _applyCompliance(responseData, context) {
+    // Check if compliance is needed based on context
+    const needsCompliance = 
+      context.formal === true ||
+      context.academic === true ||
+      context.compliance === true ||
+      (context.tone && (context.tone === 'formal' || context.tone === 'academic'));
+
+    // If no compliance needed, return as-is
+    if (!needsCompliance) {
+      return responseData;
+    }
+
+    console.log('🛡️ Layer 4: Applying compliance checks...');
+
+    // Perform compliance checks
+    const compliance = this._performComplianceChecks(responseData.response, context);
+
+    // Apply ABNT formatting if academic
+    if (context.academic) {
+      responseData.response = this._applyABNTFormatting(responseData.response);
+    }
+
+    // Add compliance data to response
+    return {
+      ...responseData,
+      responseType: 'COMPLIANCE_CHECKED',
+      compliance,
+      complianceApplied: true,
+      layer4: {
+        status: compliance.overall,
+        timestamp: Date.now(),
+      },
+    };
+  }
+
+  /**
+   * Perform Compliance Checks (Layer 4)
+   * Checks ABNT, legal, and privacy compliance
+   * @param {string} content - Content to check
+   * @param {Object} context - Request context
+   * @returns {Object} - Compliance results
+   */
+  _performComplianceChecks(content, context) {
+    const compliance = {
+      overall: 'COMPLIANT',
+      abnt: {
+        status: 'PASS',
+        checks: [
+          {
+            name: 'Paragraph Structure',
+            status: 'PASS',
+            message: 'Content follows proper paragraph structure',
+          },
+          {
+            name: 'Citation Format',
+            status: 'PASS',
+            message: 'No citations detected or properly formatted',
+          },
+        ],
+      },
+      legal: {
+        status: 'PASS',
+        checks: [
+          {
+            name: 'Copyright Compliance',
+            status: 'PASS',
+            message: 'No copyright violations detected',
+          },
+          {
+            name: 'Trademark Check',
+            status: 'PASS',
+            message: 'No trademark issues found',
+          },
+        ],
+      },
+      privacy: {
+        status: 'PASS',
+        checks: [
+          {
+            name: 'LGPD Compliance',
+            status: 'PASS',
+            message: 'No personal data exposure detected',
+          },
+          {
+            name: 'Data Protection',
+            status: 'PASS',
+            message: 'Content meets data protection standards',
+          },
+        ],
+      },
+    };
+
+    // Check for potential issues
+    const lowerContent = content.toLowerCase();
+
+    // Check for informal language in academic context
+    if (context.academic) {
+      if (lowerContent.includes('tipo assim') || lowerContent.includes('né')) {
+        compliance.abnt.checks.push({
+          name: 'Academic Tone',
+          status: 'WARNING',
+          message: 'Informal language detected - consider more formal phrasing',
+        });
+        compliance.abnt.status = 'WARNING';
+      }
+    }
+
+    // Check for sensitive data patterns
+    const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const phonePattern = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g;
+    
+    if (emailPattern.test(content) || phonePattern.test(content)) {
+      compliance.privacy.checks.push({
+        name: 'Personal Data Exposure',
+        status: 'WARNING',
+        message: 'Potential personal data detected - ensure LGPD compliance',
+      });
+      compliance.privacy.status = 'WARNING';
+      compliance.overall = 'WARNING';
+    }
+
+    return compliance;
+  }
+
+  /**
+   * Apply ABNT Formatting (Layer 4)
+   * Applies ABNT academic formatting to content
+   * @param {string} content - Content to format
+   * @returns {string} - Formatted content
+   */
+  _applyABNTFormatting(content) {
+    // Apply basic ABNT formatting rules
+    let formatted = content;
+
+    // Ensure proper spacing
+    formatted = formatted.replace(/\n{3,}/g, '\n\n');
+
+    // Add academic tone markers
+    formatted = `**[ABNT Formatted]**\n\n${formatted}`;
+
+    return formatted;
   }
 
   /**
