@@ -144,6 +144,46 @@ class Serginho extends AgentBase {
         };
       }
 
+      // LAYER 3: Handle AUTOMATION intent
+      if (intent.type === 'AUTOMATION') {
+        const automationResponse = this._handleAutomationIntent(prompt, context);
+        
+        // Cache the result
+        this.globalCache.set(cacheKey, automationResponse.response, 'automation');
+        this._addToHistory(prompt, automationResponse.response, 'AUTOMATION', null);
+        
+        return {
+          status: 'SUCCESS',
+          source: 'AUTOMATION',
+          intent: intent.type,
+          response: automationResponse.response,
+          automationData: automationResponse.data,
+          responseType: 'AUTOMATION',
+          agent: 'serginho-automation',
+          timestamp: Date.now(),
+        };
+      }
+
+      // LAYER 4: Handle COMPLIANCE intent
+      if (intent.type === 'COMPLIANCE') {
+        const complianceResponse = this._handleComplianceIntent(prompt, context);
+        
+        // Cache the result
+        this.globalCache.set(cacheKey, complianceResponse.response, 'compliance');
+        this._addToHistory(prompt, complianceResponse.response, 'COMPLIANCE', null);
+        
+        return {
+          status: 'SUCCESS',
+          source: 'COMPLIANCE',
+          intent: intent.type,
+          response: complianceResponse.response,
+          complianceData: complianceResponse.data,
+          responseType: 'COMPLIANCE',
+          agent: 'serginho-compliance',
+          timestamp: Date.now(),
+        };
+      }
+
       // 3. ROTEAMENTO INTELIGENTE (Original flow for CONVERSATION)
       const selectedSpecialist = await this._routeToSpecialist(prompt, context);
 
@@ -249,12 +289,53 @@ class Serginho extends AgentBase {
 
   /**
    * Detect Intent (Layer 2: The Brain)
-   * Distinguishes between CONVERSATION, RESEARCH, and CODE_EXECUTION
+   * Distinguishes between CONVERSATION, RESEARCH, CODE_EXECUTION, AUTOMATION, and COMPLIANCE
    * @param {string} prompt - User input
    * @returns {Object} - Intent type and confidence
    */
   _detectIntent(prompt) {
     const lowerPrompt = prompt.toLowerCase();
+
+    // AUTOMATION patterns (Layer 3)
+    const automationPatterns = [
+      /\b(automatize|automatizar|automatiza|automate)\s+(this|isso|este|esta)/i,
+      /\b(criar|crie|faça|execute)\s+(uma\s+)?(automação|automation)/i,
+      /\b(commit|push|deploy|automatizar)\s+(código|code|repositório|repository)/i,
+      /\bautomação\s+(de\s+)?(tarefas|tasks|código|code)/i,
+      /\b(gere|generate|crie|create)\s+(e|and)?\s*(commit|push|pr|pull request)/i,
+      /\bautomação\s+(github|git)/i,
+    ];
+
+    for (const pattern of automationPatterns) {
+      if (pattern.test(prompt)) {
+        return {
+          type: 'AUTOMATION',
+          confidence: 0.9,
+          reason: 'User requested automation workflow',
+        };
+      }
+    }
+
+    // COMPLIANCE patterns (Layer 4)
+    const compliancePatterns = [
+      /\b(verif(ique|icar|ica)|check|valide|validar)\s+(abnt|lgpd|compliance|conformidade)/i,
+      /\b(abnt|lgpd)\s+(check|verification|validação|análise)/i,
+      /\b(normas|rules|regras)\s+(abnt|brasileiras)/i,
+      /\b(proteção|protection)\s+(de\s+)?dados\s+(pessoais|lgpd)/i,
+      /\b(conformidade|compliance)\s+(legal|jurídica)/i,
+      /\b(formata(r|ção)|format(ting)?)\s+(abnt|acadêmico|normas)/i,
+      /\breferências\s+(bibliográficas|abnt)/i,
+    ];
+
+    for (const pattern of compliancePatterns) {
+      if (pattern.test(prompt)) {
+        return {
+          type: 'COMPLIANCE',
+          confidence: 0.9,
+          reason: 'User requested compliance checking or validation',
+        };
+      }
+    }
 
     // CODE_EXECUTION patterns
     const codePatterns = [
@@ -721,6 +802,135 @@ Task Management:
 
 Timestamp: ${new Date().toISOString()}
 `;
+  }
+
+  /**
+   * Handle Automation Intent (Layer 3)
+   * Provides information about automation workflow and redirects to /automation page
+   * @param {string} prompt - User request
+   * @param {Object} context - Additional context
+   * @returns {Object} - Response and automation data
+   */
+  _handleAutomationIntent(prompt, context) {
+    const response = `🤖 **Automation System**
+
+I can help you automate your repository tasks! The Automation System provides:
+
+**Features:**
+- ✅ Intelligent code generation
+- ✅ Automatic commit & push
+- ✅ Security validation
+- ✅ GitHub integration
+- ✅ Pull request creation
+- ✅ Specialist selection (Manual/Hybrid/Optimized modes)
+
+**Workflow Steps:**
+1. **Analysis** - Parse your command
+2. **Selection** - Choose the right specialist
+3. **Generation** - Generate code or changes
+4. **Validation** - Security checks
+5. **Execution** - Commit & push to repository
+
+🔗 **Access the full Automation Dashboard:** [/automation](/automation)
+
+You can trigger automations directly there, or tell me what you'd like to automate and I'll help you!
+
+**Example commands:**
+- "Create a login component with validation"
+- "Add a new API endpoint for user management"
+- "Refactor the authentication service"
+
+What would you like to automate?`;
+
+    // Create mock automation data structure
+    const data = {
+      steps: [
+        { id: 'analysis', phase: 'ANALYSIS', status: 'PENDING' },
+        { id: 'selection', phase: 'SPECIALIST_SELECTION', status: 'PENDING' },
+        { id: 'generation', phase: 'CODE_GENERATION', status: 'PENDING' },
+        { id: 'validation', phase: 'SECURITY_VALIDATION', status: 'PENDING' },
+        { id: 'execution', phase: 'EXECUTION', status: 'PENDING' },
+      ],
+      currentStep: 'analysis',
+      status: 'ready',
+      link: '/automation',
+    };
+
+    return { response, data };
+  }
+
+  /**
+   * Handle Compliance Intent (Layer 4)
+   * Provides information about ABNT/LGPD compliance checking
+   * @param {string} prompt - User request
+   * @param {Object} context - Additional context  
+   * @returns {Object} - Response and compliance data
+   */
+  _handleComplianceIntent(prompt, context) {
+    // Extract text if provided in context
+    const textToAnalyze = context.text || '';
+    
+    const response = `📋 **Compliance & Validation System**
+
+I can help you verify ABNT formatting and LGPD compliance! The system checks:
+
+**ABNT - Brazilian Standards:**
+- ✓ Formatting (NBR guidelines)
+- ✓ References (NBR 6023)
+- ✓ Citations (NBR 10520)
+- ✓ Academic work structure
+
+**LGPD - Data Protection:**
+- ✓ Personal data identification
+- ✓ Sensitive data handling
+- ✓ Consent requirements
+- ✓ Security measures
+
+**Legal Compliance:**
+- ✓ Copyright verification
+- ✓ Terms & conditions
+- ✓ Accessibility standards
+
+🔗 **Access the full Compliance Tools:** [/compliance](/compliance)
+
+You can paste your text there for detailed analysis, or share it with me and I'll provide a quick check!
+
+${textToAnalyze ? '\n**Analyzing your text...**\n' : '**Example use cases:**\n- Academic papers\n- Legal documents\n- Privacy policies\n- Terms of service\n'}
+
+Would you like me to analyze specific text for compliance?`;
+
+    // Create mock compliance data structure
+    const data = {
+      abnt: {
+        status: 'ready',
+        checks: [
+          { id: 'formatting', label: 'Formatação NBR', passed: null },
+          { id: 'references', label: 'Referências (NBR 6023)', passed: null },
+          { id: 'citations', label: 'Citações (NBR 10520)', passed: null },
+          { id: 'structure', label: 'Estrutura de Trabalho', passed: null },
+        ],
+      },
+      lgpd: {
+        status: 'ready',
+        checks: [
+          { id: 'personal_data', label: 'Dados Pessoais', passed: null },
+          { id: 'sensitive_data', label: 'Dados Sensíveis', passed: null },
+          { id: 'consent', label: 'Consentimento', passed: null },
+          { id: 'security', label: 'Medidas de Segurança', passed: null },
+        ],
+      },
+      legal: {
+        status: 'ready',
+        checks: [
+          { id: 'copyright', label: 'Direitos Autorais', passed: null },
+          { id: 'terms', label: 'Termos e Condições', passed: null },
+          { id: 'accessibility', label: 'Acessibilidade', passed: null },
+        ],
+      },
+      link: '/compliance',
+    };
+
+    return { response, data };
   }
 }
 
