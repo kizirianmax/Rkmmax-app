@@ -25,7 +25,7 @@ try {
 // Layer 3: Import AutomationEngine for automation capability
 let AutomationEngine;
 try {
-  // Dynamic import to handle both CommonJS and ES modules
+  // Handle default export from AutomationEngine module
   AutomationEngine = require('../../automation/AutomationEngine');
   if (AutomationEngine.default) {
     AutomationEngine = AutomationEngine.default;
@@ -842,8 +842,10 @@ export default function App() {
     }
 
     // Check for sensitive data patterns
+    // Note: These patterns are basic and may not catch all cases
+    // Consider using a dedicated PII detection library for production
     const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-    const phonePattern = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g;
+    const phonePattern = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g; // Basic pattern, primarily US format
     
     if (emailPattern.test(content) || phonePattern.test(content)) {
       compliance.privacy.checks.push({
