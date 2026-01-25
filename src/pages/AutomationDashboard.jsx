@@ -2,18 +2,13 @@
  * AUTOMATION DASHBOARD
  * Interface web para gerenciar automações
  * Mostra: Histórico, Estatísticas, Controles, Configurações
+ * Enhanced with AutomationStatus visualization component
  */
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, Send, Mic, Image as ImageIcon, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Loader2, Send, Mic, Image as ImageIcon, AlertCircle, CheckCircle, Clock, PlayCircle } from 'lucide-react';
+import AutomationStatus from '../components/tools/AutomationStatus';
+import './AutomationDashboard.css';
 
 export default function AutomationDashboard() {
   const [command, setCommand] = useState('');
@@ -31,6 +26,14 @@ export default function AutomationDashboard() {
   });
   const [recordingAudio, setRecordingAudio] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [activeTab, setActiveTab] = useState('execute');
+  
+  // NEW: Automation status tracking
+  const [automationStatus, setAutomationStatus] = useState({
+    steps: [],
+    currentStep: 'analysis',
+    status: 'pending',
+  });
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -88,6 +91,11 @@ export default function AutomationDashboard() {
     }
 
     setIsLoading(true);
+    setAutomationStatus({
+      steps: [],
+      currentStep: 'analysis',
+      status: 'running',
+    });
 
     try {
       const response = await fetch('/api/automation', {
@@ -108,16 +116,36 @@ export default function AutomationDashboard() {
       const data = await response.json();
 
       if (data.success) {
+        // Update automation status with results
+        setAutomationStatus({
+          steps: data.result?.steps || [],
+          currentStep: 'execution',
+          status: 'success',
+        });
+        
         setCommand('');
         setSelectedSpecialist('');
         loadAutomationHistory();
         loadStats();
-        alert('✅ Automação executada com sucesso!');
+        
+        setTimeout(() => {
+          alert('✅ Automação executada com sucesso!');
+        }, 500);
       } else {
+        setAutomationStatus({
+          steps: data.result?.steps || [],
+          currentStep: 'validation',
+          status: data.result?.status === 'BLOCKED' ? 'blocked' : 'failed',
+        });
         alert(`❌ Erro: ${data.error}`);
       }
     } catch (error) {
       console.error('Erro ao executar automação:', error);
+      setAutomationStatus({
+        steps: [],
+        currentStep: 'analysis',
+        status: 'failed',
+      });
       alert('Erro ao executar automação');
     } finally {
       setIsLoading(false);
@@ -242,235 +270,253 @@ export default function AutomationDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="automation-dashboard">
+      <div className="dashboard-container">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">🤖 RKMMAX Automação</h1>
-          <p className="text-slate-300">Sistema Inteligente de Automação de Repositório</p>
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">🤖 RKMMAX Automação</h1>
+          <p className="dashboard-subtitle">Sistema Inteligente de Automação de Repositório</p>
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="execute" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-800 border border-slate-700">
-            <TabsTrigger value="execute" className="text-white">Executar</TabsTrigger>
-            <TabsTrigger value="history" className="text-white">Histórico</TabsTrigger>
-            <TabsTrigger value="stats" className="text-white">Estatísticas</TabsTrigger>
-          </TabsList>
+        <div className="tabs-wrapper">
+          <div className="tabs-header">
+            <button 
+              className={`tab-button ${activeTab === 'execute' ? 'active' : ''}`}
+              onClick={() => setActiveTab('execute')}
+            >
+              Executar
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
+              onClick={() => setActiveTab('history')}
+            >
+              Histórico
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stats')}
+            >
+              Estatísticas
+            </button>
+          </div>
 
           {/* TAB: Executar Automação */}
-          <TabsContent value="execute" className="space-y-6">
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Novo Comando</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Digite um comando ou use voz/imagem para automatizar
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Aviso de limite */}
-                {dailyUsage.automations >= 5 && (
-                  <Alert className="bg-yellow-900 border-yellow-700">
-                    <AlertCircle className="h-4 w-4 text-yellow-400" />
-                    <AlertDescription className="text-yellow-200">
-                      Você atingiu o limite diário de automações para seu plano.
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {/* Input de comando */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">Comando</label>
-                  <Textarea
-                    placeholder="Ex: RKM, cria um componente de login com validação..."
-                    value={command}
-                    onChange={(e) => setCommand(e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 min-h-24"
-                  />
+          {activeTab === 'execute' && (
+            <div className="tab-content">
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title">Novo Comando</h2>
+                  <p className="card-description">
+                    Digite um comando ou use voz/imagem para automatizar
+                  </p>
                 </div>
-
-                {/* Botões de entrada multimodal */}
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleStartRecording}
-                    disabled={recordingAudio || isLoading}
-                    variant="outline"
-                    className="border-slate-600 text-white hover:bg-slate-700"
-                  >
-                    <Mic className="w-4 h-4 mr-2" />
-                    {recordingAudio ? 'Gravando...' : 'Voz'}
-                  </Button>
-
-                  <Button
-                    onClick={() => document.getElementById('imageInput')?.click()}
-                    disabled={isLoading}
-                    variant="outline"
-                    className="border-slate-600 text-white hover:bg-slate-700"
-                  >
-                    <ImageIcon className="w-4 h-4 mr-2" />
-                    Imagem
-                  </Button>
-
-                  <input
-                    id="imageInput"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageSelect}
-                    className="hidden"
-                  />
-
-                  {selectedImage && (
-                    <Badge className="bg-green-600">{selectedImage}</Badge>
+                <div className="card-content">
+                  {/* Aviso de limite */}
+                  {dailyUsage.automations >= 5 && (
+                    <div className="alert warning">
+                      <AlertCircle className="alert-icon" />
+                      <p className="alert-text">
+                        Você atingiu o limite diário de automações para seu plano.
+                      </p>
+                    </div>
                   )}
-                </div>
 
-                {/* Seleção de modo */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-white">Modo</label>
-                    <Select value={selectedMode} onValueChange={setSelectedMode}>
-                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-700 border-slate-600">
-                        <SelectItem value="MANUAL" className="text-white">Manual (1 crédito)</SelectItem>
-                        <SelectItem value="HYBRID" className="text-white">Híbrido (3 créditos)</SelectItem>
-                        <SelectItem value="OPTIMIZED" className="text-white">Otimizado (5 créditos)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  {/* Input de comando */}
+                  <div className="form-group">
+                    <label className="form-label">Comando</label>
+                    <textarea
+                      className="form-textarea"
+                      placeholder="Ex: RKM, cria um componente de login com validação..."
+                      value={command}
+                      onChange={(e) => setCommand(e.target.value)}
+                      rows={6}
+                    />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-white">Especialista (opcional)</label>
-                    <Select value={selectedSpecialist} onValueChange={setSelectedSpecialist}>
-                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                        <SelectValue placeholder="Automático" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-700 border-slate-600">
+                  {/* Botões de entrada multimodal */}
+                  <div className="button-group">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleStartRecording}
+                      disabled={recordingAudio || isLoading}
+                    >
+                      <Mic className="btn-icon" />
+                      {recordingAudio ? 'Gravando...' : 'Voz'}
+                    </button>
+
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => document.getElementById('imageInput')?.click()}
+                      disabled={isLoading}
+                    >
+                      <ImageIcon className="btn-icon" />
+                      Imagem
+                    </button>
+
+                    <input
+                      id="imageInput"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden-input"
+                    />
+
+                    {selectedImage && (
+                      <span className="badge success">{selectedImage}</span>
+                    )}
+                  </div>
+
+                  {/* Seleção de modo */}
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label className="form-label">Modo</label>
+                      <select
+                        className="form-select"
+                        value={selectedMode}
+                        onChange={(e) => setSelectedMode(e.target.value)}
+                      >
+                        <option value="MANUAL">Manual (1 crédito)</option>
+                        <option value="HYBRID">Híbrido (3 créditos)</option>
+                        <option value="OPTIMIZED">Otimizado (5 créditos)</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Especialista (opcional)</label>
+                      <select
+                        className="form-select"
+                        value={selectedSpecialist}
+                        onChange={(e) => setSelectedSpecialist(e.target.value)}
+                      >
+                        <option value="">Automático</option>
                         {specialists.map((spec) => (
-                          <SelectItem key={spec.name} value={spec.name} className="text-white">
+                          <option key={spec.name} value={spec.name}>
                             {spec.name}
-                          </SelectItem>
+                          </option>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </select>
+                    </div>
                   </div>
-                </div>
 
-                {/* Botão de execução */}
-                <Button
-                  onClick={handleExecuteAutomation}
-                  disabled={isLoading || !command.trim()}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processando...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Executar Automação
-                    </>
+                  {/* Botão de execução */}
+                  <button
+                    className="btn btn-primary btn-full"
+                    onClick={handleExecuteAutomation}
+                    disabled={isLoading || !command.trim()}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="btn-icon animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="btn-icon" />
+                        Executar Automação
+                      </>
+                    )}
+                  </button>
+
+                  {/* Automation Status Visualization */}
+                  {(isLoading || automationStatus.status !== 'pending') && (
+                    <div className="status-section">
+                      <AutomationStatus
+                        steps={automationStatus.steps}
+                        currentStep={automationStatus.currentStep}
+                        status={automationStatus.status}
+                        embedded={false}
+                      />
+                    </div>
                   )}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* TAB: Histórico */}
-          <TabsContent value="history" className="space-y-4">
-            <Card className="bg-slate-800 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Histórico de Automações</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Últimas automações executadas
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {automations.length === 0 ? (
-                  <p className="text-slate-400">Nenhuma automação executada ainda</p>
-                ) : (
-                  <div className="space-y-3">
-                    {automations.map((auto) => (
-                      <div
-                        key={auto.id}
-                        className="p-4 bg-slate-700 rounded-lg border border-slate-600 space-y-2"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="text-white font-medium">{auto.command}</p>
-                            <p className="text-sm text-slate-400">
-                              {new Date(auto.timestamp).toLocaleString('pt-BR')}
-                            </p>
+          {activeTab === 'history' && (
+            <div className="tab-content">
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title">Histórico de Automações</h2>
+                  <p className="card-description">
+                    Últimas automações executadas
+                  </p>
+                </div>
+                <div className="card-content">
+                  {automations.length === 0 ? (
+                    <p className="empty-state">Nenhuma automação executada ainda</p>
+                  ) : (
+                    <div className="history-list">
+                      {automations.map((auto) => (
+                        <div key={auto.id} className="history-item">
+                          <div className="history-header">
+                            <div className="history-info">
+                              <p className="history-command">{auto.command}</p>
+                              <p className="history-timestamp">
+                                {new Date(auto.timestamp).toLocaleString('pt-BR')}
+                              </p>
+                            </div>
+                            <span className={`badge ${auto.status.toLowerCase()}`}>
+                              {getStatusIcon(auto.status)}
+                              <span className="badge-text">{auto.status}</span>
+                            </span>
                           </div>
-                          <Badge className={getStatusColor(auto.status)}>
-                            {getStatusIcon(auto.status)}
-                            <span className="ml-1">{auto.status}</span>
-                          </Badge>
+                          {auto.selectedSpecialist && (
+                            <p className="history-specialist">
+                              Especialista: <strong>{auto.selectedSpecialist}</strong>
+                            </p>
+                          )}
                         </div>
-                        {auto.selectedSpecialist && (
-                          <p className="text-sm text-slate-300">
-                            Especialista: <span className="font-medium">{auto.selectedSpecialist}</span>
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* TAB: Estatísticas */}
-          <TabsContent value="stats" className="space-y-4">
-            {stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Total de Automações</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-purple-400">{stats.totalAutomations}</p>
-                  </CardContent>
-                </Card>
+          {activeTab === 'stats' && (
+            <div className="tab-content">
+              {stats ? (
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <h3 className="stat-title">Total de Automações</h3>
+                    <p className="stat-value purple">{stats.totalAutomations}</p>
+                  </div>
 
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Taxa de Sucesso</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-green-400">
+                  <div className="stat-card">
+                    <h3 className="stat-title">Taxa de Sucesso</h3>
+                    <p className="stat-value green">
                       {stats.totalAutomations > 0
                         ? Math.round((stats.successfulAutomations / stats.totalAutomations) * 100)
                         : 0}
                       %
                     </p>
-                  </CardContent>
-                </Card>
+                  </div>
 
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Automações Bem-Sucedidas</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-green-400">{stats.successfulAutomations}</p>
-                  </CardContent>
-                </Card>
+                  <div className="stat-card">
+                    <h3 className="stat-title">Automações Bem-Sucedidas</h3>
+                    <p className="stat-value green">{stats.successfulAutomations}</p>
+                  </div>
 
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Automações Falhadas</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-red-400">{stats.failedAutomations}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                  <div className="stat-card">
+                    <h3 className="stat-title">Automações Falhadas</h3>
+                    <p className="stat-value red">{stats.failedAutomations}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="card">
+                  <div className="card-content">
+                    <p className="empty-state">Carregando estatísticas...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
