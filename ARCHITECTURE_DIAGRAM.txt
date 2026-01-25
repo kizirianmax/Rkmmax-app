@@ -1,0 +1,201 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   MODULAR ARCHITECTURE - LAYERS 3 & 4                        │
+│                      Automation & Compliance System                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                              ┌─────────────────┐
+                              │   USER ACCESS   │
+                              │    3 MODES      │
+                              └────────┬────────┘
+                                       │
+           ┌───────────────────────────┼───────────────────────────┐
+           │                           │                           │
+           ▼                           ▼                           ▼
+  ┌─────────────────┐       ┌──────────────────┐      ┌──────────────────┐
+  │  Chat with      │       │  Standalone      │      │  Direct          │
+  │  SERGINHO       │       │  Pages           │      │  Navigation      │
+  │  (Orchestrator) │       │                  │      │                  │
+  └────────┬────────┘       └────────┬─────────┘      └────────┬─────────┘
+           │                         │                          │
+           │  Intent Detection       │  Direct Access           │  Menu Link
+           │  - "automate this"      │  - /automation           │  - Click link
+           │  - "check ABNT"         │  - /compliance           │  - Open page
+           │                         │                          │
+           └─────────────────────────┴──────────────────────────┘
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+                    ▼                                 ▼
+        ┏━━━━━━━━━━━━━━━━━━━━┓          ┏━━━━━━━━━━━━━━━━━━━━┓
+        ┃   LAYER 3          ┃          ┃   LAYER 4          ┃
+        ┃   AUTOMATION       ┃          ┃   COMPLIANCE       ┃
+        ┗━━━━━━━━━━┳━━━━━━━━━┛          ┗━━━━━━━━━┳━━━━━━━━━━┛
+                   │                               │
+                   │                               │
+        ┌──────────▼──────────┐          ┌────────▼──────────┐
+        │ /automation         │          │ /compliance       │
+        │                     │          │                   │
+        │ AutomationDashboard │          │ ComplianceTools   │
+        │                     │          │                   │
+        │ Features:           │          │ Features:         │
+        │ • Execute tasks     │          │ • Text analysis   │
+        │ • View history      │          │ • ABNT checks     │
+        │ • Statistics        │          │ • LGPD checks     │
+        │ • Mode selection    │          │ • Legal checks    │
+        └──────────┬──────────┘          └────────┬──────────┘
+                   │                               │
+                   │                               │
+        ┌──────────▼──────────┐          ┌────────▼──────────┐
+        │ AutomationStatus    │          │ ComplianceViewer  │
+        │    Component        │          │    Component      │
+        │                     │          │                   │
+        │ Visualizes:         │          │ Displays:         │
+        │ 1. Analysis         │          │ • ABNT rules      │
+        │ 2. Selection        │          │ • LGPD status     │
+        │ 3. Generation       │          │ • Legal checks    │
+        │ 4. Validation       │          │ • Visual badges   │
+        │ 5. Execution        │          │                   │
+        └─────────────────────┘          └───────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SERGINHO INTENT DETECTION                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    User Input: "automate this code"
+         │
+         ▼
+    ┌──────────────────┐
+    │ _detectIntent()  │  → Pattern matching
+    └────────┬─────────┘
+             │
+    ┌────────▼─────────────────────────────────────────────┐
+    │ Intent Types:                                        │
+    │                                                      │
+    │ • AUTOMATION   → _handleAutomationIntent()          │
+    │ • COMPLIANCE   → _handleComplianceIntent()          │
+    │ • CODE_EXECUTION → _generateCodeExecution()         │
+    │ • RESEARCH     → WebBrowserService.search()         │
+    │ • CONVERSATION → _routeToSpecialist()               │
+    └──────────────────────────────────────────────────────┘
+             │
+             ▼
+    ┌──────────────────┐
+    │ Return Response  │  → Structured data for UI
+    │ + Component Data │     (automationData, complianceData)
+    └──────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           AUTOMATION WORKFLOW                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    User → Dashboard → Execute Command
+                │
+                ▼
+    ┌───────────────────────┐
+    │ 1. ANALYSIS           │  Parse command & extract requirements
+    └───────────┬───────────┘
+                │
+                ▼
+    ┌───────────────────────┐
+    │ 2. SELECTION          │  Choose specialist (Manual/Auto)
+    └───────────┬───────────┘
+                │
+                ▼
+    ┌───────────────────────┐
+    │ 3. GENERATION         │  Generate code/changes
+    └───────────┬───────────┘
+                │
+                ▼
+    ┌───────────────────────┐
+    │ 4. VALIDATION         │  Security checks
+    └───────────┬───────────┘
+                │
+                ▼
+    ┌───────────────────────┐
+    │ 5. EXECUTION          │  Commit & Push
+    └───────────┬───────────┘
+                │
+                ▼
+           [ Complete ]
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         COMPLIANCE CHECK FLOW                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    User → ComplianceTools → Paste Text → Analyze
+                                  │
+                                  ▼
+                        ┌──────────────────┐
+                        │ Text Analysis    │
+                        └────────┬─────────┘
+                                 │
+             ┌───────────────────┼───────────────────┐
+             │                   │                   │
+             ▼                   ▼                   ▼
+    ┌────────────────┐  ┌────────────────┐  ┌────────────────┐
+    │ ABNT Checks    │  │ LGPD Checks    │  │ Legal Checks   │
+    │                │  │                │  │                │
+    │ • Formatting   │  │ • Personal     │  │ • Copyright    │
+    │ • References   │  │   data         │  │ • Terms        │
+    │ • Citations    │  │ • Sensitive    │  │ • Access       │
+    │ • Structure    │  │   data         │  │                │
+    │                │  │ • Consent      │  │                │
+    │                │  │ • Security     │  │                │
+    └────────┬───────┘  └────────┬───────┘  └────────┬───────┘
+             │                   │                   │
+             └───────────────────┴───────────────────┘
+                                 │
+                                 ▼
+                      ┌──────────────────────┐
+                      │ ComplianceViewer     │
+                      │                      │
+                      │ Shows:               │
+                      │ ✓ Passed checks      │
+                      │ ✗ Failed checks      │
+                      │ ⚠ Warnings           │
+                      └──────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FILE STRUCTURE                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+src/
+├── components/
+│   └── tools/
+│       ├── AutomationStatus.jsx       [NEW] ✅ Visual workflow tracker
+│       ├── AutomationStatus.css       [NEW] ✅ Dark theme styles
+│       ├── ComplianceViewer.jsx       [NEW] ✅ Compliance display
+│       └── ComplianceViewer.css       [NEW] ✅ Component styles
+│
+├── pages/
+│   ├── AutomationDashboard.jsx        [UPDATED] ✅ Enhanced with status
+│   ├── AutomationDashboard.css        [NEW] ✅ Dashboard styles
+│   ├── ComplianceTools.jsx            [NEW] ✅ Standalone compliance
+│   └── ComplianceTools.css            [NEW] ✅ Page styles
+│
+├── agents/
+│   └── serginho/
+│       └── Serginho.js                [UPDATED] ✅ Intent detection
+│
+└── App.jsx                            [UPDATED] ✅ Routes added
+
+IMPLEMENTATION_LAYER3_LAYER4.md        [NEW] ✅ Documentation
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            DEPLOYMENT STATUS                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+✅ All components created
+✅ All pages functional
+✅ Routes configured
+✅ Serginho integrated
+✅ Lint checks passed
+✅ Documentation complete
+✅ Ready for review
+
+No errors introduced | Clean implementation | Fully modular design
