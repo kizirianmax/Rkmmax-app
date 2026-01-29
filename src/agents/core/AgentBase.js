@@ -27,6 +27,32 @@ class AgentBase {
   }
 
   /**
+   * Normaliza qualquer retorno vindo de _callAPI para um formato consistente:
+   * { status: 'SUCCESS'|'ERROR', text: 'string', meta: {...} }
+   */
+  _normalizeResponse(raw) {
+    if (raw == null) return { status: 'ERROR', text: '', meta: {} };
+
+    if (typeof raw === 'string') {
+      return { status: 'SUCCESS', text: raw, meta: {} };
+    }
+
+    if (typeof raw === 'object') {
+      const text = raw.response || raw.text || raw.result || raw.message || (() => {
+        try { return JSON.stringify(raw); } catch { return String(raw); }
+      })();
+
+      const status = raw.status || (text ? 'SUCCESS' : 'ERROR');
+      const meta = Object.assign({}, raw.meta || {}, {
+        timestamp: raw.timestamp || raw.createdAt || Date.now(),
+      });
+      return { status, text: String(text), meta };
+    }
+
+    return { status: 'SUCCESS', text: String(raw), meta: {} };
+  }
+
+  /**
    * Processamento Híbrido: Manual ou Autônomo
    * Fluxo: Validação → Cache → Modo → Histórico
    */
@@ -53,7 +79,7 @@ class AgentBase {
         return {
           status: 'SUCCESS',
           source: 'CACHE',
-          response: cachedResponse,
+          response: cachedResponse.text ? cachedResponse.text : cachedResponse,
           timestamp: Date.now(),
         };
       }
@@ -89,8 +115,6 @@ class AgentBase {
       securityAnalysis.recommendation === 'REQUIRE_CONSENT';
 
     if (consentRequired) {
-      // Em produção, isso seria uma solicitação real ao usuário
-      // Por enquanto, retornamos que consentimento é necessário
       return {
         status: 'CONSENT_REQUIRED',
         reason: 'User consent required for this operation',
@@ -101,18 +125,20 @@ class AgentBase {
     }
 
     // Processar com API
-    const response = await this._callAPI(prompt, context);
+    const raw = await this._callAPI(prompt, context);
+    const normalized = this._normalizeResponse(raw);
 
-    // Armazenar em cache
-    this.cache.set(cacheKey, response, 'specialist-response');
+    // Armazenar em cache (forma consistente)
+    if (cacheKey) this.cache.set(cacheKey, normalized, 'specialist-response');
 
     // Adicionar ao histórico
-    this._addToHistory(prompt, response, 'MANUAL', null);
+    this._addToHistory(prompt, normalized, 'MANUAL', null);
 
     return {
-      status: 'SUCCESS',
+      status: normalized.status,
       source: 'API',
-      response,
+      response: normalized.text,
+      meta: normalized.meta,
       timestamp: Date.now(),
     };
   }
@@ -122,32 +148,34 @@ class AgentBase {
    */
   async _autonomousMode(prompt, context, securityAnalysis, cacheKey) {
     // Processar com API
-    const response = await this._callAPI(prompt, context);
+    const raw = await this._callAPI(prompt, context);
+    const normalized = this._normalizeResponse(raw);
 
     // Filtrar resposta (redação de dados sensíveis)
-    const filtered = this.modelArmor.filterResponse(response);
+    const filtered = this.modelArmor.filterResponse(normalized);
 
     // Criar PR no GitHub (simulado por enquanto)
     const pr = await this._createPullRequest({
       agentId: this.id,
       prompt,
-      response: filtered.filtered,
+      response: filtered.text || filtered.filtered || normalized.text,
       timestamp: Date.now(),
-      requiresApproval: filtered.isModified,
+      requiresApproval: filtered.isModified || false,
     });
 
-    // Armazenar em cache
-    this.cache.set(cacheKey, response, 'specialist-response');
+    // Armazenar em cache (forma consistente)
+    if (cacheKey) this.cache.set(cacheKey, normalized, 'specialist-response');
 
     // Adicionar ao histórico
-    this._addToHistory(prompt, response, 'AUTONOMOUS', pr.id);
+    this._addToHistory(prompt, normalized, 'AUTONOMOUS', pr ? pr.id : null);
 
     return {
-      status: 'SUCCESS',
+      status: normalized.status,
       source: 'API',
-      response,
-      prId: pr.id,
-      requiresApproval: filtered.isModified,
+      response: normalized.text,
+      prId: pr ? pr.id : null,
+      requiresApproval: filtered.isModified || false,
+      meta: normalized.meta,
       timestamp: Date.now(),
     };
   }
@@ -245,23 +273,23 @@ class AgentBase {
     const cacheReport = this.cache.generateReport();
 
     return `
-╔════════════════════════════════════════╗
-║        AGENT REPORT - ${this.id}
-╚════════════════════════════════════════╝
-
-Agent: ${this.name}
-Role: ${this.role}
-Mode: ${this.mode}
-Uptime: ${(stats.uptime / 1000 / 60).toFixed(2)} minutes
-
-History Size: ${stats.historySize}/${this.maxHistorySize}
-
-${cacheReport}
-
-${modelArmorReport}
-
-Timestamp: ${new Date().toISOString()}
-`;
+ ╔════════════════════════════════════════╗
+ ║        AGENT REPORT - ${this.id}
+ ╚════════════════════════════════════════╝
+ 
+ Agent: ${this.name}
+ Role: ${this.role}
+ Mode: ${this.mode}
+ Uptime: ${(stats.uptime / 1000 / 60).toFixed(2)} minutes
+ 
+ History Size: ${stats.historySize}/${this.maxHistorySize}
+ 
+ ${cacheReport}
+ 
+ ${modelArmorReport}
+ 
+ Timestamp: ${new Date().toISOString()}
+ `;
   }
 
   /**
@@ -283,4 +311,3 @@ Timestamp: ${new Date().toISOString()}
 }
 
 module.exports = AgentBase;
-
