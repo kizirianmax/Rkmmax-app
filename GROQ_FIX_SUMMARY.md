@@ -51,11 +51,21 @@ isConfigured: !!apiKey
 
 **After**:
 ```javascript
-isConfigured: apiKey && apiKey.length > 20 && apiKey.startsWith('gsk_')
+// Uses centralized validateGroqApiKey() function
+let isConfigured = false;
+try {
+  if (apiKey) {
+    validateGroqApiKey(apiKey);
+    isConfigured = true;
+  }
+} catch (error) {
+  console.warn('⚠️ Validação do Groq API falhou:');
+  console.warn(error.message);
+}
 ```
-✅ Stricter validation
-✅ Warning logs when not configured
-✅ Configuration hints in console
+✅ Uses centralized validation function
+✅ Detailed error messages from validation function
+✅ Clear failure indication in console
 
 #### Enhanced `callGroq` Method:
 ✅ Added detailed request logging

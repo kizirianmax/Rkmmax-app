@@ -62,7 +62,7 @@ if (result1 === shortPrompt) {
 console.log('\nTest 6: Long prompt (should truncate)');
 const longPrompt = 'x'.repeat(2500);
 const result2 = validatePromptSize(longPrompt, 2000);
-if (result2.length < longPrompt.length && result2.includes('[... prompt truncado')) {
+if (result2.length < longPrompt.length && result2.includes('prompt truncado para otimização')) {
   console.log('✅ PASSED: Long prompt truncated correctly');
   console.log('   Original length:', longPrompt.length);
   console.log('   Truncated length:', result2.length);

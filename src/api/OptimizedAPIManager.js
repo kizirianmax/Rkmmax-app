@@ -104,7 +104,7 @@ class OptimizedAPIManager {
         isConfigured = true;
       }
     } catch (error) {
-      console.warn('⚠️ Groq API não configurada corretamente');
+      console.warn('⚠️ Validação do Groq API falhou:');
       console.warn(error.message);
     }
     
