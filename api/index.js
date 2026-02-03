@@ -1,186 +1,166 @@
 /**
- * RKMMAX API - UNIFIED ROUTER
- * Centraliza todas as rotas em uma única função Serverless
- * Solução para limite de 12 funções no Vercel Hobby
+ * 🚀 RKMMAX API - UNIFIED SERVERLESS ROUTER
+ * 
+ * Solução para limite de 12 funções do Vercel Hobby
+ * Roteia todas as requisições para handlers específicos
  */
 
-const chatHandler = require('./chat');
-const hybridHandler = require('./hybrid');
-const automationHandler = require('./automation');
-const auditLogHandler = require('./audit-log');
-const creditCalculatorHandler = require('./credit-calculator');
-const githubAutomationHandler = require('./github-automation');
-const githubBotHandler = require('./github-bot');
-const githubOAuthHandler = require('./github-oauth');
-const multimodalHandler = require('./multimodal');
-const securityValidatorHandler = require('./security-validator');
-const specialistChatHandler = require('./specialist-chat');
-// const visionHandler = require('./vision'); // REMOVIDO
-const transcribeHandler = require('./transcribe');
-const sendEmailHandler = require('./send-email');
-const checkoutHandler = require('./checkout');
-const pricesHandler = require('./prices');
-const mePlanHandler = require('./me-plan');
-const stripeWebhookHandler = require('./stripe-webhook');
+// Import all handlers
+import aiHandler from '../lib/handlers/ai.js';
+import checkoutHandler from '../lib/handlers/checkout.js';
+import feedbackHandler from '../lib/handlers/feedback.js';
+import imageGenerateHandler from '../lib/handlers/image-generate.js';
+import mePlanHandler from '../lib/handlers/me-plan.js';
+import pricesHandler from '../lib/handlers/prices.js';
+import sendEmailHandler from '../lib/handlers/send-email.js';
+import stripeWebhookHandler from '../lib/handlers/stripe-webhook.js';
+import transcribeHandler from '../lib/handlers/transcribe.js';
+import unifiedClaudeHandler from '../lib/handlers/unified-claude.js';
+import visionHandler from '../lib/handlers/vision.js';
+import githubOAuthHandler from '../lib/handlers/github-oauth.js';
 
 /**
- * Main router function
+ * Apply CORS headers to all responses
  */
-module.exports = async (req, res) => {
-  const { pathname } = new URL(req.url, `http://${req.headers.host}`);
-
-  // CORS headers
+function applyCORS(res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, x-user-email'
   );
+}
 
+/**
+ * Main unified router
+ */
+export default async function handler(req, res) {
+  applyCORS(res);
+
+  // Handle OPTIONS preflight
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   try {
-    // Route requests based on pathname
-    if (pathname === '/api/chat' || pathname.startsWith('/api/chat/')) {
-      return chatHandler(req, res);
+    // Parse pathname from URL
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = url.pathname;
+
+    console.log(`📍 Router: ${req.method} ${pathname}`);
+
+    // Route to appropriate handler based on pathname
+    
+    // AI endpoints
+    if (pathname === '/api/ai' || pathname.startsWith('/api/ai/')) {
+      return aiHandler(req, res);
+    }
+    
+    if (pathname === '/api/unified-claude' || pathname.startsWith('/api/unified-claude/')) {
+      return unifiedClaudeHandler(req, res);
     }
 
-    if (pathname === '/api/hybrid' || pathname.startsWith('/api/hybrid/')) {
-      return hybridHandler(req, res);
+    // Media endpoints
+    if (pathname === '/api/transcribe' || pathname.startsWith('/api/transcribe/')) {
+      return transcribeHandler(req, res);
+    }
+    
+    if (pathname === '/api/vision' || pathname.startsWith('/api/vision/')) {
+      return visionHandler(req, res);
+    }
+    
+    if (pathname === '/api/image-generate' || pathname.startsWith('/api/image-generate/')) {
+      return imageGenerateHandler(req, res);
     }
 
-    if (pathname === '/api/automation' || pathname.startsWith('/api/automation/')) {
-      return automationHandler(req, res);
-    }
-
-    if (pathname === '/api/audit-log' || pathname.startsWith('/api/audit-log/')) {
-      return auditLogHandler(req, res);
-    }
-
-    if (pathname === '/api/credit-calculator' || pathname.startsWith('/api/credit-calculator/')) {
-      return creditCalculatorHandler(req, res);
-    }
-
-    if (pathname === '/api/github-automation' || pathname.startsWith('/api/github-automation/')) {
-      return githubAutomationHandler(req, res);
-    }
-
-    if (pathname === '/api/github-bot' || pathname.startsWith('/api/github-bot/')) {
-      return githubBotHandler(req, res);
-    }
-
+    // GitHub OAuth endpoints
     if (pathname === '/api/github-oauth' || pathname.startsWith('/api/github-oauth/')) {
       return githubOAuthHandler(req, res);
     }
 
-    if (pathname === '/api/multimodal' || pathname.startsWith('/api/multimodal/')) {
-      return multimodalHandler(req, res);
-    }
-
-    if (pathname === '/api/security-validator' || pathname.startsWith('/api/security-validator/')) {
-      return securityValidatorHandler(req, res);
-    }
-
-    if (pathname === '/api/specialist-chat' || pathname.startsWith('/api/specialist-chat/')) {
-      return specialistChatHandler(req, res);
-    }
-
-    // Rota /api/vision REMOVIDA
-    if (pathname === '/api/vision' || pathname.startsWith('/api/vision/')) {
-      return res.status(410).json({ 
-        error: 'Funcionalidade removida',
-        message: 'A análise de imagem não está mais disponível.'
-      });
-    }
-
-    if (pathname === '/api/transcribe' || pathname.startsWith('/api/transcribe/')) {
-      return transcribeHandler(req, res);
-    }
-
+    // Email & Payment endpoints
     if (pathname === '/api/send-email' || pathname.startsWith('/api/send-email/')) {
       return sendEmailHandler(req, res);
     }
-
+    
     if (pathname === '/api/checkout' || pathname.startsWith('/api/checkout/')) {
       return checkoutHandler(req, res);
     }
-
+    
     if (pathname === '/api/prices' || pathname.startsWith('/api/prices/')) {
       return pricesHandler(req, res);
     }
-
+    
     if (pathname === '/api/me-plan' || pathname.startsWith('/api/me-plan/')) {
       return mePlanHandler(req, res);
     }
-
+    
     if (pathname === '/api/stripe-webhook' || pathname.startsWith('/api/stripe-webhook/')) {
       return stripeWebhookHandler(req, res);
     }
 
+    // Feedback endpoint
+    if (pathname === '/api/feedback' || pathname.startsWith('/api/feedback/')) {
+      return feedbackHandler(req, res);
+    }
+
     // Health check
     if (pathname === '/api/health' || pathname === '/api') {
-      res.status(200).json({
+      return res.status(200).json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        version: '1.0.0',
+        version: '2.0.0',
         routes: [
-          '/api/chat',
-          '/api/hybrid',
-          '/api/automation',
-          '/api/audit-log',
-          '/api/credit-calculator',
-          '/api/github-automation',
-          '/api/github-bot',
-          '/api/github-oauth',
-          '/api/multimodal',
-          '/api/security-validator',
-          '/api/specialist-chat',
-          // '/api/vision', // REMOVIDO
+          '/api/ai',
+          '/api/unified-claude',
           '/api/transcribe',
+          '/api/vision',
+          '/api/image-generate',
+          '/api/github-oauth',
           '/api/send-email',
           '/api/checkout',
           '/api/prices',
           '/api/me-plan',
           '/api/stripe-webhook',
-        ],
+          '/api/feedback'
+        ]
       });
-      return;
     }
 
     // 404 - Route not found
-    res.status(404).json({
-      error: 'Route not found',
-      path: pathname,
+    return res.status(404).json({
+      error: 'Not Found',
+      message: `No handler for ${pathname}`,
       availableRoutes: [
-        '/api/chat',
-        '/api/hybrid',
-        '/api/automation',
-        '/api/audit-log',
-        '/api/credit-calculator',
-        '/api/github-automation',
-        '/api/github-bot',
-        '/api/github-oauth',
-        '/api/multimodal',
-        '/api/security-validator',
-        '/api/specialist-chat',
-        '/api/vision',
+        '/api/ai',
+        '/api/unified-claude',
         '/api/transcribe',
+        '/api/vision',
+        '/api/image-generate',
+        '/api/github-oauth',
         '/api/send-email',
         '/api/checkout',
         '/api/prices',
         '/api/me-plan',
         '/api/stripe-webhook',
-      ],
+        '/api/feedback'
+      ]
     });
+
   } catch (error) {
-    console.error('API Error:', error);
-    res.status(500).json({
+    console.error('❌ Router error:', error);
+    return res.status(500).json({
       error: 'Internal Server Error',
-      message: error.message,
+      message: error.message
     });
+  }
+}
+
+// Configure for Vercel
+export const config = {
+  api: {
+    bodyParser: true,
+    responseLimit: '10mb'
   }
 };

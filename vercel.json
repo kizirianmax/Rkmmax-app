@@ -1,12 +1,22 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "build",
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
   "env": {
     "REACT_APP_COMPANY_NAME": "RKMMAX INFINITY MATRIX/STUDY",
     "REACT_APP_CONTACT_EMAIL": "roberto@kizirianmax.site",
     "REACT_APP_DOMAIN": "kizirianmax.site"
   },
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
+    },
     {
       "source": "/serginho",
       "destination": "/index.html"
