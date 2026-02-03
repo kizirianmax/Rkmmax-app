@@ -13,9 +13,9 @@ Sistema profissional de IA implementado com Groq como provedor primário (3 nív
 #### Arquitetura Groq (3 Níveis)
 ```javascript
 GROQ_MODELS = {
-  reasoning: 'deepseek-r1-distill-llama-70b',    // Raciocínio profundo
-  standard: 'llama-3.3-70b-versatile',           // Uso geral
-  speed: 'llama-3.2-3b-preview'                  // Velocidade
+  reasoning: 'openai/gpt-oss-120b',          // Raciocínio profundo (120B)
+  standard: 'llama-3.3-70b-versatile',       // Uso geral (70B)
+  speed: 'llama-3.1-8b-instant'              // Velocidade (8B)
 }
 ```
 

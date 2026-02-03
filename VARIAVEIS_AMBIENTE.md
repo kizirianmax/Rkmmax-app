@@ -14,13 +14,12 @@ GROQ_API_KEY=gsk_xxxxxxxxxxxxx
 ```
 - **Descrição**: API key do Groq para modelos de IA (3 níveis)
 - **Obtida em**: https://console.groq.com/keys
-- **Uso**: Motor primário de IA (reasoning, standard, speed) + Transcrição (Whisper) + Análise de Imagens (Vision)
+- **Uso**: Motor primário de IA (reasoning, standard, speed) + Transcrição (Whisper)
 - **Modelos usados**:
-  - `deepseek-r1-distill-llama-70b` (raciocínio complexo)
-  - `llama-3.3-70b-versatile` (uso geral)
-  - `llama-3.2-3b-preview` (velocidade)
+  - `openai/gpt-oss-120b` (raciocínio complexo - 120B parâmetros)
+  - `llama-3.3-70b-versatile` (uso geral - 70B parâmetros)
+  - `llama-3.1-8b-instant` (velocidade - 8B parâmetros)
   - `whisper-large-v3-turbo` (transcrição)
-  - `llama-3.2-90b-vision-preview` (análise de imagens)
 
 ### 2. GEMINI_API_KEY (FALLBACK)
 ```
