@@ -99,10 +99,6 @@ export default async function handler(req, res) {
     if (pathname === '/api/stripe-webhook' || pathname.startsWith('/api/stripe-webhook/')) {
       return stripeWebhookHandler(req, res);
     }
-  }
-  
-  return null;
-}
 
     // Feedback endpoint
     if (pathname === '/api/feedback' || pathname.startsWith('/api/feedback/')) {
