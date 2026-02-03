@@ -250,28 +250,17 @@ async function callVertex(messages, systemPrompt) {
 
 /**
  * Chamar o motor KIZI apropriado com fallback automático
- * ATUALIZADO: Groq → Claude → Fail (Vertex AI removido da sequência primária)
+ * ATUALIZADO: Claude → Groq → Fail (ordem corrigida conforme requisitos)
  */
 async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
   const hasClaude = !!process.env.ANTHROPIC_API_KEY;
   const hasGroq = !!groqKey;
   const hasVertex = !!getGoogleApiKey();
   
-  // 1. Tentar Groq primeiro (PRIMARY)
-  if (hasGroq) {
-    try {
-      console.log('🤖 PRIMARY: Groq GPT-OSS-120B...');
-      const response = await callKiziSpeed(messages, systemPrompt, groqKey);
-      return { response, model: 'groq-gpt-oss-120b' };
-    } catch (error) {
-      console.error('❌ Groq falhou:', error.message);
-    }
-  }
-  
-  // 2. Fallback para Claude
+  // 1. CLAUDE PRIMEIRO - tentar Claude primeiro (PRIMARY)
   if (hasClaude) {
     try {
-      console.log('🤖 FALLBACK: Claude 4.5 Sonnet...');
+      console.log('🤖 PRIMARY: Claude 4.5 Sonnet...');
       const rkmmax = new RKMMAXClaudeSystem();
       const lastMsg = messages[messages.length - 1]?.content || '';
       const resultado = await rkmmax.processar(lastMsg, {});
@@ -284,7 +273,18 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
     }
   }
   
-  // 3. Fallback para Vertex (apenas se Groq e Claude falharem)
+  // 2. GROQ FALLBACK - fallback para Groq
+  if (hasGroq) {
+    try {
+      console.log('🤖 FALLBACK: Groq GPT-OSS-120B...');
+      const response = await callKiziSpeed(messages, systemPrompt, groqKey);
+      return { response, model: 'groq-gpt-oss-120b' };
+    } catch (error) {
+      console.error('❌ Groq falhou:', error.message);
+    }
+  }
+  
+  // 3. Fallback para Vertex (apenas se Claude e Groq falharem)
   if (hasVertex) {
     try {
       console.log('🤖 FALLBACK FINAL: Vertex AI (Gemini 2.5 Pro)...');
@@ -297,8 +297,8 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
   
   throw new Error(
     'All AI providers failed. Please check your configuration:\n' +
-    '- GROQ_API_KEY for Groq (Primary)\n' +
-    '- ANTHROPIC_API_KEY for Claude (Fallback)\n' +
+    '- ANTHROPIC_API_KEY for Claude (Primary)\n' +
+    '- GROQ_API_KEY for Groq (Fallback)\n' +
     '- VERTEX_API_KEY / GOOGLE_API_KEY / GEMINI_API_KEY for Google AI (Final Fallback)\n' +
     'See .env.template for setup instructions.'
   );
@@ -331,7 +331,7 @@ export default async function handler(req, res) {
       return res.status(500).json({
         error: 'No AI providers configured',
         message: 'Please configure at least one AI provider',
-        hint: 'Set one of: GROQ_API_KEY (Primary), ANTHROPIC_API_KEY (Fallback), or GOOGLE_API_KEY/GEMINI_API_KEY (Final Fallback)',
+        hint: 'Set one of: ANTHROPIC_API_KEY (Primary), GROQ_API_KEY (Fallback), or GOOGLE_API_KEY/GEMINI_API_KEY (Final Fallback)',
         documentation: 'See .env.template for configuration instructions'
       });
     }
