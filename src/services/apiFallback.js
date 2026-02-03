@@ -228,9 +228,37 @@ async function makeGeminiRequest(endpoint, apiKey, requestData) {
 }
 
 /**
+ * Validate Claude API key format
+ */
+function validateClaudeApiKey(apiKey) {
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY not configured');
+  }
+  
+  // Validate format (must start with sk-ant-)
+  if (!apiKey.startsWith('sk-ant-')) {
+    throw new Error('Invalid ANTHROPIC_API_KEY format. Must start with sk-ant-');
+  }
+  
+  return true;
+}
+
+/**
  * Requisição para Claude API
  */
 async function makeClaudeRequest(endpoint, apiKey, requestData) {
+  // Validate API key before making request
+  validateClaudeApiKey(apiKey);
+  
+  // Debug logging
+  console.log('🔑 Claude API Request:', {
+    endpoint: endpoint,
+    hasApiKey: !!apiKey,
+    apiKeyPrefix: apiKey?.substring(0, 10) + '...',
+    model: requestData.model,
+    messageCount: requestData.messages?.length
+  });
+  
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -242,8 +270,24 @@ async function makeClaudeRequest(endpoint, apiKey, requestData) {
   });
   
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    const err = new Error(error.error?.message || 'Claude API error');
+    const errorText = await response.text();
+    let errorDetails;
+    try {
+      errorDetails = JSON.parse(errorText);
+    } catch {
+      errorDetails = { raw: errorText };
+    }
+    
+    console.error('Claude API Error:', {
+      status: response.status,
+      statusText: response.statusText,
+      details: errorDetails,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+    
+    const err = new Error(
+      `Claude API error (${response.status}): ${errorDetails.error?.message || errorText}`
+    );
     err.status = response.status;
     throw err;
   }

@@ -364,6 +364,19 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
   if (hasClaude) {
     try {
       console.log('🤖 FALLBACK: Claude 4.5 Sonnet...');
+      
+      // Validate API key format before attempting
+      const claudeApiKey = process.env.ANTHROPIC_API_KEY;
+      if (!claudeApiKey.startsWith('sk-ant-')) {
+        console.error('❌ Invalid ANTHROPIC_API_KEY format. Must start with sk-ant-');
+        throw new Error('Invalid ANTHROPIC_API_KEY format');
+      }
+      
+      console.log('🔑 Claude Fallback Request:', {
+        hasApiKey: !!claudeApiKey,
+        apiKeyPrefix: claudeApiKey?.substring(0, 10) + '...'
+      });
+      
       const rkmmax = new RKMMAXClaudeSystem();
       const lastMsg = messages[messages.length - 1]?.content || '';
       const resultado = await rkmmax.processar(lastMsg, {});
@@ -372,7 +385,11 @@ async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) 
       }
       throw new Error(resultado.erro || 'Claude falhou');
     } catch (error) {
-      console.error('❌ Claude falhou:', error.message);
+      console.error('❌ Claude falhou:', {
+        message: error.message,
+        type: error.type,
+        status: error.status
+      });
     }
   }
   
