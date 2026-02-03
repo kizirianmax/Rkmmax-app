@@ -1,10 +1,11 @@
 /**
  * 🤖 ENDPOINT UNIFICADO DE IA - KIZI AI
  * 
- * Sistema inteligente com 3 motores:
- * - KIZI 2.5 Pro (Gemini 2.5 Pro) = Raciocínio complexo, análises profundas
- * - KIZI Speed (Groq Llama 70B) = Velocidade, respostas rápidas
- * - KIZI Flash (Gemini Flash) = Respostas simples, conversas leves
+ * Sistema inteligente com Groq Multi-Modelo (3 níveis) + Gemini Fallback:
+ * - GROQ REASONING (DeepSeek R1 70B) = Raciocínio profundo, análises complexas, código
+ * - GROQ STANDARD (Llama 3.3 70B) = Uso geral, conversas normais
+ * - GROQ SPEED (Llama 3.2 3B) = Velocidade, respostas rápidas
+ * - GEMINI FALLBACK (Gemini 1.5 Pro) = Fallback automático se Groq falhar
  * 
  * O sistema escolhe automaticamente o melhor motor baseado na complexidade.
  */
@@ -19,200 +20,136 @@ const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
 
 /**
+ * Configuração dos modelos Groq (3 níveis de inteligência)
+ */
+const GROQ_MODELS = {
+  // 🧠 Raciocínio profundo (análises complexas, código, estratégia)
+  reasoning: 'deepseek-r1-distill-llama-70b',
+  
+  // ⚡ Uso geral (conversas normais, perguntas médias)
+  standard: 'llama-3.3-70b-versatile',
+  
+  // 🚀 Velocidade (respostas rápidas, perguntas simples)
+  speed: 'llama-3.2-3b-preview'
+};
+
+/**
+ * Configuração do Gemini Fallback
+ */
+const GEMINI_FALLBACK = {
+  model: 'gemini-1.5-pro',
+  endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'
+};
+
+/**
  * Get Google AI API key from environment variables
  * Supports multiple alias names for flexibility
  * @returns {string|undefined} API key or undefined if not set
  */
 function getGoogleApiKey() {
-  return process.env.VERTEX_API_KEY || 
+  return process.env.GEMINI_API_KEY || 
          process.env.GOOGLE_API_KEY || 
-         process.env.GEMINI_API_KEY;
+         process.env.VERTEX_API_KEY;
 }
 
 /**
- * Analisar complexidade da mensagem para escolher o motor ideal
+ * Seleção automática do modelo Groq baseado na complexidade da mensagem
  */
-function analyzeComplexity(messages) {
+function selectGroqModel(messages) {
   const lastMessage = messages[messages.length - 1]?.content || '';
-  const allContent = messages.map(m => m.content).join(' ');
+  const messageLength = lastMessage.length;
   
-  // Indicadores de complexidade ALTA (KIZI 2.5 Pro)
-  const complexIndicators = [
-    /analis[ae]/i, /compar[ae]/i, /expliq/i, /detalh/i,
-    /código|code|programa/i, /debug/i, /erro|error|bug/i,
-    /arquitetura/i, /sistema/i, /projeto/i, /planeja/i,
-    /pesquis/i, /estud/i, /aprend/i,
-    /estratégia/i, /negócio/i, /empresa/i,
-    /matemática|cálculo|equação/i,
-    /\?.*\?/,  // Múltiplas perguntas
-    /por que|porque|como funciona/i,
-    /passo a passo/i, /tutorial/i,
-    /crie|desenvolva|construa|implemente/i
+  // Indicadores de complexidade ALTA
+  const complexPatterns = [
+    /analis[ae]/i, /expliq/i, /código|code/i, /debug/i,
+    /arquitetura/i, /estratégia/i, /implementa/i, /crie/i,
+    /desenvolva/i, /construa/i, /planeja/i,
+    /compar[ae]/i, /detalh/i, /passo a passo/i,
+    /tutorial/i, /pesquis/i, /estud/i
   ];
   
-  // Indicadores de simplicidade (KIZI Flash)
-  const simpleIndicators = [
-    /^(oi|olá|hey|hi|hello|e aí)/i,
-    /^(obrigado|valeu|thanks|ok|tá|beleza)/i,
-    /^(sim|não|yes|no)$/i,
-    /^.{1,30}$/,  // Mensagens muito curtas
-    /^(qual|quem|onde|quando) .{1,50}\?$/i,  // Perguntas diretas curtas
-    /bom dia|boa tarde|boa noite/i,
-    /tudo bem|como vai/i
+  // Indicadores de simplicidade
+  const simplePatterns = [
+    /^(oi|olá|hey)/i, /^(sim|não|ok)/i, /bom dia/i,
+    /boa tarde/i, /boa noite/i, /tudo bem/i,
+    /obrigado|valeu/i
   ];
   
-  // Calcular scores
   let complexScore = 0;
   let simpleScore = 0;
   
-  for (const pattern of complexIndicators) {
-    if (pattern.test(lastMessage) || pattern.test(allContent)) {
+  // Calcular scores
+  for (const pattern of complexPatterns) {
+    if (pattern.test(lastMessage)) {
       complexScore++;
     }
   }
   
-  for (const pattern of simpleIndicators) {
+  for (const pattern of simplePatterns) {
     if (pattern.test(lastMessage)) {
       simpleScore++;
     }
   }
   
-  // Fatores adicionais
-  const messageLength = lastMessage.length;
-  const conversationLength = messages.length;
-  
+  // Ajustar score baseado no tamanho
   if (messageLength > 500) complexScore += 2;
-  else if (messageLength > 200) complexScore += 1;
   else if (messageLength < 50) simpleScore += 1;
   
-  if (conversationLength > 10) complexScore += 1;
-  
-  // Decidir
-  if (simpleScore >= 2 && complexScore === 0) {
-    return 'flash';  // KIZI Flash para respostas simples
-  } else if (complexScore >= 2) {
-    return 'pro';    // KIZI 2.5 Pro para raciocínio complexo
-  } else {
-    return 'speed';  // KIZI Speed para velocidade (padrão)
-  }
+  // Decisão
+  if (complexScore >= 2) return 'reasoning';  // DeepSeek R1
+  if (simpleScore >= 2) return 'speed';       // Llama 3.2 3B
+  return 'standard';                          // Llama 3.3 70B
 }
 
 /**
- * Chamar KIZI 2.5 Pro (Gemini 2.5 Pro - raciocínio avançado)
+ * Otimizar system prompt (limitar tamanho)
  */
-async function callKiziPro(messages, systemPrompt, apiKey) {
-  // Construir contents com system prompt integrado
-  const contents = [];
-  
-  // Adicionar system prompt como primeira mensagem do modelo (se existir)
-  if (systemPrompt) {
-    contents.push({
-      role: 'user',
-      parts: [{ text: systemPrompt }]
-    });
-    contents.push({
-      role: 'model', 
-      parts: [{ text: 'Entendido. Vou seguir essas instruções.' }]
-    });
-  }
-  
-  // Adicionar mensagens do usuário
-  for (const msg of messages) {
-    contents.push({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    });
-  }
-
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: contents
-      })
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`KIZI Pro error: ${error}`);
-  }
-
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text;
+function optimizeSystemPrompt(prompt) {
+  if (!prompt) return '';
+  return prompt.substring(0, 2000); // Máximo 2000 caracteres
 }
 
 /**
- * Chamar KIZI Flash (Gemini Flash - respostas simples e rápidas)
+ * Otimizar mensagens (limitar histórico e tamanho)
  */
-async function callKiziFlash(messages, systemPrompt, apiKey) {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
-        contents: messages.map(msg => ({
-          role: msg.role === 'user' ? 'user' : 'model',
-          parts: [{ text: msg.content }]
-        })),
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 4000,
-          topP: 0.9
-        }
-      })
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`KIZI Flash error: ${error}`);
-  }
-
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text;
+function optimizeMessages(messages) {
+  if (!messages || messages.length === 0) return [];
+  
+  // Manter apenas últimas 10 mensagens
+  const recent = messages.slice(-10);
+  
+  // Truncar mensagens muito longas
+  return recent.map(msg => ({
+    ...msg,
+    content: msg.content.substring(0, 4000) // Máximo 4000 caracteres por mensagem
+  }));
 }
 
 /**
- * Chamar KIZI Speed (Groq - ultra-rápido)
+ * Chamar Groq API com modelo específico
  */
-async function callKiziSpeed(messages, systemPrompt, apiKey, options = {}) {
-  // ✅ VALIDAR API KEY
+async function callGroq(messages, systemPrompt, apiKey, model) {
+  // Validar API key
   validateGroqApiKey(apiKey);
   
-  // ✅ VALIDAR MENSAGENS
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    throw new Error('❌ Mensagens inválidas para Groq: array vazio ou inválido');
-  }
-  
-  // ✅ CONSTRUIR PAYLOAD
+  // Construir payload de mensagens
   const messagesPayload = [];
   
   if (systemPrompt) {
-    // Limitar tamanho do system prompt se necessário
-    const truncatedPrompt = validatePromptSize(systemPrompt, 2000);
-      
+    const truncatedPrompt = optimizeSystemPrompt(systemPrompt);
     messagesPayload.push({ 
       role: 'system', 
       content: truncatedPrompt 
     });
   }
   
-  // Adicionar mensagens do usuário
-  messagesPayload.push(...messages);
+  // Adicionar mensagens otimizadas
+  const optimizedMessages = optimizeMessages(messages);
+  messagesPayload.push(...optimizedMessages);
   
-  // ✅ LOG DE DEBUG (antes da requisição)
-  console.log('🚀 Groq Request:', {
-    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-    model: 'openai/gpt-oss-120b',
+  console.log(`🚀 Groq Request: ${model}`, {
     messagesCount: messagesPayload.length,
-    hasSystemPrompt: !!systemPrompt,
-    apiKeyPrefix: apiKey.substring(0, 8) + '...',
-    timestamp: new Date().toISOString()
+    hasSystemPrompt: !!systemPrompt
   });
   
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -222,83 +159,90 @@ async function callKiziSpeed(messages, systemPrompt, apiKey, options = {}) {
       'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'openai/gpt-oss-120b',
+      model,
       messages: messagesPayload,
-      temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens || 4000,
-      stream: options.stream || false
+      temperature: 0.7,
+      max_tokens: 4000
     })
   });
 
-  // ✅ TRATAMENTO DE ERRO DETALHADO
   if (!response.ok) {
     const errorText = await response.text();
-    let errorDetails;
-    
-    try {
-      errorDetails = JSON.parse(errorText);
-    } catch {
-      errorDetails = { raw: errorText };
-    }
-    
-    console.error('❌ Groq API Error:', {
-      status: response.status,
-      statusText: response.statusText,
-      details: errorDetails,
-      headers: Object.fromEntries(response.headers.entries())
-    });
-    
-    // Mensagens de erro específicas
-    if (response.status === 401) {
-      throw new Error(
-        `❌ Groq API: Erro de autenticação (401)\n` +
-        `Detalhes: ${errorDetails.error?.message || errorText}\n` +
-        `Verifique se GROQ_API_KEY está correta no Vercel`
-      );
-    }
-    
-    if (response.status === 429) {
-      throw new Error(
-        `❌ Groq API: Limite de requisições excedido (429)\n` +
-        `Detalhes: ${errorDetails.error?.message || errorText}\n` +
-        `Aguarde alguns minutos antes de tentar novamente`
-      );
-    }
-    
-    if (response.status === 400) {
-      throw new Error(
-        `❌ Groq API: Requisição inválida (400)\n` +
-        `Detalhes: ${errorDetails.error?.message || errorText}\n` +
-        `Possível problema com formato das mensagens ou prompt`
-      );
-    }
-    
-    throw new Error(
-      `❌ Groq API error (${response.status}): ${errorDetails.error?.message || errorText}`
-    );
+    throw new Error(`Groq API error (${response.status}): ${errorText}`);
   }
 
   const data = await response.json();
   
-  // ✅ VALIDAR RESPOSTA
   if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-    console.error('❌ Resposta inválida do Groq:', data);
     throw new Error('Resposta do Groq está em formato inválido');
   }
   
-  // ✅ LOG DE SUCESSO
   console.log('✅ Groq Response:', {
     model: data.model,
-    tokensUsed: data.usage?.total_tokens,
-    responseLength: data.choices[0].message.content.length,
-    timestamp: new Date().toISOString()
+    tokensUsed: data.usage?.total_tokens
   });
   
   return data.choices[0].message.content;
 }
 
 /**
- * Chamar Vertex AI (Google)
+ * Chamar Gemini 1.5 Pro (FALLBACK)
+ */
+async function callGemini(messages, systemPrompt) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY não configurada');
+  }
+  
+  // Construir conteúdo
+  const contents = [];
+  
+  if (systemPrompt) {
+    contents.push({
+      role: 'user',
+      parts: [{ text: systemPrompt }]
+    });
+    contents.push({
+      role: 'model',
+      parts: [{ text: 'Entendido.' }]
+    });
+  }
+  
+  for (const msg of messages) {
+    contents.push({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    });
+  }
+  
+  // Endpoint correto (API Key simples)
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 8192
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Gemini API error: ${error}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+/**
+ * Chamar Vertex AI (Google) - Mantido para compatibilidade legada
  */
 async function callVertex(messages, systemPrompt) {
   // Try multiple environment variable names for flexibility
@@ -342,74 +286,38 @@ async function callVertex(messages, systemPrompt) {
 
 /**
  * Chamar o motor KIZI apropriado com fallback automático
- * ATUALIZADO: Groq → Claude → Fail (Vertex AI removido da sequência primária)
+ * ARQUITETURA: Groq Multi-Modelo (3 níveis) → Gemini Fallback
  */
-async function callKizi(messages, systemPrompt, complexity, geminiKey, groqKey) {
-  const hasClaude = !!process.env.ANTHROPIC_API_KEY;
-  const hasGroq = !!groqKey;
-  const hasVertex = !!getGoogleApiKey();
+async function callKizi(messages, systemPrompt, groqKey) {
+  const modelType = selectGroqModel(messages);
+  const model = GROQ_MODELS[modelType];
   
-  // 1. Tentar Groq primeiro (PRIMARY)
-  if (hasGroq) {
+  // 1. Tentar Groq (PRIMARY - 3 níveis de inteligência)
+  if (groqKey) {
     try {
-      console.log('🤖 PRIMARY: Groq GPT-OSS-120B...');
-      const response = await callKiziSpeed(messages, systemPrompt, groqKey);
-      return { response, model: 'groq-gpt-oss-120b' };
+      console.log(`🤖 PRIMARY: Groq ${model}...`);
+      const response = await callGroq(messages, systemPrompt, groqKey, model);
+      return { response, model: `groq-${modelType}`, provider: 'groq' };
     } catch (error) {
-      console.error('❌ Groq falhou:', error.message);
+      console.error(`❌ Groq falhou: ${error.message}`);
     }
   }
   
-  // 2. Fallback para Claude
-  if (hasClaude) {
+  // 2. Fallback: Gemini 1.5 Pro
+  if (process.env.GEMINI_API_KEY) {
     try {
-      console.log('🤖 FALLBACK: Claude 4.5 Sonnet...');
-      
-      // Validate API key format before attempting
-      const claudeApiKey = process.env.ANTHROPIC_API_KEY;
-      if (!claudeApiKey.startsWith('sk-ant-')) {
-        console.error('❌ Invalid ANTHROPIC_API_KEY format. Must start with sk-ant-');
-        throw new Error('Invalid ANTHROPIC_API_KEY format');
-      }
-      
-      console.log('🔑 Claude Fallback Request:', {
-        hasApiKey: !!claudeApiKey,
-        apiKeyPrefix: claudeApiKey?.substring(0, 10) + '...'
-      });
-      
-      const rkmmax = new RKMMAXClaudeSystem();
-      const lastMsg = messages[messages.length - 1]?.content || '';
-      const resultado = await rkmmax.processar(lastMsg, {});
-      if (resultado.status === 'sucesso') {
-        return { response: resultado.resultado.resposta, model: 'claude-4.5-sonnet' };
-      }
-      throw new Error(resultado.erro || 'Claude falhou');
+      console.log('🤖 FALLBACK: Google Gemini 1.5 Pro...');
+      const response = await callGemini(messages, systemPrompt);
+      return { response, model: 'gemini-1.5-pro', provider: 'gemini' };
     } catch (error) {
-      console.error('❌ Claude falhou:', {
-        message: error.message,
-        type: error.type,
-        status: error.status
-      });
-    }
-  }
-  
-  // 3. Fallback para Vertex (apenas se Groq e Claude falharem)
-  if (hasVertex) {
-    try {
-      console.log('🤖 FALLBACK FINAL: Vertex AI (Gemini 2.5 Pro)...');
-      const response = await callVertex(messages, systemPrompt);
-      return { response, model: 'vertex-gemini-2.5-pro' };
-    } catch (error) {
-      console.error('❌ Vertex falhou:', error.message);
+      console.error(`❌ Gemini falhou: ${error.message}`);
     }
   }
   
   throw new Error(
-    'All AI providers failed. Please check your configuration:\n' +
-    '- GROQ_API_KEY for Groq (Primary)\n' +
-    '- ANTHROPIC_API_KEY for Claude (Fallback)\n' +
-    '- VERTEX_API_KEY / GOOGLE_API_KEY / GEMINI_API_KEY for Google AI (Final Fallback)\n' +
-    'See .env.template for setup instructions.'
+    'Todos os provedores de IA falharam. Verifique as configurações:\n' +
+    '- GROQ_API_KEY (Primary)\n' +
+    '- GEMINI_API_KEY (Fallback)'
   );
 }
 
@@ -427,27 +335,25 @@ export default async function handler(req, res) {
       messages, 
       agentType, 
       specialistId,
-      forceModel  // Opcional: forçar um modelo específico ('pro', 'speed', 'flash')
+      forceModel  // Opcional: forçar um modelo específico ('reasoning', 'standard', 'speed')
     } = req.body;
 
     // Verificar credenciais - pelo menos um provider necessário
     const groqKey = process.env.GROQ_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
     const hasGroq = !!groqKey;
-    const hasClaude = !!process.env.ANTHROPIC_API_KEY;
-    const hasVertex = !!getGoogleApiKey();
+    const hasGemini = !!geminiKey;
 
-    if (!hasGroq && !hasClaude && !hasVertex) {
+    if (!hasGroq && !hasGemini) {
       return res.status(500).json({
         error: 'No AI providers configured',
         message: 'Please configure at least one AI provider',
-        hint: 'Set one of: GROQ_API_KEY (Primary), ANTHROPIC_API_KEY (Fallback), or GOOGLE_API_KEY/GEMINI_API_KEY (Final Fallback)',
+        hint: 'Set GROQ_API_KEY (Primary) or GEMINI_API_KEY (Fallback)',
         documentation: 'See .env.template for configuration instructions'
       });
     }
 
-    // Analisar complexidade automaticamente ou usar modelo forçado
-    const complexity = forceModel || analyzeComplexity(messages);
-    console.log(`🤖 KIZI AI - Type: ${type} | Complexity: ${complexity}`);
+    console.log(`🤖 KIZI AI - Type: ${type}`);
 
     // ========================================
     // TIPO: GENIUS (Serginho + Híbrido)
@@ -467,20 +373,17 @@ export default async function handler(req, res) {
         });
       }
 
-      // Chamar KIZI com seleção automática
-      const { response, model } = await callKizi(
+      // Chamar KIZI com seleção automática de modelo Groq
+      const { response, model, provider } = await callKizi(
         optimized.messages,
         optimized.systemPrompt,
-        complexity,
-        null, // Gemini desabilitado
         groqKey
       );
 
       const result = {
         response,
         model,
-        provider: 'kizi',
-        tier: complexity,
+        provider,
         type: promptType,
         success: true
       };
@@ -526,21 +429,18 @@ export default async function handler(req, res) {
         });
       }
 
-      // Chamar KIZI com seleção automática
-      const { response, model } = await callKizi(
+      // Chamar KIZI com seleção automática de modelo Groq
+      const { response, model, provider } = await callKizi(
         optimized.messages,
         optimized.systemPrompt,
-        complexity,
-        null, // Gemini desabilitado
         groqKey
       );
 
       const result = {
         response,
         model,
-        provider: 'kizi',
+        provider,
         specialist: specialist.name,
-        tier: complexity,
         success: true
       };
 
