@@ -444,17 +444,32 @@ class OptimizedAPIManager {
       throw new Error('❌ ANTHROPIC_API_KEY não configurada! Fallback não pode ser ativado.');
     }
     
+    // Validate API key format
+    const apiKey = this.providers.claude.apiKey;
+    if (!apiKey.startsWith('sk-ant-')) {
+      throw new Error('❌ Invalid ANTHROPIC_API_KEY format. Must start with sk-ant-');
+    }
+    
     const model = options.model || this.providers.claude.defaultModel;
     const maxTokens = options.maxTokens || 2000;
 
     console.log(`🚀 Chamando Claude (${model})...`);
+    
+    // Debug logging
+    console.log('🔑 Claude API Request:', {
+      endpoint: `${this.providers.claude.baseURL}/messages`,
+      hasApiKey: !!apiKey,
+      apiKeyPrefix: apiKey?.substring(0, 10) + '...',
+      model: model,
+      maxTokens: maxTokens
+    });
 
     const response = await fetch(`${this.providers.claude.baseURL}/messages`, {
       method: 'POST',
       headers: {
-        'x-api-key': this.providers.claude.apiKey,
-        'anthropic-version': this.providers.claude.version,
         'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': this.providers.claude.version,
       },
       body: JSON.stringify({
         model,
@@ -466,7 +481,23 @@ class OptimizedAPIManager {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Claude API error: ${response.statusText} - ${errorText}`);
+      let errorDetails;
+      try {
+        errorDetails = JSON.parse(errorText);
+      } catch {
+        errorDetails = { raw: errorText };
+      }
+      
+      console.error('Claude API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        details: errorDetails,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      throw new Error(
+        `Claude API error (${response.status}): ${errorDetails.error?.message || errorText}`
+      );
     }
 
     const data = await response.json();
