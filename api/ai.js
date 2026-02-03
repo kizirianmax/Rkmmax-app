@@ -56,10 +56,6 @@ function getGoogleApiKey() {
  * Seleção automática do modelo Groq baseado na complexidade da mensagem
  */
 function selectGroqModel(messages) {
-/**
- * Seleção automática do modelo Groq baseado na complexidade da mensagem
- */
-function selectGroqModel(messages) {
   const lastMessage = messages[messages.length - 1]?.content || '';
   const messageLength = lastMessage.length;
   
