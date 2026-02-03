@@ -1,8 +1,8 @@
 /**
  * 🍌 NANO BANANA - Gerador de Imagens RKMMAX
  *
- * Sistema de geração de imagens usando Google Gemini API (SDK oficial)
- * Integrado com a mesma API key do Gemini
+ * Sistema de geração de imagens usando Together AI (FLUX Schnell - Grátis)
+ * com Gemini como fallback
  *
  * Uso: POST /api/image-generate
  * Body: { prompt: "descrição da imagem", style?: "realistic|anime|artistic" }
@@ -11,10 +11,59 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 /**
- * Gerar imagem usando Gemini 2.0 Flash com SDK oficial
+ * Gerar imagem usando Together AI (FLUX Schnell - PRIMARY)
+ */
+async function generateWithTogetherAI(prompt) {
+  const apiKey = process.env.TOGETHER_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('TOGETHER_API_KEY não configurada');
+  }
+
+  console.log('🎨 Gerando imagem com Together AI (FLUX Schnell)...');
+
+  const response = await fetch('https://api.together.xyz/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'black-forest-labs/FLUX.1-schnell-Free',
+      prompt: prompt,
+      width: 1024,
+      height: 1024,
+      steps: 4,
+      n: 1,
+      response_format: 'b64_json'
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Together AI error: ${error}`);
+  }
+
+  const data = await response.json();
+
+  if (!data.data || !data.data[0]) {
+    throw new Error('Nenhuma imagem gerada');
+  }
+
+  return {
+    image: data.data[0].b64_json,
+    format: 'base64',
+    mimeType: 'image/png',
+    provider: 'together-ai',
+    model: 'FLUX.1-schnell'
+  };
+}
+
+/**
+ * Gerar imagem usando Gemini 2.0 Flash (FALLBACK)
  */
 async function generateWithGeminiFlash(prompt, apiKey) {
-  console.log("🍌 Nano Banana: Usando Gemini 2.0 Flash (image generation)...");
+  console.log("🍌 Nano Banana: Usando Gemini 2.0 Flash (fallback)...");
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
@@ -55,49 +104,6 @@ async function generateWithGeminiFlash(prompt, apiKey) {
   }
 
   throw new Error("Gemini Flash: Nenhuma imagem gerada");
-}
-
-/**
- * Fallback: Usar Together AI se disponível
- */
-async function generateWithTogether(prompt, apiKey) {
-  console.log("🍌 Nano Banana: Usando Together AI (Flux Schnell)...");
-
-  const response = await fetch("https://api.together.xyz/v1/images/generations", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "black-forest-labs/FLUX.1-schnell-Free",
-      prompt: prompt,
-      width: 1024,
-      height: 1024,
-      steps: 4,
-      n: 1,
-      response_format: "b64_json",
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Together AI error: ${error}`);
-  }
-
-  const data = await response.json();
-
-  if (data.data && data.data[0]) {
-    return {
-      image: data.data[0].b64_json,
-      format: "base64",
-      mimeType: "image/png",
-      provider: "together-ai",
-      model: "FLUX.1-schnell",
-    };
-  }
-
-  throw new Error("Together AI: Nenhuma imagem gerada");
 }
 
 /**
@@ -158,20 +164,29 @@ export default async function handler(req, res) {
     console.log(`✨ Prompt melhorado: ${enhancedPrompt}`);
 
     // Verificar APIs disponíveis
-    // Prioridade: GERMINI_API_KEY (usado no projeto) > GEMINI_API_KEY > NANO_BANANA_API_KEY
+    const togetherKey = process.env.TOGETHER_API_KEY;
     const geminiKey =
       process.env.GERMINI_API_KEY ||
       process.env.GEMINI_API_KEY ||
       process.env.GOOGLE_API_KEY ||
       process.env.NANO_BANANA_API_KEY;
-    const togetherKey = process.env.TOGETHER_API_KEY;
 
-    console.log("🍌 Nano Banana: Chave encontrada:", geminiKey ? "SIM" : "NÃO");
+    console.log("🍌 Nano Banana: APIs disponíveis:", {
+      together: !!togetherKey,
+      gemini: !!geminiKey
+    });
 
     // Lista de providers para tentar
     const providers = [];
 
-    // Ordem: Gemini Flash > Together AI
+    // Ordem: Together AI (Primary) > Gemini Flash (Fallback)
+    if (togetherKey) {
+      providers.push({
+        name: "together-ai",
+        fn: () => generateWithTogetherAI(enhancedPrompt),
+      });
+    }
+    
     if (geminiKey) {
       providers.push({
         name: "gemini-flash",
@@ -179,17 +194,10 @@ export default async function handler(req, res) {
       });
     }
 
-    if (togetherKey) {
-      providers.push({
-        name: "together",
-        fn: () => generateWithTogether(enhancedPrompt, togetherKey),
-      });
-    }
-
     if (providers.length === 0) {
       return res.status(500).json({
         error: "Nenhum provider de imagem configurado",
-        hint: "Configure GEMINI_API_KEY ou TOGETHER_API_KEY",
+        hint: "Configure TOGETHER_API_KEY (Primary) ou GEMINI_API_KEY (Fallback)",
         nanoBanana: "🍌 Nano Banana precisa de uma API key para funcionar!",
       });
     }

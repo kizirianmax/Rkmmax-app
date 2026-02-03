@@ -2,7 +2,7 @@
  * API de Transcrição de Áudio - RKMMAX
  * Endpoint: /api/transcribe
  *
- * Usa Gemini 2.0 Flash como primário e Groq Whisper como fallback
+ * Usa Groq Whisper Large V3 Turbo como primário e Gemini como fallback
  * Compatível com Vercel Serverless (ESM)
  */
 
@@ -14,9 +14,44 @@ export const config = {
   },
 };
 
-// Transcrição com Gemini 2.0 Flash usando SDK oficial
+// Transcrição com Groq Whisper Large V3 Turbo (PRIMÁRIO)
+async function transcribeWithGroqWhisper(audioBuffer, apiKey, mimeType = "audio/webm") {
+  console.log("🎤 Transcrevendo com Groq Whisper Large V3 Turbo...");
+
+  const formData = new FormData();
+  
+  // Determinar extensão
+  const ext = mimeType.includes("webm") ? "webm" : 
+              mimeType.includes("mp3") ? "mp3" : 
+              mimeType.includes("wav") ? "wav" : 
+              mimeType.includes("m4a") ? "m4a" : "webm";
+  
+  const audioBlob = new Blob([audioBuffer], { type: mimeType });
+  formData.append("file", audioBlob, `audio.${ext}`);
+  formData.append("model", "whisper-large-v3-turbo");
+  formData.append("language", "pt");
+  formData.append("response_format", "json");
+
+  const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Groq Whisper error: ${error}`);
+  }
+
+  const data = await response.json();
+  return data.text?.trim() || "";
+}
+
+// Transcrição com Gemini 2.0 Flash (FALLBACK)
 async function transcribeWithGemini(audioBase64, apiKey, mimeType = "audio/webm") {
-  console.log("🔄 Tentando transcrição com Gemini 2.0 Flash...");
+  console.log("🔄 Tentando transcrição com Gemini 2.0 Flash (fallback)...");
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -175,14 +210,14 @@ export default async function handler(req, res) {
     console.log("📝 Recebendo áudio para transcrição...");
 
     // Obter API keys
+    const groqKey = process.env.GROQ_API_KEY;
     const geminiKey =
       process.env.GEMINI_API_KEY || process.env.GERMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    const groqKey = process.env.GROQ_API_KEY;
 
-    if (!geminiKey && !groqKey) {
+    if (!groqKey && !geminiKey) {
       return res.status(500).json({
         error: "Nenhuma API key configurada",
-        hint: "Configure GEMINI_API_KEY, GOOGLE_API_KEY ou GROQ_API_KEY",
+        hint: "Configure GROQ_API_KEY (Primary) ou GEMINI_API_KEY (Fallback)",
       });
     }
 
@@ -194,28 +229,28 @@ export default async function handler(req, res) {
     let usedEngine = null;
     const errors = [];
 
-    // Tentar Gemini primeiro (se disponível)
-    if (geminiKey) {
+    // Tentar Groq Whisper primeiro (PRIMARY)
+    if (groqKey) {
+      try {
+        transcript = await transcribeWithGroqWhisper(buffer, groqKey, mimeType);
+        usedEngine = "Groq Whisper Large V3 Turbo";
+        console.log("✅ Transcrição Groq bem-sucedida");
+      } catch (groqError) {
+        console.warn("⚠️ Groq falhou:", groqError.message);
+        errors.push(`Groq: ${groqError.message}`);
+      }
+    }
+
+    // Fallback para Gemini
+    if (!transcript && geminiKey) {
       try {
         const audioBase64 = buffer.toString("base64");
         transcript = await transcribeWithGemini(audioBase64, geminiKey, mimeType);
         usedEngine = "Gemini 2.0 Flash";
         console.log("✅ Transcrição Gemini bem-sucedida");
       } catch (geminiError) {
-        console.warn("⚠️ Gemini falhou:", geminiError.message);
+        console.error("❌ Gemini também falhou:", geminiError.message);
         errors.push(`Gemini: ${geminiError.message}`);
-      }
-    }
-
-    // Fallback para Groq Whisper
-    if (!transcript && groqKey) {
-      try {
-        transcript = await transcribeWithGroq(buffer, groqKey, mimeType);
-        usedEngine = "Groq Whisper";
-        console.log("✅ Transcrição Groq bem-sucedida");
-      } catch (groqError) {
-        console.error("❌ Groq também falhou:", groqError.message);
-        errors.push(`Groq: ${groqError.message}`);
       }
     }
 
@@ -233,6 +268,8 @@ export default async function handler(req, res) {
       transcript: transcript,
       text: transcript,
       engine: usedEngine,
+      provider: usedEngine.includes("Groq") ? "groq-whisper" : "gemini",
+      model: usedEngine.includes("Groq") ? "whisper-large-v3-turbo" : "gemini-2.0-flash",
     });
   } catch (error) {
     console.error("❌ Erro na transcrição:", error);
