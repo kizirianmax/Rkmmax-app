@@ -152,7 +152,8 @@ export default async function handler(req, res) {
     console.error('❌ Router error:', error);
     return res.status(500).json({
       error: 'Internal Server Error',
-      message: error.message
+      message: error.message,
+      path: req.url
     });
   }
 }
