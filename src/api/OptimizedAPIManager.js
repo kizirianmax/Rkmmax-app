@@ -90,7 +90,7 @@ class OptimizedAPIManager {
   /**
    * INICIALIZAR GROQ
    * 🔐 SEGURO: Usa SecretManager para obter API key
-   * ATUALIZADO: Groq agora é o provider PRIMÁRIO
+   * ATUALIZADO: Groq agora é o provider PRIMÁRIO com 3 modelos habilitados
    */
   initGroq() {
     // 🔐 OBTER CHAVE DO SECRET MANAGER
@@ -116,16 +116,23 @@ class OptimizedAPIManager {
         'openai/gpt-oss-120b': {
           maxTokens: 8000,
           costPer1kTokens: 0.00027,
-          description: 'Modelo principal de raciocínio (PRIMARY)',
+          description: 'Modelo principal de raciocínio (PRIMARY - 120B parâmetros)',
           priority: 1,
           tier: 'primary',
         },
-        'mixtral-8x7b-32768': {
-          maxTokens: 32768,
+        'llama-3.3-70b-versatile': {
+          maxTokens: 8000,
           costPer1kTokens: 0.00024,
-          description: 'Modelo alternativo Groq',
+          description: 'Modelo versátil de uso geral (70B parâmetros)',
           priority: 1,
           tier: 'primary',
+        },
+        'llama-3.1-8b-instant': {
+          maxTokens: 4000,
+          costPer1kTokens: 0.00005,
+          description: 'Modelo rápido para respostas simples (8B parâmetros)',
+          priority: 1,
+          tier: 'speed',
         },
       },
       defaultModel: 'openai/gpt-oss-120b',
