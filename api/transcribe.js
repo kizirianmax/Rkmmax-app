@@ -88,48 +88,6 @@ async function transcribeWithGemini(audioBase64, apiKey, mimeType = "audio/webm"
   return text.trim();
 }
 
-// Transcrição com Groq Whisper (fallback confiável)
-async function transcribeWithGroq(audioBuffer, apiKey, mimeType = "audio/webm") {
-  console.log("🔄 Tentando transcrição com Groq Whisper...");
-
-  // Criar FormData para enviar o arquivo
-  const formData = new FormData();
-
-  // Determinar extensão do arquivo
-  const ext = mimeType.includes("webm")
-    ? "webm"
-    : mimeType.includes("mp3")
-      ? "mp3"
-      : mimeType.includes("wav")
-        ? "wav"
-        : mimeType.includes("m4a")
-          ? "m4a"
-          : "webm";
-
-  // Criar Blob do áudio
-  const audioBlob = new Blob([audioBuffer], { type: mimeType });
-  formData.append("file", audioBlob, `audio.${ext}`);
-  formData.append("model", "whisper-large-v3");
-  formData.append("language", "pt");
-  formData.append("response_format", "json");
-
-  const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Groq Whisper error: ${error}`);
-  }
-
-  const data = await response.json();
-  return data.text?.trim() || "";
-}
-
 // Função para parsear multipart form data manualmente
 async function parseMultipartForm(req) {
   return new Promise((resolve, reject) => {
