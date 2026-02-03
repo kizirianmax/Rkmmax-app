@@ -14,6 +14,7 @@
  */
 
 import secretManager from './SecretManager';
+import { validateGroqApiKey } from '../utils/groqValidation.js';
 
 class OptimizedAPIManager {
   constructor(config = {}) {
@@ -95,12 +96,16 @@ class OptimizedAPIManager {
     // 🔐 OBTER CHAVE DO SECRET MANAGER
     const apiKey = this.config.groqKey || secretManager.getSecret('groq') || '';
     
-    // ✅ VALIDAÇÃO MAIS RIGOROSA
-    const isConfigured = apiKey && apiKey.length > 20 && apiKey.startsWith('gsk_');
-    
-    if (!isConfigured) {
+    // ✅ VALIDAÇÃO USANDO A FUNÇÃO CENTRALIZADA
+    let isConfigured = false;
+    try {
+      if (apiKey) {
+        validateGroqApiKey(apiKey);
+        isConfigured = true;
+      }
+    } catch (error) {
       console.warn('⚠️ Groq API não configurada corretamente');
-      console.warn('Configure GROQ_API_KEY no Vercel: https://console.groq.com/keys');
+      console.warn(error.message);
     }
     
     return {

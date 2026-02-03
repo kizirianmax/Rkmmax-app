@@ -39,19 +39,22 @@ export function validateGroqApiKey(apiKey) {
   return true;
 }
 
+// Default maximum prompt length
+const DEFAULT_MAX_PROMPT_LENGTH = 2000;
+
 /**
  * Validate prompt size and optionally truncate if too long
  * @param {string} prompt - The prompt to validate
  * @param {number} maxLength - Maximum allowed length (default: 2000)
  * @returns {string} The validated/truncated prompt
  */
-export function validatePromptSize(prompt, maxLength = 2000) {
+export function validatePromptSize(prompt, maxLength = DEFAULT_MAX_PROMPT_LENGTH) {
   if (!prompt) {
     return '';
   }
   
   if (prompt.length > maxLength) {
-    console.warn(`⚠️ System prompt muito longo: ${prompt.length} caracteres`);
+    console.warn(`⚠️ System prompt muito longo: ${prompt.length} caracteres (máximo recomendado: ${maxLength})`);
     console.warn('Considere reduzir o tamanho para melhor performance');
     return prompt.substring(0, maxLength) + '\n\n[... prompt truncado para otimização ...]';
   }

@@ -180,7 +180,7 @@ async function callKiziFlash(messages, systemPrompt, apiKey) {
 /**
  * Chamar KIZI Speed (Groq - ultra-rápido)
  */
-async function callKiziSpeed(messages, systemPrompt, apiKey) {
+async function callKiziSpeed(messages, systemPrompt, apiKey, options = {}) {
   // ✅ VALIDAR API KEY
   validateGroqApiKey(apiKey);
   
@@ -224,9 +224,9 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
     body: JSON.stringify({
       model: 'openai/gpt-oss-120b',
       messages: messagesPayload,
-      temperature: 0.7,
-      max_tokens: 4000,
-      stream: false
+      temperature: options.temperature || 0.7,
+      max_tokens: options.maxTokens || 4000,
+      stream: options.stream || false
     })
   });
 
