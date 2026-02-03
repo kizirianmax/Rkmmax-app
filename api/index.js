@@ -1,45 +1,26 @@
 /**
- * 🎯 ROTEADOR UNIFICADO - TODAS AS APIs
+ * 🚀 RKMMAX API - UNIFIED SERVERLESS ROUTER
  * 
  * Solução para limite de 12 funções do Vercel Hobby
- * Roteia todas as requisições para handlers específicos em lib/handlers/
- * 
- * Este é o ÚNICO arquivo serverless no diretório /api/
+ * Roteia todas as requisições para handlers específicos
  */
 
+// Import all handlers
 import aiHandler from '../lib/handlers/ai.js';
-import transcribeHandler from '../lib/handlers/transcribe.js';
-import visionHandler from '../lib/handlers/vision.js';
-import imageGenerateHandler from '../lib/handlers/image-generate.js';
 import checkoutHandler from '../lib/handlers/checkout.js';
-import pricesHandler from '../lib/handlers/prices.js';
-import mePlanHandler from '../lib/handlers/me-plan.js';
-import stripeWebhookHandler from '../lib/handlers/stripe-webhook.js';
-import sendEmailHandler from '../lib/handlers/send-email.js';
 import feedbackHandler from '../lib/handlers/feedback.js';
+import imageGenerateHandler from '../lib/handlers/image-generate.js';
+import mePlanHandler from '../lib/handlers/me-plan.js';
+import pricesHandler from '../lib/handlers/prices.js';
+import sendEmailHandler from '../lib/handlers/send-email.js';
+import stripeWebhookHandler from '../lib/handlers/stripe-webhook.js';
+import transcribeHandler from '../lib/handlers/transcribe.js';
 import unifiedClaudeHandler from '../lib/handlers/unified-claude.js';
+import visionHandler from '../lib/handlers/vision.js';
 import githubOAuthHandler from '../lib/handlers/github-oauth.js';
 
 /**
- * Mapa de rotas para handlers
- */
-const routes = {
-  '/api/ai': aiHandler,
-  '/api/transcribe': transcribeHandler,
-  '/api/vision': visionHandler,
-  '/api/image-generate': imageGenerateHandler,
-  '/api/checkout': checkoutHandler,
-  '/api/prices': pricesHandler,
-  '/api/me-plan': mePlanHandler,
-  '/api/stripe-webhook': stripeWebhookHandler,
-  '/api/send-email': sendEmailHandler,
-  '/api/feedback': feedbackHandler,
-  '/api/unified-claude': unifiedClaudeHandler,
-  '/api/github-oauth': githubOAuthHandler
-};
-
-/**
- * Aplicar CORS em todas as rotas
+ * Apply CORS headers to all responses
  */
 function applyCORS(res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -47,93 +28,143 @@ function applyCORS(res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, x-user-email'
   );
 }
 
 /**
- * Encontrar handler baseado no pathname
+ * Main unified router
  */
-function findHandler(pathname) {
-  // Tentar match exato primeiro
-  if (routes[pathname]) {
-    return routes[pathname];
+export default async function handler(req, res) {
+  applyCORS(res);
+
+  // Handle OPTIONS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
-  
-  // Tentar match com prefixo (para rotas dinâmicas como /api/github-oauth/authorize)
-  for (const [route, handler] of Object.entries(routes)) {
-    if (pathname.startsWith(route + '/') || pathname === route) {
-      return handler;
+
+  try {
+    // Parse pathname from URL
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = url.pathname;
+
+    console.log(`📍 Router: ${req.method} ${pathname}`);
+
+    // Route to appropriate handler based on pathname
+    
+    // AI endpoints
+    if (pathname === '/api/ai' || pathname.startsWith('/api/ai/')) {
+      return aiHandler(req, res);
+    }
+    
+    if (pathname === '/api/unified-claude' || pathname.startsWith('/api/unified-claude/')) {
+      return unifiedClaudeHandler(req, res);
+    }
+
+    // Media endpoints
+    if (pathname === '/api/transcribe' || pathname.startsWith('/api/transcribe/')) {
+      return transcribeHandler(req, res);
+    }
+    
+    if (pathname === '/api/vision' || pathname.startsWith('/api/vision/')) {
+      return visionHandler(req, res);
+    }
+    
+    if (pathname === '/api/image-generate' || pathname.startsWith('/api/image-generate/')) {
+      return imageGenerateHandler(req, res);
+    }
+
+    // GitHub OAuth endpoints
+    if (pathname === '/api/github-oauth' || pathname.startsWith('/api/github-oauth/')) {
+      return githubOAuthHandler(req, res);
+    }
+
+    // Email & Payment endpoints
+    if (pathname === '/api/send-email' || pathname.startsWith('/api/send-email/')) {
+      return sendEmailHandler(req, res);
+    }
+    
+    if (pathname === '/api/checkout' || pathname.startsWith('/api/checkout/')) {
+      return checkoutHandler(req, res);
+    }
+    
+    if (pathname === '/api/prices' || pathname.startsWith('/api/prices/')) {
+      return pricesHandler(req, res);
+    }
+    
+    if (pathname === '/api/me-plan' || pathname.startsWith('/api/me-plan/')) {
+      return mePlanHandler(req, res);
+    }
+    
+    if (pathname === '/api/stripe-webhook' || pathname.startsWith('/api/stripe-webhook/')) {
+      return stripeWebhookHandler(req, res);
     }
   }
   
   return null;
 }
 
-/**
- * Handler principal - Roteador
- */
-export default async function handler(req, res) {
-  // Aplicar CORS
-  applyCORS(res);
-  
-  // Responder OPTIONS (preflight)
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  try {
-    // Extrair pathname
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const pathname = url.pathname;
-    
-    console.log(`📍 [Router] ${req.method} ${pathname}`);
-    
+    // Feedback endpoint
+    if (pathname === '/api/feedback' || pathname.startsWith('/api/feedback/')) {
+      return feedbackHandler(req, res);
+    }
+
     // Health check
-    if (pathname === '/api/health' || pathname === '/api' || pathname === '/api/') {
+    if (pathname === '/api/health' || pathname === '/api') {
       return res.status(200).json({
         status: 'ok',
         timestamp: new Date().toISOString(),
         version: '2.0.0',
-        info: 'Unified API Router - Vercel Hobby Optimized',
-        routes: Object.keys(routes).sort()
+        routes: [
+          '/api/ai',
+          '/api/unified-claude',
+          '/api/transcribe',
+          '/api/vision',
+          '/api/image-generate',
+          '/api/github-oauth',
+          '/api/send-email',
+          '/api/checkout',
+          '/api/prices',
+          '/api/me-plan',
+          '/api/stripe-webhook',
+          '/api/feedback'
+        ]
       });
     }
-    
-    // Encontrar handler
-    const routeHandler = findHandler(pathname);
-    
-    if (!routeHandler) {
-      console.warn(`⚠️ [Router] Rota não encontrada: ${pathname}`);
-      return res.status(404).json({
-        error: 'Rota não encontrada',
-        path: pathname,
-        availableRoutes: Object.keys(routes).sort()
-      });
-    }
-    
-    // Executar handler
-    return await routeHandler(req, res);
-    
+
+    // 404 - Route not found
+    return res.status(404).json({
+      error: 'Not Found',
+      message: `No handler for ${pathname}`,
+      availableRoutes: [
+        '/api/ai',
+        '/api/unified-claude',
+        '/api/transcribe',
+        '/api/vision',
+        '/api/image-generate',
+        '/api/github-oauth',
+        '/api/send-email',
+        '/api/checkout',
+        '/api/prices',
+        '/api/me-plan',
+        '/api/stripe-webhook',
+        '/api/feedback'
+      ]
+    });
+
   } catch (error) {
-    console.error('❌ [Router] Erro:', error);
+    console.error('❌ Router error:', error);
     return res.status(500).json({
-      error: 'Erro interno do servidor',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: 'Internal Server Error',
+      message: error.message
     });
   }
 }
 
-/**
- * Configuração API
- * 
- * IMPORTANTE: bodyParser é desabilitado para permitir que stripe-webhook
- * receba o raw body necessário para verificação de assinatura.
- * Outros handlers que precisam de parsing devem fazer manualmente.
- */
+// Configure for Vercel
 export const config = {
   api: {
-    bodyParser: false  // Desabilitado para stripe-webhook
+    bodyParser: true,
+    responseLimit: '10mb'
   }
 };

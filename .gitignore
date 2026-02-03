@@ -42,3 +42,6 @@ lerna-debug.log*
 # Auto-generated files
 src/config/plans.json
 
+# Backup files
+*.backup
+
