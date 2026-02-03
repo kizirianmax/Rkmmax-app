@@ -12,6 +12,11 @@
     "REACT_APP_CONTACT_EMAIL": "roberto@kizirianmax.site",
     "REACT_APP_DOMAIN": "kizirianmax.site"
   },
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",
