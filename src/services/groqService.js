@@ -15,6 +15,18 @@ const API_URL = '/api/chat';
  */
 export async function sendMessageToGroq(messages) {
   try {
+    // ✅ VALIDAR MENSAGENS
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      throw new Error('❌ Mensagens inválidas: array vazio ou inválido');
+    }
+    
+    // ✅ LOG DE DEBUG
+    console.log('🚀 Groq Service Request:', {
+      endpoint: API_URL,
+      messagesCount: messages.length,
+      timestamp: new Date().toISOString()
+    });
+    
     // Chamar API serverless do Vercel
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -24,20 +36,59 @@ export async function sendMessageToGroq(messages) {
       body: JSON.stringify({ messages }),
     });
 
-    // Verificar erros
+    // ✅ TRATAMENTO DE ERRO DETALHADO
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Erro ao comunicar com API');
+      const errorText = await response.text();
+      let errorData;
+      
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { raw: errorText };
+      }
+      
+      console.error('❌ Groq Service Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      });
+      
+      // Mensagens de erro específicas
+      if (response.status === 500 && errorData.error?.includes('GROQ_API_KEY')) {
+        throw new Error(
+          '❌ Groq não configurado!\n' +
+          'Configure GROQ_API_KEY no Vercel.\n' +
+          'Obtenha sua chave em: https://console.groq.com/keys'
+        );
+      }
+      
+      throw new Error(
+        errorData.error || 
+        errorData.message || 
+        `Erro ao comunicar com API (${response.status})`
+      );
     }
 
     // Parsear resposta
     const data = await response.json();
     
+    // ✅ VALIDAR RESPOSTA
+    if (!data.response) {
+      console.error('❌ Resposta inválida:', data);
+      throw new Error('Resposta da API está em formato inválido');
+    }
+    
+    // ✅ LOG DE SUCESSO
+    console.log('✅ Groq Service Response:', {
+      responseLength: data.response.length,
+      timestamp: new Date().toISOString()
+    });
+    
     // Retornar conteúdo da mensagem
     return data.response;
     
   } catch (error) {
-    console.error('Erro no Groq Service:', error);
+    console.error('❌ Erro no Groq Service:', error);
     throw error;
   }
 }

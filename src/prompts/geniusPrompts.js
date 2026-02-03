@@ -19,6 +19,7 @@
 
 import { buildKiziPrompt, getThinkingPresets, getKiziGreeting } from './kiziPrompts.js';
 import { getLanguageInstruction, detectUserCountry } from '../utils/languageDetector.js';
+import { validatePromptSize } from '../utils/groqValidation.js';
 
 /**
  * ARQUITETURA 4 CAMADAS RKMMAX - Conhecimento Base
@@ -1138,5 +1139,6 @@ export default {
   buildGeniusPrompt,
   buildKiziEnhancedPrompt,
   getThinkingPresets,
-  getKiziGreeting
+  getKiziGreeting,
+  validatePromptSize
 };
