@@ -126,13 +126,14 @@ export default async function handler(req, res) {
 }
 
 /**
- * Configuração para rotas que precisam de body parsing customizado
- * stripe-webhook precisa de raw body
+ * Configuração API
+ * 
+ * IMPORTANTE: bodyParser é desabilitado para permitir que stripe-webhook
+ * receba o raw body necessário para verificação de assinatura.
+ * Outros handlers que precisam de parsing devem fazer manualmente.
  */
 export const config = {
   api: {
-    bodyParser: {
-      sizeLimit: '10mb'
-    }
+    bodyParser: false  // Desabilitado para stripe-webhook
   }
 };
