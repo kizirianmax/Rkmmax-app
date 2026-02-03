@@ -13,6 +13,7 @@ import geniusPrompts from '../src/prompts/geniusPrompts.js';
 import costOptimization from '../src/utils/costOptimization.js';
 import { specialists } from '../src/config/specialists.js';
 import { RKMMAXClaudeSystem } from '../lib/claude-integration.js';
+import { validateGroqApiKey, validatePromptSize } from '../src/utils/groqValidation.js';
 
 const { buildGeniusPrompt } = geniusPrompts;
 const { optimizeRequest, cacheResponse } = costOptimization;
@@ -180,6 +181,40 @@ async function callKiziFlash(messages, systemPrompt, apiKey) {
  * Chamar KIZI Speed (Groq - ultra-rápido)
  */
 async function callKiziSpeed(messages, systemPrompt, apiKey) {
+  // ✅ VALIDAR API KEY
+  validateGroqApiKey(apiKey);
+  
+  // ✅ VALIDAR MENSAGENS
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    throw new Error('❌ Mensagens inválidas para Groq: array vazio ou inválido');
+  }
+  
+  // ✅ CONSTRUIR PAYLOAD
+  const messagesPayload = [];
+  
+  if (systemPrompt) {
+    // Limitar tamanho do system prompt se necessário
+    const truncatedPrompt = validatePromptSize(systemPrompt, 2000);
+      
+    messagesPayload.push({ 
+      role: 'system', 
+      content: truncatedPrompt 
+    });
+  }
+  
+  // Adicionar mensagens do usuário
+  messagesPayload.push(...messages);
+  
+  // ✅ LOG DE DEBUG (antes da requisição)
+  console.log('🚀 Groq Request:', {
+    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'openai/gpt-oss-120b',
+    messagesCount: messagesPayload.length,
+    hasSystemPrompt: !!systemPrompt,
+    apiKeyPrefix: apiKey.substring(0, 8) + '...',
+    timestamp: new Date().toISOString()
+  });
+  
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -188,20 +223,77 @@ async function callKiziSpeed(messages, systemPrompt, apiKey) {
     },
     body: JSON.stringify({
       model: 'openai/gpt-oss-120b',
-      messages: systemPrompt 
-        ? [{ role: 'system', content: systemPrompt }, ...messages]
-        : messages,
+      messages: messagesPayload,
       temperature: 0.7,
-      max_tokens: 4000
+      max_tokens: 4000,
+      stream: false
     })
   });
 
+  // ✅ TRATAMENTO DE ERRO DETALHADO
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`KIZI Speed error: ${error}`);
+    const errorText = await response.text();
+    let errorDetails;
+    
+    try {
+      errorDetails = JSON.parse(errorText);
+    } catch {
+      errorDetails = { raw: errorText };
+    }
+    
+    console.error('❌ Groq API Error:', {
+      status: response.status,
+      statusText: response.statusText,
+      details: errorDetails,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+    
+    // Mensagens de erro específicas
+    if (response.status === 401) {
+      throw new Error(
+        `❌ Groq API: Erro de autenticação (401)\n` +
+        `Detalhes: ${errorDetails.error?.message || errorText}\n` +
+        `Verifique se GROQ_API_KEY está correta no Vercel`
+      );
+    }
+    
+    if (response.status === 429) {
+      throw new Error(
+        `❌ Groq API: Limite de requisições excedido (429)\n` +
+        `Detalhes: ${errorDetails.error?.message || errorText}\n` +
+        `Aguarde alguns minutos antes de tentar novamente`
+      );
+    }
+    
+    if (response.status === 400) {
+      throw new Error(
+        `❌ Groq API: Requisição inválida (400)\n` +
+        `Detalhes: ${errorDetails.error?.message || errorText}\n` +
+        `Possível problema com formato das mensagens ou prompt`
+      );
+    }
+    
+    throw new Error(
+      `❌ Groq API error (${response.status}): ${errorDetails.error?.message || errorText}`
+    );
   }
 
   const data = await response.json();
+  
+  // ✅ VALIDAR RESPOSTA
+  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    console.error('❌ Resposta inválida do Groq:', data);
+    throw new Error('Resposta do Groq está em formato inválido');
+  }
+  
+  // ✅ LOG DE SUCESSO
+  console.log('✅ Groq Response:', {
+    model: data.model,
+    tokensUsed: data.usage?.total_tokens,
+    responseLength: data.choices[0].message.content.length,
+    timestamp: new Date().toISOString()
+  });
+  
   return data.choices[0].message.content;
 }
 

@@ -95,10 +95,18 @@ class OptimizedAPIManager {
     // 🔐 OBTER CHAVE DO SECRET MANAGER
     const apiKey = this.config.groqKey || secretManager.getSecret('groq') || '';
     
+    // ✅ VALIDAÇÃO MAIS RIGOROSA
+    const isConfigured = apiKey && apiKey.length > 20 && apiKey.startsWith('gsk_');
+    
+    if (!isConfigured) {
+      console.warn('⚠️ Groq API não configurada corretamente');
+      console.warn('Configure GROQ_API_KEY no Vercel: https://console.groq.com/keys');
+    }
+    
     return {
       apiKey,
       baseURL: 'https://api.groq.com/openai/v1',
-      isConfigured: !!apiKey,
+      isConfigured,
       models: {
         'openai/gpt-oss-120b': {
           maxTokens: 8000,
@@ -392,7 +400,15 @@ class OptimizedAPIManager {
     const model = options.model || this.providers.groq.defaultModel;
     const maxTokens = options.maxTokens || 2000;
 
-    console.log(`🚀 Chamando Groq (${model})...`);
+    // ✅ LOG DE DEBUG (antes da requisição)
+    console.log('🚀 Groq Request:', {
+      model,
+      endpoint: `${this.providers.groq.baseURL}/chat/completions`,
+      promptLength: prompt.length,
+      maxTokens,
+      apiKeyPrefix: this.providers.groq.apiKey.substring(0, 8) + '...',
+      timestamp: new Date().toISOString()
+    });
 
     const response = await fetch(`${this.providers.groq.baseURL}/chat/completions`, {
       method: 'POST',
@@ -408,11 +424,61 @@ class OptimizedAPIManager {
       }),
     });
 
+    // ✅ TRATAMENTO DE ERRO DETALHADO
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.statusText}`);
+      const errorText = await response.text();
+      let errorDetails;
+      
+      try {
+        errorDetails = JSON.parse(errorText);
+      } catch {
+        errorDetails = { raw: errorText };
+      }
+      
+      console.error('❌ Groq API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        details: errorDetails,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      // Mensagens de erro específicas
+      if (response.status === 401) {
+        throw new Error(
+          `❌ Groq API: Erro de autenticação (401)\n` +
+          `Detalhes: ${errorDetails.error?.message || errorText}\n` +
+          `Verifique se GROQ_API_KEY está correta no Vercel`
+        );
+      }
+      
+      if (response.status === 429) {
+        throw new Error(
+          `❌ Groq API: Limite de requisições excedido (429)\n` +
+          `Detalhes: ${errorDetails.error?.message || errorText}\n` +
+          `Aguarde alguns minutos antes de tentar novamente`
+        );
+      }
+      
+      if (response.status === 400) {
+        throw new Error(
+          `❌ Groq API: Requisição inválida (400)\n` +
+          `Detalhes: ${errorDetails.error?.message || errorText}\n` +
+          `Possível problema com formato das mensagens ou prompt`
+        );
+      }
+      
+      throw new Error(
+        `❌ Groq API error (${response.status}): ${errorDetails.error?.message || errorText}`
+      );
     }
 
     const data = await response.json();
+    
+    // ✅ VALIDAR RESPOSTA
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('❌ Resposta inválida do Groq:', data);
+      throw new Error('Resposta do Groq está em formato inválido');
+    }
 
     const text = data.choices[0].message.content;
     const totalTokens = data.usage.total_tokens;
@@ -421,6 +487,15 @@ class OptimizedAPIManager {
 
     const modelConfig = this.providers.groq.models[model];
     const cost = (totalTokens / 1000) * modelConfig.costPer1kTokens;
+
+    // ✅ LOG DE SUCESSO
+    console.log('✅ Groq Response:', {
+      model: data.model || model,
+      tokensUsed: totalTokens,
+      responseLength: text.length,
+      cost: cost.toFixed(6),
+      timestamp: new Date().toISOString()
+    });
 
     return {
       text,
