@@ -11,7 +11,7 @@ class BetinhoIntegration {
     this.github = null;
   }
 
-  // Configura Serginho
+  // Serginho
   setSerginho(serginhoInstance) {
     this.serginho = serginhoInstance;
     console.log('✅ Serginho conectado ao Betinho');
@@ -21,21 +21,21 @@ class BetinhoIntegration {
     return this.serginho;
   }
 
-  // Registra especialistas
-  registerEspecialista(id, especialistaInstance) {
-    this.especialistas.set(id, especialistaInstance);
-    console.log(`✅ Especialista ${id} registrado no Betinho`);
-  }
-
-  getEspecialista(id) {
-    return this.especialistas.get(id);
+  // Especialistas
+  registerEspecialista(id, instance) {
+    this.especialistas.set(id, instance);
+    console.log(`✅ Especialista ${id} registrado`);
   }
 
   getEspecialistas() {
     return this.especialistas;
   }
 
-  // Configura GitHub
+  getEspecialista(id) {
+    return this.especialistas.get(id);
+  }
+
+  // GitHub
   setGitHub(githubInstance) {
     this.github = githubInstance;
     console.log('✅ GitHub conectado ao Betinho');
@@ -45,26 +45,21 @@ class BetinhoIntegration {
     return this.github;
   }
 
-  // Verifica se tudo está conectado
-  isFullyConnected() {
-    return {
-      serginho: !!this.serginho,
-      especialistas: this.especialistas.size > 0,
-      github: !!this.github
-    };
-  }
+  // Inicialização completa
+  initializeAll(config = {}) {
+    if (config.serginho) this.setSerginho(config.serginho);
+    if (config.github) this.setGitHub(config.github);
+    
+    if (config.especialistas) {
+      Object.entries(config.especialistas).forEach(([id, instance]) => {
+        this.registerEspecialista(id, instance);
+      });
+    }
 
-  // Status da integração
-  getStatus() {
-    const status = this.isFullyConnected();
-    return {
-      ...status,
-      especialistasCount: this.especialistas.size,
-      especialistasList: Array.from(this.especialistas.keys())
-    };
+    console.log('🎉 Betinho Integration inicializada!');
+    return this;
   }
 }
 
-// Exporta instância única (singleton)
 export const betinhoIntegration = new BetinhoIntegration();
-export default BetinhoIntegration;
+export default betinhoIntegration;
