@@ -11,7 +11,8 @@ export default function BetinhoPage() {
     return (
       <div className="betinho-loading">
         <div className="loading-spinner"></div>
-        <p>🤖 Inicializando Betinho...</p>
+        <h2>🤖 Inicializando Betinho...</h2>
+        <p>Carregando sistema de automação hiper inteligente</p>
       </div>
     );
   }
@@ -19,8 +20,8 @@ export default function BetinhoPage() {
   return (
     <div className="betinho-page">
       <BetinhoChat 
-        betinhoInstance={betinho}
-        userId="user-001"
+        betinhoInstance={betinho} 
+        userId="user_123" 
       />
     </div>
   );
