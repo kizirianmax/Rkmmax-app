@@ -4,7 +4,7 @@ import App from "./App.jsx";
 import "./index.css";
 
 // 🔐 INICIALIZAR GERENCIADOR DE SEGREDOS
-import { initializeSecrets } from "./api/initializeSecrets";
+import { initializeSecrets } from "./api/initializeSecrets.js";
 initializeSecrets();
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -1,6 +1,6 @@
 // src/pages/StudyLab.jsx
 import React, { useState } from "react";
-import FeedbackButton from "../components/FeedbackButton";
+import FeedbackButton from "../components/FeedbackButton.jsx";
 
 export default function StudyLab() {
   const [showFeedback, setShowFeedback] = useState(false);

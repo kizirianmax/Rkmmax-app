@@ -13,7 +13,7 @@
  * ⚠️ SEGURANÇA: Usa SecretManager para injetar credenciais
  */
 
-import secretManager from './SecretManager';
+import secretManager from './SecretManager.js';
 import { validateGroqApiKey } from '../utils/groqValidation.js';
 
 class OptimizedAPIManager {

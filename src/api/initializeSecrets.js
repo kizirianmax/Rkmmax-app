@@ -6,7 +6,7 @@
  * antes de qualquer uso
  */
 
-import secretManager from './SecretManager';
+import secretManager from './SecretManager.js';
 
 /**
  * INICIALIZAR E VALIDAR TODAS AS CREDENCIAIS

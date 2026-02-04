@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Loader2, Send, Mic, Image as ImageIcon, AlertCircle, CheckCircle, Clock } from 'lucide-react';
-import AutomationStatus from '../components/tools/AutomationStatus';
+import AutomationStatus from '../components/tools/AutomationStatus.jsx';
 import './AutomationDashboard.css';
 
 export default function AutomationDashboard() {

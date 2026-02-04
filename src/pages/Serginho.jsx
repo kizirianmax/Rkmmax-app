@@ -1,9 +1,9 @@
 // src/pages/Serginho.jsx
 import React, { useState, useRef, useEffect } from "react";
 import "./Serginho.css";
-import MarkdownMessage from "../components/MarkdownMessage";
-import { useConversationMemory } from "../hooks/useConversationMemory";
-import { detectToolSuggestion, appendToolSuggestion, shouldSuggestTool, markToolSuggested } from "../lib/smartSuggestions";
+import MarkdownMessage from "../components/MarkdownMessage.jsx";
+import { useConversationMemory } from "../hooks/useConversationMemory.js";
+import { detectToolSuggestion, appendToolSuggestion, shouldSuggestTool, markToolSuggested } from "../lib/smartSuggestions.js";
 
 export default function Serginho() {
   // Hook de memória de conversas
