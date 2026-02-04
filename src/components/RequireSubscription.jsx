@@ -134,7 +134,7 @@ export default function RequireSubscription({ children }) {
               </li>
               <li style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>💬</span>
-                <span style={{ color: '#1e293b' }}><strong>KIZI - Assistente Pessoal 24/7</strong></span>
+                <span style={{ color: '#1e293b' }}><strong>Serginho - Assistente Pessoal 24/7</strong></span>
               </li>
               <li style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>📚</span>
