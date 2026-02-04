@@ -1,1 +1,49 @@
-'use strict';\nimport { useState, useEffect } from 'react';\nimport BetinhoHyperIntelligent from '../agents/betinho/BetinhoHyperIntelligent';\n\nexport function useBetinho(config = {}) {\n  const [betinho, setBetinho] = useState(null);\n  const [isReady, setIsReady] = useState(false);\n\n  useEffect(() => {\n    // Inicializa Betinho\n    const betinhoInstance = new BetinhoHyperIntelligent({\n      serginho: config.serginho || null,\n      especialistas: config.especialistas || null,\n      github: config.github || null\n    });\n\n    setBetinho(betinhoInstance);\n    setIsReady(true);\n\n    return () => {\n      // Cleanup se necessário\n    };\n  }, []);\n\n  const executarTarefa = async (descricao, usuarioId) => {\n    if (!betinho) throw new Error('Betinho não está pronto');\n    \n    return await betinho.executarTarefaCompleta({\n      descricao,\n      usuarioId,\n      context: {}\n    });\n  };\n\n  return {\n    betinho,\n    isReady,\n    executarTarefa\n  };\n}
+// src/hooks/useBetinho.js
+import { useState, useEffect, useRef } from 'react';
+import BetinhoHyperIntelligent from '../agents/betinho/BetinhoHyperIntelligent';
+import { betinhoIntegration } from '../integration/BetinhoIntegration';
+
+export function useBetinho(userId) {
+  const [betinho, setBetinho] = useState(null);
+  const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState(null);
+  const betinhoRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      const betinhoInstance = new BetinhoHyperIntelligent({
+        serginho: betinhoIntegration.getSerginho(),
+        especialistas: betinhoIntegration.getEspecialistas(),
+        github: betinhoIntegration.getGitHub()
+      });
+
+      betinhoRef.current = betinhoInstance;
+      setBetinho(betinhoInstance);
+      setIsReady(true);
+
+      console.log('🤖 Betinho inicializado com sucesso!');
+    } catch (err) {
+      console.error('Erro ao inicializar Betinho:', err);
+      setError(err.message);
+    }
+  }, []);
+
+  const executarTarefa = async (descricao, context = {}) => {
+    if (!betinho) {
+      throw new Error('Betinho ainda não está pronto');
+    }
+
+    return await betinho.executarTarefaCompleta({
+      descricao,
+      context,
+      usuarioId: userId
+    });
+  };
+
+  return {
+    betinho,
+    isReady,
+    error,
+    executarTarefa
+  };
+}
