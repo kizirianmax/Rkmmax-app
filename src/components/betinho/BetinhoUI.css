@@ -1,18 +1,19 @@
 /* src/components/betinho/BetinhoUI.css */
 
+/* BETINHO CHAT CONTAINER */
 .betinho-chat-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
-  background: #f8f9fa;
+  background: #f5f5f5;
 }
 
+/* HEADER */
 .betinho-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
   padding: 1.5rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -28,6 +29,7 @@
   align-items: center;
   justify-content: center;
   color: #667eea;
+  margin-right: 1rem;
 }
 
 .betinho-info h2 {
@@ -41,6 +43,7 @@
   font-size: 0.9rem;
 }
 
+/* MESSAGES */
 .betinho-messages {
   flex: 1;
   overflow-y: auto;
@@ -54,10 +57,7 @@
   display: flex;
   gap: 0.75rem;
   max-width: 80%;
-}
-
-.message-betinho {
-  align-self: flex-start;
+  animation: slideIn 0.3s ease-out;
 }
 
 .message-user {
@@ -65,9 +65,13 @@
   flex-direction: row-reverse;
 }
 
+.message-betinho {
+  align-self: flex-start;
+}
+
 .message-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -75,26 +79,244 @@
   flex-shrink: 0;
 }
 
-.message-betinho .message-avatar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.message-user .message-avatar {
+  background: #667eea;
   color: white;
 }
 
-.message-user .message-avatar {
-  background: #e9ecef;
-  color: #495057;
+.message-betinho .message-avatar {
+  background: #764ba2;
+  color: white;
 }
 
 .message-content {
   background: white;
   padding: 1rem;
-  border-radius: 1rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .message-user .message-content {
   background: #667eea;
   color: white;
+}
+
+/* PROGRESS */
+.betinho-progress-container {
+  background: white;
+  padding: 1.5rem;
+  margin: 1rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: #667eea;
+}
+
+.progress-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-timeline {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.timeline-step {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.timeline-step.completed {
+  color: #4caf50;
+}
+
+.timeline-step.active {
+  color: #667eea;
+}
+
+/* AUTHORIZATION DIALOG */
+.authorization-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.authorization-dialog {
+  background: white;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+.dialog-header {
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dialog-content {
+  padding: 2rem;
+}
+
+.content-warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.dialog-actions {
+  padding: 1.5rem 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-cancel, .btn-confirm {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.btn-cancel:hover {
+  background: #e0e0e0;
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* INPUT */
+.betinho-input-container {
+  display: flex;
+  padding: 1.5rem;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  gap: 1rem;
+}
+
+.betinho-input {
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 24px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.betinho-input:focus {
+  border-color: #667eea;
+}
+
+.betinho-send-button {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.betinho-send-button:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.betinho-send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ANIMATIONS */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .spinning {
@@ -104,184 +326,4 @@
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.betinho-input-container {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  background: white;
-  border-top: 1px solid #dee2e6;
-}
-
-.betinho-input-container input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid #e9ecef;
-  border-radius: 2rem;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.betinho-input-container input:focus {
-  border-color: #667eea;
-}
-
-.betinho-input-container button {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s;
-}
-
-.betinho-input-container button:hover:not(:disabled) {
-  transform: scale(1.05);
-}
-
-.betinho-input-container button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.betinho-progress-container {
-  margin: 1rem 2rem;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.progress-bar {
-  height: 8px;
-  background: #e9ecef;
-  border-radius: 1rem;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  transition: width 0.3s ease;
-}
-
-.progress-current {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #667eea;
-  font-weight: 500;
-}
-
-.authorization-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.authorization-dialog {
-  background: white;
-  border-radius: 1rem;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-}
-
-.dialog-header {
-  padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 1rem 1rem 0 0;
-}
-
-.dialog-body {
-  padding: 2rem;
-}
-
-.workflow-summary ul {
-  list-style: none;
-  padding: 0;
-}
-
-.workflow-summary li {
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  background: #f8f9fa;
-  border-radius: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-.content-warning {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background: #fff3cd;
-  border: 2px solid #ffc107;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-}
-
-.dialog-actions {
-  display: flex;
-  gap: 1rem;
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #dee2e6;
-}
-
-.dialog-actions button {
-  flex: 1;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  transition: transform 0.2s;
-}
-
-.dialog-actions button:hover {
-  transform: translateY(-2px);
-}
-
-.btn-confirm {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-cancel {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-adjust {
-  background: #ffc107;
-  color: #000;
 }
