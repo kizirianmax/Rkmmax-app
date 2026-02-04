@@ -1,0 +1,21 @@
+/* src/components/RequireSubscription.css */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .subscription-card {
+    padding: 24px !important;
+  }
+  
+  .subscription-title {
+    font-size: 24px !important;
+  }
+  
+  .subscription-button {
+    padding: 14px 24px !important;
+    font-size: 15px !important;
+  }
+}
