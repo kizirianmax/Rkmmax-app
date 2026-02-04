@@ -1,6 +1,6 @@
 // src/integration/BetinhoIntegration.js
 /**
- * CAMADA DE INTEGRAÇÃO DO BETINHO
+ * BETINHO INTEGRATION - Camada de Integração Central
  * Conecta Betinho com Serginho, Especialistas e GitHub
  */
 
@@ -9,94 +9,100 @@ class BetinhoIntegration {
     this.serginho = null;
     this.especialistas = new Map();
     this.github = null;
+    this.initialized = false;
   }
 
-  // Registrar Serginho
+  // Configura Serginho (orquestrador)
   setSerginho(serginhoInstance) {
     this.serginho = serginhoInstance;
-    console.log('✅ Serginho conectado ao Betinho');
+    console.log('🤖 Serginho conectado ao Betinho');
   }
 
   getSerginho() {
     return this.serginho;
   }
 
-  // Registrar Especialistas
-  registerEspecialista(id, especialistaInstance) {
-    this.especialistas.set(id, especialistaInstance);
-    console.log(`✅ Especialista ${id} registrado no Betinho`);
+  // Registra especialista
+  registerEspecialista(tipo, especialistaInstance) {
+    this.especialistas.set(tipo, especialistaInstance);
+    console.log(`✅ Especialista ${tipo} registrado no Betinho`);
   }
 
-  getEspecialista(id) {
-    return this.especialistas.get(id);
+  // Remove especialista
+  unregisterEspecialista(tipo) {
+    this.especialistas.delete(tipo);
+    console.log(`❌ Especialista ${tipo} removido do Betinho`);
   }
 
+  // Obtém especialista específico
+  getEspecialista(tipo) {
+    return this.especialistas.get(tipo);
+  }
+
+  // Obtém todos especialistas
   getEspecialistas() {
-    return this.especialistas;
+    return Object.fromEntries(this.especialistas);
   }
 
-  // Registrar GitHub
+  // Lista especialistas disponíveis
+  listEspecialistas() {
+    return Array.from(this.especialistas.keys());
+  }
+
+  // Configura GitHub
   setGitHub(githubInstance) {
     this.github = githubInstance;
-    console.log('✅ GitHub conectado ao Betinho');
+    console.log('🔗 GitHub conectado ao Betinho');
   }
 
   getGitHub() {
     return this.github;
   }
 
-  // Consultar especialista
-  async consultarEspecialista(especialistaId, contexto) {
-    const especialista = this.getEspecialista(especialistaId);
-    
-    if (!especialista) {
-      console.warn(`⚠️ Especialista ${especialistaId} não registrado`);
-      return {
-        status: 'unavailable',
-        mensagem: `Especialista ${especialistaId} não está disponível no momento`
-      };
-    }
-
+  // Inicializa integração completa
+  async initialize(config = {}) {
     try {
-      return await especialista.processar(contexto);
-    } catch (error) {
-      return {
-        status: 'error',
-        mensagem: `Erro ao consultar ${especialistaId}: ${error.message}`
-      };
-    }
-  }
+      if (config.serginho) this.setSerginho(config.serginho);
+      if (config.github) this.setGitHub(config.github);
+      
+      if (config.especialistas) {
+        Object.entries(config.especialistas).forEach(([tipo, instance]) => {
+          this.registerEspecialista(tipo, instance);
+        });
+      }
 
-  // Chamar Serginho
-  async chamarSerginho(contexto) {
-    if (!this.serginho) {
-      console.warn('⚠️ Serginho não está conectado');
-      return {
-        status: 'unavailable',
-        mensagem: 'Serginho não está disponível no momento'
-      };
-    }
-
-    try {
-      return await this.serginho.processar(contexto);
+      this.initialized = true;
+      console.log('🎉 Betinho Integration inicializado com sucesso!');
+      return { success: true };
     } catch (error) {
-      return {
-        status: 'error',
-        mensagem: `Erro ao chamar Serginho: ${error.message}`
-      };
+      console.error('❌ Erro ao inicializar Betinho Integration:', error);
+      return { success: false, error: error.message };
     }
   }
 
   // Status da integração
   getStatus() {
     return {
+      initialized: this.initialized,
       serginho: !!this.serginho,
-      especialistas: this.especialistas.size,
-      github: !!this.github
+      github: !!this.github,
+      especialistas: this.listEspecialistas(),
+      totalEspecialistas: this.especialistas.size
     };
+  }
+
+  // Reset completo
+  reset() {
+    this.serginho = null;
+    this.especialistas.clear();
+    this.github = null;
+    this.initialized = false;
+    console.log('🔄 Betinho Integration resetado');
   }
 }
 
-// Exporta instância singleton
+// Instância singleton
 export const betinhoIntegration = new BetinhoIntegration();
+
+// Export também a classe para testes
 export default BetinhoIntegration;
