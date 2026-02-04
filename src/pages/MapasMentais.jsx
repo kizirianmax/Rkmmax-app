@@ -1,5 +1,5 @@
 // src/pages/MapasMentais.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { studyLabAI } from "../lib/StudyLabAI.js";
 
 const CORES_TEMA = [

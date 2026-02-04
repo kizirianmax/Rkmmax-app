@@ -425,7 +425,7 @@ Retorne APENAS o JSON.`;
    */
   async analisarFontes(texto) {
     // Extrair URLs do texto
-    const urlRegex = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/gi;
+    const urlRegex = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/gi;
     const urls = texto.match(urlRegex) || [];
     
     const resultados = await Promise.all(

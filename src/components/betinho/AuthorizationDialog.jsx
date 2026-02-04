@@ -1,9 +1,9 @@
 // src/components/betinho/AuthorizationDialog.jsx
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle, Settings } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 export default function AuthorizationDialog({ resumo, onResponse }) {
-  const [selectedAction, setSelectedAction] = useState('authorize_all');
+  const [selectedAction] = useState('authorize_all');
 
   const handleConfirm = () => {
     onResponse({

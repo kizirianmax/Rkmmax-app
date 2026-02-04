@@ -150,9 +150,11 @@ export function markToolSuggested(toolId) {
   }
 }
 
-export default {
+const smartSuggestionsExport = {
   detectToolSuggestion,
   appendToolSuggestion,
   shouldSuggestTool,
   markToolSuggested
 };
+
+export default smartSuggestionsExport;

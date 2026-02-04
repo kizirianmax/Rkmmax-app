@@ -21,7 +21,7 @@ export function useBetinho(userId) {
       setBetinho(betinhoInstance);
       setIsReady(true);
 
-      console.log('🤖 Betinho inicializado com sucesso!');
+      console.warn('🤖 Betinho inicializado com sucesso!');
     } catch (err) {
       console.error('Erro ao inicializar Betinho:', err);
       setError(err.message);

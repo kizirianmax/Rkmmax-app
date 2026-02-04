@@ -19,7 +19,6 @@ export default function Serginho() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [showActions, setShowActions] = useState(false);
   const messagesEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -56,7 +55,8 @@ export default function Serginho() {
         ]);
       }
     }
-  }, [memory.conversations.length, memory.currentConversationId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memory.currentConversationId]);
 
   useEffect(() => {
     // Adicionar classe ao HTML para aplicar estilos específicos
@@ -322,16 +322,8 @@ export default function Serginho() {
     }
   };
 
-  const handleFileAttach = () => {
-    fileInputRef.current?.click();
-  };
-
   const handleImageAttach = () => {
     imageInputRef.current?.click();
-  };
-
-  const handleCameraCapture = () => {
-    cameraInputRef.current?.click();
   };
 
   const handleFileSelect = (event) => {
