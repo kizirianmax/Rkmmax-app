@@ -55,7 +55,8 @@ export default function Serginho() {
         ]);
       }
     }
-  }, [memory, memory.currentConversationId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memory.currentConversationId]);
 
   useEffect(() => {
     // Adicionar classe ao HTML para aplicar estilos específicos
