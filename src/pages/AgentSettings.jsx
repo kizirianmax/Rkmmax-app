@@ -1,6 +1,6 @@
 // src/pages/AgentSettings.jsx
 import React from 'react';
-import { useAgentVisibility } from '../hooks/useAgentVisibility.jsx';
+import { useAgentVisibility } from '../hooks/useAgentVisibility.js';
 
 const agents = [
   { id: 'serginho', name: 'Serginho', role: 'Orquestrador', tier: 'Livre' },
