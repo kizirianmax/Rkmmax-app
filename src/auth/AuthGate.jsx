@@ -6,7 +6,25 @@ import { Navigate, useLocation, matchPath } from "react-router-dom";
 import { useAuth } from "./AuthProvider.jsx";
 
 // Rotas que NÃO exigem login
-const PUBLIC_ROUTES = ["/", "/plans", "/login", "/reset-password"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/plans",
+  "/pricing",
+  "/login",
+  "/signup",
+  "/auth",
+  "/reset-password",
+  "/help",
+  "/terms",
+  "/privacy",
+  "/refund",
+  "/regulamento",
+  "/info",
+  "/app-info",
+  "/agents",
+  "/specialists",
+  "/subscribe"
+];
 
 function isPublic(pathname) {
   return PUBLIC_ROUTES.some((pattern) => matchPath({ path: pattern, end: true }, pathname));
