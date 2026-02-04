@@ -1,30 +1,22 @@
 // src/components/betinho/AuthorizationDialog.jsx
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, Settings } from 'lucide-react';
 
 export default function AuthorizationDialog({ resumo, onResponse }) {
-  const [selected, setSelected] = useState([]);
+  const [selectedAction, setSelectedAction] = useState('authorize_all');
 
   const handleConfirm = () => {
     onResponse({
       acao: 'CONFIRMAR',
-      acoesAutorizadas: selected.length > 0 ? selected : 'all',
-      aprovado: true
-    });
-  };
-
-  const handleAdjust = () => {
-    onResponse({
-      acao: 'AJUSTAR',
-      aprovado: false,
-      feedback: 'Usuário solicitou ajustes'
+      feedback: '',
+      acoesAutorizadas: selectedAction === 'authorize_all' ? ['all'] : []
     });
   };
 
   const handleCancel = () => {
     onResponse({
       acao: 'CANCELAR',
-      aprovado: false
+      feedback: 'Usuário cancelou a operação'
     });
   };
 
@@ -32,18 +24,45 @@ export default function AuthorizationDialog({ resumo, onResponse }) {
     <div className="authorization-overlay">
       <div className="authorization-dialog">
         <div className="dialog-header">
+          <AlertTriangle size={32} className="warning-icon" />
           <h2>{resumo.titulo}</h2>
-          <p>{resumo.descricao}</p>
         </div>
 
-        <div className="dialog-body">
+        <div className="dialog-content">
           <div className="workflow-summary">
-            <h3>📋 Plano de Execução:</h3>
+            <h3>📋 Resumo da Tarefa</h3>
+            <p>{resumo.descricao}</p>
+            
+            <div className="workflow-details">
+              <div className="detail-item">
+                <strong>⏱️ Tempo estimado:</strong>
+                <span>{resumo.tempo}</span>
+              </div>
+              
+              {resumo.especialistas?.length > 0 && (
+                <div className="detail-item">
+                  <strong>👥 Especialistas:</strong>
+                  <span>{resumo.especialistas.join(', ')}</span>
+                </div>
+              )}
+              
+              {resumo.github?.length > 0 && (
+                <div className="detail-item">
+                  <strong>🔗 GitHub:</strong>
+                  <span>{resumo.github.join(', ')}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="workflow-steps">
+            <h3>📝 Etapas ({resumo.etapas?.length})</h3>
             <ul>
-              {resumo.etapas?.map((etapa, i) => (
-                <li key={i}>
-                  <strong>Etapa {etapa.ordem}:</strong> {etapa.acao}
-                  <span className="time-estimate">~{Math.round(etapa.tempo / 60)}min</span>
+              {resumo.etapas?.map((etapa, index) => (
+                <li key={index}>
+                  <span className="step-number">{etapa.ordem}</span>
+                  <span className="step-description">{etapa.acao}</span>
+                  <span className="step-time">~{Math.round(etapa.tempo / 60)}min</span>
                 </li>
               ))}
             </ul>
@@ -51,47 +70,38 @@ export default function AuthorizationDialog({ resumo, onResponse }) {
 
           {resumo.avisoConteudo && (
             <div className="content-warning">
-              <AlertTriangle size={24} />
-              <div>
-                <h4>{resumo.avisoConteudo.titulo}</h4>
-                <p>Algumas ações alteram o conteúdo do seu trabalho:</p>
+              <div className="warning-header">
+                <AlertTriangle size={20} />
+                <strong>{resumo.avisoConteudo.titulo}</strong>
+              </div>
+              <div className="warning-content">
+                <p>⚖️ Algumas ações requerem sua autorização explícita para alterar conteúdo.</p>
                 <ul>
-                  {resumo.avisoConteudo.acoes.map((acao, i) => (
-                    <li key={i}>
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(acao.acao)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelected([...selected, acao.acao]);
-                          } else {
-                            setSelected(selected.filter(a => a !== acao.acao));
-                          }
-                        }}
-                      />
-                      <span>{acao.descricao}</span>
+                  {resumo.avisoConteudo.acoes?.map((acao, index) => (
+                    <li key={index}>
+                      <strong>{acao.especialista}:</strong> {acao.descricao}
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
           )}
-
-          <div className="time-estimate-total">
-            <strong>⏱️ Tempo estimado:</strong> {resumo.tempo}
-          </div>
         </div>
 
         <div className="dialog-actions">
-          <button onClick={handleCancel} className="btn-cancel">
-            <XCircle size={18} />
+          <button 
+            className="btn-cancel" 
+            onClick={handleCancel}
+          >
+            <XCircle size={20} />
             Cancelar
           </button>
-          <button onClick={handleAdjust} className="btn-adjust">
-            🔧 Ajustar
-          </button>
-          <button onClick={handleConfirm} className="btn-confirm">
-            <CheckCircle size={18} />
+          
+          <button 
+            className="btn-confirm" 
+            onClick={handleConfirm}
+          >
+            <CheckCircle size={20} />
             Confirmar e Executar
           </button>
         </div>
