@@ -7,20 +7,25 @@ export default function BetinhoProgress({ progress }) {
 
   return (
     <div className="betinho-progress-container">
-      <div className="progress-info">
-        <Loader className="spinning" size={20} />
-        <span>
-          <strong>Etapa {progress.etapa}/{progress.total}:</strong> {progress.acao}
-        </span>
+      <div className="progress-header">
+        <div className="progress-current">
+          <Loader className="spinning" size={20} />
+          <span>
+            <strong>Etapa {progress.etapa} de {progress.total}</strong>
+          </span>
+        </div>
+        <span className="progress-percentage">{Math.round(percentage)}%</span>
       </div>
+      
       <div className="progress-bar">
         <div 
-          className="progress-bar-fill" 
+          className="progress-fill" 
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <div className="progress-percentage">
-        {Math.round(percentage)}% completo
+      
+      <div className="progress-action">
+        {progress.acao}
       </div>
     </div>
   );
