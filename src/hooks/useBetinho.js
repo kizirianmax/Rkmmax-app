@@ -29,21 +29,9 @@ export function useBetinho(userId) {
   }, []);
 
   const executarTarefa = async (descricao, context = {}) => {
-    if (!betinho) {
-      throw new Error('Betinho ainda não está pronto');
-    }
-
-    return await betinho.executarTarefaCompleta({
-      descricao,
-      context,
-      usuarioId: userId
-    });
+    if (!betinho) throw new Error('Betinho ainda não está pronto');
+    return await betinho.executarTarefaCompleta({ descricao, context, usuarioId: userId });
   };
 
-  return {
-    betinho,
-    isReady,
-    error,
-    executarTarefa
-  };
+  return { betinho, isReady, error, executarTarefa };
 }
