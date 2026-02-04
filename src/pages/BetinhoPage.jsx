@@ -2,17 +2,21 @@
 import React from 'react';
 import BetinhoChat from '../components/betinho/BetinhoChat';
 import { useBetinho } from '../hooks/useBetinho';
-import { Loader } from 'lucide-react';
 import '../components/betinho/BetinhoUI.css';
 
 export default function BetinhoPage() {
-  const { betinho, isReady, userId } = useBetinho();
+  const { betinho, isReady } = useBetinho({
+    // Configurações opcionais
+    serginho: null, // Será conectado depois
+    especialistas: null, // Será conectado depois
+    github: null // Token do GitHub
+  });
 
   if (!isReady) {
     return (
       <div className="loading-container">
-        <Loader className="spinning" size={48} />
-        <p>Inicializando Betinho...</p>
+        <div className="loading-spinner">🤖</div>
+        <p>Iniciando Betinho...</p>
       </div>
     );
   }
@@ -20,8 +24,8 @@ export default function BetinhoPage() {
   return (
     <div className="betinho-page">
       <BetinhoChat 
-        betinhoInstance={betinho} 
-        userId={userId} 
+        betinhoInstance={betinho}
+        userId="user-123" // Substituir pelo ID real do usuário
       />
     </div>
   );
