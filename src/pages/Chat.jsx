@@ -39,7 +39,7 @@ function usePlan() {
 export default function Chat() {
   const { id } = useParams(); // /chat/:id
   const agentName = AGENTS[id] || "Assistente";
-  const { plan, label } = usePlan();
+  const { label } = usePlan();
 
   // chat local (placeholder)
   const [msgs, setMsgs] = useState([

@@ -14,13 +14,13 @@ export class BetinhoIntegration {
   // Registra Serginho
   registerSerginho(serginhoInstance) {
     this.serginho = serginhoInstance;
-    console.log('✅ Serginho conectado ao Betinho');
+    console.warn('✅ Serginho conectado ao Betinho');
   }
 
   // Registra Especialista
   registerEspecialista(id, especialistaInstance) {
     this.especialistas.set(id, especialistaInstance);
-    console.log(`✅ Especialista ${id} conectado ao Betinho`);
+    console.warn(`✅ Especialista ${id} conectado ao Betinho`);
   }
 
   // Registra Betinho
@@ -31,7 +31,7 @@ export class BetinhoIntegration {
     this.betinho.serginho = this.serginho;
     this.betinho.especialistas = this.especialistas;
     
-    console.log('✅ Betinho totalmente integrado');
+    console.warn('✅ Betinho totalmente integrado');
   }
 
   // Consulta Serginho

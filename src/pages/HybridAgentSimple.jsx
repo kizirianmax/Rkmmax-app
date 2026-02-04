@@ -110,12 +110,6 @@ Me dê uma tarefa e eu vou planejar e executar automaticamente para você.`,
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Função para remover thinking
-  const removeThinking = (text) => {
-    if (!text) return text;
-    return text.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
-  };
-
   // Enviar mensagem e executar agente
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;

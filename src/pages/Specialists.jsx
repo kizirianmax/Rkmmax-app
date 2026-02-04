@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSpecialistVisibility } from '../hooks/useSpecialistVisibility.js';
-import { specialists, categories, getSpecialistsByCategory, getTotalSpecialists } from '../config/specialists.js';
+import { specialists, categories, getTotalSpecialists } from '../config/specialists.js';
 import { canUseSpecialist } from '../config/fairUse.js';
 
 function Specialists() {
   const navigate = useNavigate();
-  const { isVisible, getVisibleCount, getHiddenCount } = useSpecialistVisibility();
+  const { isVisible } = useSpecialistVisibility();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   

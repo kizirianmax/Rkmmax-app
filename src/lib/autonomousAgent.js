@@ -234,7 +234,7 @@ Se for escrita, produza o texto completo.`;
 
   // 🍌 Nano Banana - Gerar imagem com IA
   async generateImage(prompt) {
-    console.log('🍌 Nano Banana: Gerando imagem...');
+    console.warn('🍌 Nano Banana: Gerando imagem...');
     
     try {
       const response = await fetch('/api/image-generate', {
@@ -366,7 +366,7 @@ Inclua:
 
   // Detectar se é pedido de geração de imagem (v2.0 - Nano Banana)
   isImageGenerationRequest(input) {
-    console.log('🍌 Nano Banana: Verificando se é pedido de imagem:', input);
+    console.warn('🍌 Nano Banana: Verificando se é pedido de imagem:', input);
     const imageKeywords = [
       /gere?\s+(uma?\s+)?imagem/i,
       /crie?\s+(uma?\s+)?imagem/i,

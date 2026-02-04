@@ -124,7 +124,7 @@ export const canUseSpecialist = (userPlan, specialistId) => {
 
 // Obter modelo de IA baseado no plano
 // TODOS OS PLANOS USAM GEMINI 2.5 PRO
-export const getAIModel = (userPlan, messageType = 'standard') => {
+export const getAIModel = (userPlan, _messageType = 'standard') => {
   return 'gemini-2.5-pro';
 };
 
