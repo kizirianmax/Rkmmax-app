@@ -11,7 +11,6 @@ class BetinhoIntegration {
     this.github = null;
   }
 
-  // Registra Serginho
   setSerginho(serginhoInstance) {
     this.serginho = serginhoInstance;
     console.log('✅ Serginho conectado ao Betinho');
@@ -21,9 +20,8 @@ class BetinhoIntegration {
     return this.serginho;
   }
 
-  // Registra Especialista
-  registerEspecialista(id, especialistaInstance) {
-    this.especialistas.set(id, especialistaInstance);
+  registerEspecialista(id, instance) {
+    this.especialistas.set(id, instance);
     console.log(`✅ Especialista ${id} registrado no Betinho`);
   }
 
@@ -31,7 +29,10 @@ class BetinhoIntegration {
     return this.especialistas;
   }
 
-  // Registra GitHub
+  getEspecialista(id) {
+    return this.especialistas.get(id);
+  }
+
   setGitHub(githubInstance) {
     this.github = githubInstance;
     console.log('✅ GitHub conectado ao Betinho');
@@ -41,12 +42,16 @@ class BetinhoIntegration {
     return this.github;
   }
 
-  // Registra todos os 54 especialistas
-  registerAllEspecialistas(especialistasMap) {
-    for (const [id, instance] of Object.entries(especialistasMap)) {
-      this.registerEspecialista(id, instance);
-    }
-    console.log(`✅ ${Object.keys(especialistasMap).length} especialistas registrados`);
+  listEspecialistas() {
+    return Array.from(this.especialistas.keys());
+  }
+
+  isReady() {
+    return {
+      serginho: !!this.serginho,
+      especialistas: this.especialistas.size,
+      github: !!this.github
+    };
   }
 }
 
