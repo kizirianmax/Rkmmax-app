@@ -11,19 +11,15 @@ const PUBLIC_ROUTES = [
   "/plans",
   "/pricing",
   "/login",
-  "/signup",
-  "/auth",
   "/reset-password",
-  "/help",
+  "/auth/github/callback",
   "/terms",
   "/privacy",
-  "/refund",
   "/regulamento",
+  "/refund",
   "/info",
   "/app-info",
-  "/agents",
-  "/specialists",
-  "/subscribe"
+  "/help"
 ];
 
 function isPublic(pathname) {

@@ -1,132 +1,246 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthProvider.jsx';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthGate from './auth/AuthGate.jsx';
-import Header from './components/Header.jsx';
-import Footer from './components/Footer.jsx';
+import RequireSubscription from './components/RequireSubscription.jsx';
 
-// Auth Pages
-import Auth from './pages/Auth.jsx';
-import Login from './auth/Login.jsx';
-import Signup from './auth/Signup.jsx';
-import ResetPassword from './pages/ResetPassword.jsx';
-import Logout from './pages/Logout.jsx';
-
-// Main Pages
+// Page imports
 import Home from './pages/Home.jsx';
-import Agents from './pages/Agents.jsx';
-import Specialists from './pages/Specialists.jsx';
-import PlansScreen from './pages/PlansScreen.jsx';
-import Pricing from './pages/Pricing.jsx';
-import Subscribe from './pages/Subscribe.jsx';
-import Subscription from './pages/Subscription.jsx';
-import Success from './pages/Success.jsx';
-
-// Chat & Specialist Pages
-import Serginho from './pages/Serginho.jsx';
-import Chat from './pages/Chat.jsx';
-import SpecialistChat from './pages/SpecialistChat.jsx';
 import BetinhoPage from './pages/BetinhoPage.jsx';
+import Agents from './pages/Agents.jsx';
+import AgentDetail from './pages/AgentDetail.jsx';
+import Specialists from './pages/Specialists.jsx';
+import SpecialistChat from './pages/SpecialistChat.jsx';
+import Chat from './pages/Chat.jsx';
+import Serginho from './pages/Serginho.jsx';
 import HybridAgent from './pages/HybridAgent.jsx';
 import HybridAgentSimple from './pages/HybridAgentSimple.jsx';
-
-// Projects & Study
-import Projects from './pages/Projects.jsx';
 import StudyLab from './pages/StudyLab.jsx';
 import Flashcards from './pages/Flashcards.jsx';
-import GeradorResumos from './pages/GeradorResumos.jsx';
 import MapasMentais from './pages/MapasMentais.jsx';
+import GeradorResumos from './pages/GeradorResumos.jsx';
 import Cronograma from './pages/Cronograma.jsx';
-
-// Settings & Account
+import Projects from './pages/Projects.jsx';
+import Plans from './pages/Plans.jsx';
+import PlansScreen from './pages/PlansScreen.jsx';
+import Pricing from './pages/Pricing.jsx';
+import Subscription from './pages/Subscription.jsx';
+import Subscribe from './pages/Subscribe.jsx';
+import Success from './pages/Success.jsx';
 import Account from './pages/Account.jsx';
 import Settings from './pages/Settings.jsx';
 import AgentSettings from './pages/AgentSettings.jsx';
-
-// Info & Legal Pages
+import Auth from './pages/Auth.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
+import GitHubCallback from './pages/GitHubCallback.jsx';
+import Logout from './pages/Logout.jsx';
 import Help from './pages/Help.jsx';
-import Terms from './pages/Terms.jsx';
-import Privacy from './pages/Privacy.jsx';
-import Refund from './pages/Refund.jsx';
-import Regulamento from './pages/Regulamento.jsx';
 import Info from './pages/Info.jsx';
 import AppInfo from './pages/AppInfo.jsx';
-
-// Other Pages
-import AgentDetail from './pages/AgentDetail.jsx';
-import GitHubCallback from './pages/GitHubCallback.jsx';
+import Terms from './pages/Terms.jsx';
+import Privacy from './pages/Privacy.jsx';
+import Regulamento from './pages/Regulamento.jsx';
+import Refund from './pages/Refund.jsx';
 import AutomationDashboard from './pages/AutomationDashboard.jsx';
 import ComplianceTools from './pages/ComplianceTools.jsx';
 import SourceProof from './pages/SourceProof.jsx';
 
+/**
+ * App Component - React Router v6
+ * 
+ * Two-layer protection system:
+ * 1. AuthGate: Checks if user is logged in (authentication)
+ *    - Public routes are allowed without login
+ *    - Private routes require login
+ * 
+ * 2. RequireSubscription: Checks if user has active subscription (authorization)
+ *    - Premium features require active subscription
+ *    - Wraps specific routes that need subscription
+ */
 const App = () => (
-  <BrowserRouter>
-    <AuthProvider>
-      <Header />
-      <AuthGate>
-        <Routes>
-          {/* Public Routes - Auth */}
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/logout" element={<Logout />} />
-
-          {/* Public Routes - Main */}
-          <Route path="/" element={<Home />} />
-          <Route path="/agents" element={<Agents />} />
-          <Route path="/specialists" element={<Specialists />} />
-          <Route path="/plans" element={<PlansScreen />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/subscribe" element={<Subscribe />} />
-
-          {/* Public Routes - Info & Legal */}
-          <Route path="/help" element={<Help />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/refund" element={<Refund />} />
-          <Route path="/regulamento" element={<Regulamento />} />
-          <Route path="/info" element={<Info />} />
-          <Route path="/app-info" element={<AppInfo />} />
-
-          {/* Protected Routes - Chat & Specialists */}
-          <Route path="/serginho" element={<Serginho />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/chat/:agentId" element={<Chat />} />
-          <Route path="/specialist/:id" element={<SpecialistChat />} />
-          <Route path="/betinho" element={<BetinhoPage />} />
-          <Route path="/hybrid" element={<HybridAgent />} />
-          <Route path="/hybrid-simple" element={<HybridAgentSimple />} />
-
-          {/* Protected Routes - Projects & Study */}
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/study" element={<StudyLab />} />
-          <Route path="/flashcards" element={<Flashcards />} />
-          <Route path="/gerador-resumos" element={<GeradorResumos />} />
-          <Route path="/mapas-mentais" element={<MapasMentais />} />
-          <Route path="/cronograma" element={<Cronograma />} />
-
-          {/* Protected Routes - Settings & Account */}
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/success" element={<Success />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/agent-settings" element={<AgentSettings />} />
-
-          {/* Protected Routes - Other */}
-          <Route path="/agent/:id" element={<AgentDetail />} />
-          <Route path="/github/callback" element={<GitHubCallback />} />
-          <Route path="/automation" element={<AutomationDashboard />} />
-          <Route path="/compliance" element={<ComplianceTools />} />
-          <Route path="/source-proof" element={<SourceProof />} />
-
-          {/* 404 - Redirect to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthGate>
-      <Footer />
-    </AuthProvider>
-  </BrowserRouter>
+  <AuthGate>
+    <Routes>
+      {/* Public routes - no login required (defined in AuthGate.PUBLIC_ROUTES) */}
+      <Route path="/" element={<Home />} />
+      <Route path="/plans" element={<Plans />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/login" element={<Auth />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/auth/github/callback" element={<GitHubCallback />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/regulamento" element={<Regulamento />} />
+      <Route path="/refund" element={<Refund />} />
+      <Route path="/info" element={<Info />} />
+      <Route path="/app-info" element={<AppInfo />} />
+      <Route path="/help" element={<Help />} />
+      
+      {/* Protected routes - require authentication (login) via AuthGate */}
+      <Route path="/logout" element={<Logout />} />
+      <Route path="/account" element={<Account />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/subscribe" element={<Subscribe />} />
+      <Route path="/subscription" element={<Subscription />} />
+      <Route path="/plans-screen" element={<PlansScreen />} />
+      <Route path="/success" element={<Success />} />
+      
+      {/* Premium routes - require both authentication AND active subscription */}
+      <Route 
+        path="/betinho" 
+        element={
+          <RequireSubscription>
+            <BetinhoPage />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/agents" 
+        element={
+          <RequireSubscription>
+            <Agents />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/agents/:agentId" 
+        element={
+          <RequireSubscription>
+            <AgentDetail />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/agents/:agentId/settings" 
+        element={
+          <RequireSubscription>
+            <AgentSettings />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/specialists" 
+        element={
+          <RequireSubscription>
+            <Specialists />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/specialist/:specialistId" 
+        element={
+          <RequireSubscription>
+            <SpecialistChat />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/chat/:agentId" 
+        element={
+          <RequireSubscription>
+            <Chat />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/serginho" 
+        element={
+          <RequireSubscription>
+            <Serginho />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/hybrid" 
+        element={
+          <RequireSubscription>
+            <HybridAgent />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/hybrid-simple" 
+        element={
+          <RequireSubscription>
+            <HybridAgentSimple />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/projects" 
+        element={
+          <RequireSubscription>
+            <Projects />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/study" 
+        element={
+          <RequireSubscription>
+            <StudyLab />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/flashcards" 
+        element={
+          <RequireSubscription>
+            <Flashcards />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/mapas-mentais" 
+        element={
+          <RequireSubscription>
+            <MapasMentais />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/gerador-resumos" 
+        element={
+          <RequireSubscription>
+            <GeradorResumos />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/cronograma" 
+        element={
+          <RequireSubscription>
+            <Cronograma />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/automation" 
+        element={
+          <RequireSubscription>
+            <AutomationDashboard />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/compliance" 
+        element={
+          <RequireSubscription>
+            <ComplianceTools />
+          </RequireSubscription>
+        } 
+      />
+      <Route 
+        path="/source-proof" 
+        element={
+          <RequireSubscription>
+            <SourceProof />
+          </RequireSubscription>
+        } 
+      />
+      
+      {/* Catch-all redirect to home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  </AuthGate>
 );
 
 export default App;
