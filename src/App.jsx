@@ -46,10 +46,22 @@ import AutomationDashboard from './pages/AutomationDashboard.jsx';
 import ComplianceTools from './pages/ComplianceTools.jsx';
 import SourceProof from './pages/SourceProof.jsx';
 
+/**
+ * App Component - React Router v6
+ * 
+ * Two-layer protection system:
+ * 1. AuthGate: Checks if user is logged in (authentication)
+ *    - Public routes are allowed without login
+ *    - Private routes require login
+ * 
+ * 2. RequireSubscription: Checks if user has active subscription (authorization)
+ *    - Premium features require active subscription
+ *    - Wraps specific routes that need subscription
+ */
 const App = () => (
   <AuthGate>
     <Routes>
-      {/* Public routes */}
+      {/* Public routes - no login required (defined in AuthGate.PUBLIC_ROUTES) */}
       <Route path="/" element={<Home />} />
       <Route path="/plans" element={<Plans />} />
       <Route path="/pricing" element={<Pricing />} />
@@ -64,7 +76,7 @@ const App = () => (
       <Route path="/app-info" element={<AppInfo />} />
       <Route path="/help" element={<Help />} />
       
-      {/* Protected routes - require authentication */}
+      {/* Protected routes - require authentication (login) via AuthGate */}
       <Route path="/logout" element={<Logout />} />
       <Route path="/account" element={<Account />} />
       <Route path="/settings" element={<Settings />} />
@@ -73,7 +85,7 @@ const App = () => (
       <Route path="/plans-screen" element={<PlansScreen />} />
       <Route path="/success" element={<Success />} />
       
-      {/* Protected routes - require subscription */}
+      {/* Premium routes - require both authentication AND active subscription */}
       <Route 
         path="/betinho" 
         element={
