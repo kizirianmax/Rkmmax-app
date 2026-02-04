@@ -1,58 +1,74 @@
 // src/integration/BetinhoIntegration.js
 /**
- * CAMADA DE INTEGRAÇÃO DO BETINHO
- * Conecta Betinho com Serginho, Especialistas e GitHub
+ * INTEGRAÇÃO BETINHO ↔ SERGINHO ↔ ESPECIALISTAS
+ * Conecta todos os sistemas da plataforma RKMMAX
  */
 
-class BetinhoIntegration {
+export class BetinhoIntegration {
   constructor() {
     this.serginho = null;
     this.especialistas = new Map();
-    this.github = null;
+    this.betinho = null;
   }
 
-  setSerginho(serginhoInstance) {
+  // Registra Serginho
+  registerSerginho(serginhoInstance) {
     this.serginho = serginhoInstance;
     console.log('✅ Serginho conectado ao Betinho');
   }
 
-  getSerginho() {
-    return this.serginho;
+  // Registra Especialista
+  registerEspecialista(id, especialistaInstance) {
+    this.especialistas.set(id, especialistaInstance);
+    console.log(`✅ Especialista ${id} conectado ao Betinho`);
   }
 
-  registerEspecialista(id, instance) {
-    this.especialistas.set(id, instance);
-    console.log(`✅ Especialista ${id} registrado no Betinho`);
+  // Registra Betinho
+  registerBetinho(betinhoInstance) {
+    this.betinho = betinhoInstance;
+    
+    // Injeta dependências
+    this.betinho.serginho = this.serginho;
+    this.betinho.especialistas = this.especialistas;
+    
+    console.log('✅ Betinho totalmente integrado');
   }
 
-  getEspecialistas() {
-    return this.especialistas;
+  // Consulta Serginho
+  async consultarSerginho(pergunta) {
+    if (!this.serginho) {
+      throw new Error('Serginho não está conectado');
+    }
+    
+    return await this.serginho.responder(pergunta);
   }
 
-  getEspecialista(id) {
-    return this.especialistas.get(id);
+  // Consulta Especialista
+  async consultarEspecialista(especialistaId, pergunta) {
+    const especialista = this.especialistas.get(especialistaId);
+    
+    if (!especialista) {
+      throw new Error(`Especialista ${especialistaId} não encontrado`);
+    }
+    
+    return await especialista.consultar(pergunta);
   }
 
-  setGitHub(githubInstance) {
-    this.github = githubInstance;
-    console.log('✅ GitHub conectado ao Betinho');
-  }
-
-  getGitHub() {
-    return this.github;
-  }
-
-  listEspecialistas() {
+  // Lista especialistas disponíveis
+  listarEspecialistas() {
     return Array.from(this.especialistas.keys());
   }
 
-  isReady() {
+  // Status da integração
+  getStatus() {
     return {
       serginho: !!this.serginho,
+      betinho: !!this.betinho,
       especialistas: this.especialistas.size,
-      github: !!this.github
+      especialistasIds: this.listarEspecialistas()
     };
   }
 }
 
+// Singleton global
 export const betinhoIntegration = new BetinhoIntegration();
