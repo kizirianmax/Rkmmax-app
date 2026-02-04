@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { FileText, Send, Loader2, Download, Copy, CheckCircle } from 'lucide-react';
-import ComplianceViewer from '../components/tools/ComplianceViewer';
+import ComplianceViewer from '../components/tools/ComplianceViewer.jsx';
 import './ComplianceTools.css';
 
 // Sample text for demonstration purposes
