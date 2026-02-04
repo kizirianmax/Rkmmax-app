@@ -1,69 +1,57 @@
 // src/hooks/useSubscription.js
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient.js";
-import { useAuth } from "../auth/AuthProvider.jsx";
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient.js';
 
-/**
- * Hook para verificar status de assinatura do usuário
- * Retorna: { hasSubscription, loading, subscription }
- */
 export function useSubscription() {
-  const { user } = useAuth();
-  const [hasSubscription, setHasSubscription] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const checkSubscription = async () => {
-      if (!user?.email) {
-        setHasSubscription(false);
+    checkSubscription();
+  }, []);
+
+  async function checkSubscription() {
+    try {
+      setLoading(true);
+      
+      // 1. Pegar usuário autenticado
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) throw userError;
+      
+      if (!user) {
         setSubscription(null);
         setLoading(false);
         return;
       }
 
-      try {
-        setLoading(true);
+      // 2. Buscar assinatura ativa no Supabase
+      const { data, error: subError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('email', user.email)
+        .eq('status', 'active')
+        .order('current_period_end', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-        // Buscar assinatura ativa no Supabase
-        const { data, error } = await supabase
-          .from("subscriptions")
-          .select("*")
-          .eq("email", user.email)
-          .eq("status", "active")
-          .order("current_period_end", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+      if (subError) throw subError;
 
-        if (error) {
-          console.error("Erro ao verificar assinatura:", error);
-          setHasSubscription(false);
-          setSubscription(null);
-          return;
-        }
+      setSubscription(data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error checking subscription:', err);
+      setError(err.message);
+      setLoading(false);
+    }
+  }
 
-        // Verificar se a assinatura está válida
-        if (data) {
-          const periodEnd = data.current_period_end ? new Date(data.current_period_end) : null;
-          const isValid = !periodEnd || periodEnd > new Date();
-
-          setHasSubscription(isValid);
-          setSubscription(data);
-        } else {
-          setHasSubscription(false);
-          setSubscription(null);
-        }
-      } catch (err) {
-        console.error("Erro ao verificar assinatura:", err);
-        setHasSubscription(false);
-        setSubscription(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkSubscription();
-  }, [user?.email]);
-
-  return { hasSubscription, loading, subscription };
+  return {
+    subscription,
+    hasActiveSubscription: !!subscription,
+    loading,
+    error,
+    refresh: checkSubscription
+  };
 }
