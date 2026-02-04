@@ -3,31 +3,25 @@ import React from 'react';
 import BetinhoChat from '../components/betinho/BetinhoChat';
 import { useBetinho } from '../hooks/useBetinho';
 import '../components/betinho/BetinhoUI.css';
-import { Loader, AlertCircle } from 'lucide-react';
 
 export default function BetinhoPage() {
-  const userId = 'user-123'; // Pegar do contexto de autenticação
+  const userId = 'user-123'; // TODO: Pegar do contexto de autenticação
   const { betinho, isReady, error } = useBetinho(userId);
 
   if (error) {
     return (
-      <div className="betinho-error-container">
-        <AlertCircle size={48} color="#dc3545" />
-        <h2>Erro ao Inicializar Betinho</h2>
+      <div className="betinho-error">
+        <h2>❌ Erro ao inicializar Betinho</h2>
         <p>{error}</p>
-        <button onClick={() => window.location.reload()}>
-          Tentar Novamente
-        </button>
       </div>
     );
   }
 
-  if (!isReady || !betinho) {
+  if (!isReady) {
     return (
-      <div className="betinho-loading-container">
-        <Loader size={48} className="spinning" />
-        <h2>Inicializando Betinho...</h2>
-        <p>Carregando sistema de automação 🤖</p>
+      <div className="betinho-loading">
+        <h2>🤖 Inicializando Betinho...</h2>
+        <p>Aguarde um momento...</p>
       </div>
     );
   }
