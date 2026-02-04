@@ -11,7 +11,7 @@ class BetinhoIntegration {
     this.github = null;
   }
 
-  // Serginho
+  // Registra Serginho
   setSerginho(serginhoInstance) {
     this.serginho = serginhoInstance;
     console.log('✅ Serginho conectado ao Betinho');
@@ -21,21 +21,17 @@ class BetinhoIntegration {
     return this.serginho;
   }
 
-  // Especialistas
-  registerEspecialista(id, instance) {
-    this.especialistas.set(id, instance);
-    console.log(`✅ Especialista ${id} registrado`);
+  // Registra Especialista
+  registerEspecialista(id, especialistaInstance) {
+    this.especialistas.set(id, especialistaInstance);
+    console.log(`✅ Especialista ${id} registrado no Betinho`);
   }
 
   getEspecialistas() {
     return this.especialistas;
   }
 
-  getEspecialista(id) {
-    return this.especialistas.get(id);
-  }
-
-  // GitHub
+  // Registra GitHub
   setGitHub(githubInstance) {
     this.github = githubInstance;
     console.log('✅ GitHub conectado ao Betinho');
@@ -45,21 +41,13 @@ class BetinhoIntegration {
     return this.github;
   }
 
-  // Inicialização completa
-  initializeAll(config = {}) {
-    if (config.serginho) this.setSerginho(config.serginho);
-    if (config.github) this.setGitHub(config.github);
-    
-    if (config.especialistas) {
-      Object.entries(config.especialistas).forEach(([id, instance]) => {
-        this.registerEspecialista(id, instance);
-      });
+  // Registra todos os 54 especialistas
+  registerAllEspecialistas(especialistasMap) {
+    for (const [id, instance] of Object.entries(especialistasMap)) {
+      this.registerEspecialista(id, instance);
     }
-
-    console.log('🎉 Betinho Integration inicializada!');
-    return this;
+    console.log(`✅ ${Object.keys(especialistasMap).length} especialistas registrados`);
   }
 }
 
 export const betinhoIntegration = new BetinhoIntegration();
-export default betinhoIntegration;
