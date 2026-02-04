@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { specialists } from "../config/specialists.js";
 import "./Serginho.css";
-import MarkdownMessage from "../components/MarkdownMessage";
+import MarkdownMessage from "../components/MarkdownMessage.jsx";
 
 export default function SpecialistChat() {
   const { specialistId } = useParams();

@@ -1,7 +1,7 @@
 // src/pages/BetinhoPage.jsx
 import React from 'react';
-import BetinhoChat from '../components/betinho/BetinhoChat';
-import { useBetinho } from '../hooks/useBetinho';
+import BetinhoChat from '../components/betinho/BetinhoChat.jsx';
+import { useBetinho } from '../hooks/useBetinho.js';
 import '../components/betinho/BetinhoUI.css';
 
 export default function BetinhoPage() {

@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthGate from './auth/AuthGate.jsx';

@@ -1,8 +1,8 @@
 // src/components/betinho/BetinhoChat.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader } from 'lucide-react';
-import BetinhoProgress from './BetinhoProgress';
-import AuthorizationDialog from './AuthorizationDialog';
+import BetinhoProgress from './BetinhoProgress.jsx';
+import AuthorizationDialog from './AuthorizationDialog.jsx';
 
 export default function BetinhoChat({ betinhoInstance, userId }) {
   const [messages, setMessages] = useState([]);

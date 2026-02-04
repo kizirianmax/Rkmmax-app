@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import '../styles/HybridAgent.css';
-import MarkdownMessage from '../components/MarkdownMessage';
-import { AutonomousAgent, AgentState } from '../lib/autonomousAgent';
+import MarkdownMessage from '../components/MarkdownMessage.jsx';
+import { AutonomousAgent, AgentState } from '../lib/autonomousAgent.js';
 
 /**
  * RKMMAX HYBRID AGENT - Estilo Manus
