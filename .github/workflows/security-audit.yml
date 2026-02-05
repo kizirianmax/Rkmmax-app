@@ -18,12 +18,12 @@ jobs:
       - name: Setup Node.js (with npm cache)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies (CI)
-        run: npm ci
+        run: npm install
 
       - name: Run npm audit (fails if any vulnerability >= high)
         run: npm audit --audit-level=high
@@ -39,12 +39,12 @@ jobs:
       - name: Setup Node.js (with npm cache)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies (CI)
-        run: npm ci
+        run: npm install
 
       - name: Run npm audit and write JSON (always produce file)
         # `|| true` prevents this step from failing the job so the artifact can be uploaded even if audit exits non‑zero
