@@ -241,7 +241,7 @@ class AutomationEngine {
     if (command.includes('teste') || command.includes('test')) taskType = 'TEST';
     if (command.includes('estilo') || command.includes('style')) taskType = 'STYLE';
     if (command.includes('documentação') || command.includes('documentation')) taskType = 'DOCUMENTATION';
-    if (command.includes('refatorar') || command.includes('refactor')) taskType = 'REFACTOR';
+    if (command.includes('refator') || command.includes('refactor')) taskType = 'REFACTOR';
 
     return {
       command,
@@ -392,6 +392,11 @@ class AutomationEngine {
 
     return stats;
   }
+}
+
+// Exportar
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = AutomationEngine;
 }
 
 export default AutomationEngine;
