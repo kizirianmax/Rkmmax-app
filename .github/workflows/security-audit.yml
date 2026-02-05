@@ -23,7 +23,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies (CI)
-        run: npm install
+        run: npm ci
 
       - name: Run npm audit (fails if any vulnerability >= high)
         run: npm audit --audit-level=high
@@ -44,7 +44,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies (CI)
-        run: npm install
+        run: npm ci
 
       - name: Run npm audit and write JSON (always produce file)
         # `|| true` prevents this step from failing the job so the artifact can be uploaded even if audit exits non‑zero
