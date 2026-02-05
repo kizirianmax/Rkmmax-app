@@ -24,7 +24,6 @@
     "@codesandbox/sandpack-themes": "^2.0.21",
     "@google/generative-ai": "^0.24.1",
     "@heroicons/react": "^2.2.0",
-    "@tavily/core": "^0.7.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -39,6 +38,7 @@
     "@sentry/react": "^10.25.0",
     "@stripe/stripe-js": "^2.4.0",
     "@supabase/supabase-js": "^2.83.0",
+    "@tavily/core": "^0.7.1",
     "busboy": "^1.6.0",
     "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
@@ -59,7 +59,8 @@
     "remark-gfm": "^4.0.1",
     "resend": "^6.5.0",
     "stripe": "^12.18.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "yaml": "^2.8.2"
   },
   "overrides": {
     "nth-check": "^2.1.1",
