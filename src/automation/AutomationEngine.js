@@ -394,4 +394,9 @@ class AutomationEngine {
   }
 }
 
+// Exportar
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = AutomationEngine;
+}
+
 export default AutomationEngine;

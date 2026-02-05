@@ -13,6 +13,24 @@ describe('AutomationEngine', () => {
       aiModel: 'gemini-2.0-flash',
       temperature: 0.7,
     });
+    
+    // Substituir a instância do auditLogger
+    engine.auditLogger = {
+      logAutomationRequest: jest.fn(() => 'LOG_123'),
+      logCodeAnalysis: jest.fn(() => 'LOG_456'),
+      logSecurityValidation: jest.fn(() => 'LOG_789'),
+      logGitCommit: jest.fn(() => 'LOG_GIT'),
+      logCreditDebit: jest.fn(() => 'LOG_CREDIT'),
+      logError: jest.fn(() => 'LOG_ERROR'),
+      logAutomationCompletion: jest.fn(() => 'LOG_COMPLETION'),
+      getAutomationHistory: jest.fn(() => []),
+      searchLogs: jest.fn(() => []),
+      getAutomationStats: jest.fn(() => ({
+        totalAutomations: 0,
+        successfulAutomations: 0,
+        failedAutomations: 0,
+      })),
+    };
   });
 
   describe('initialization', () => {

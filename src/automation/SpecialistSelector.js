@@ -278,4 +278,9 @@ class SpecialistSelector {
   }
 }
 
+// Exportar
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = SpecialistSelector;
+}
+
 export default SpecialistSelector;
