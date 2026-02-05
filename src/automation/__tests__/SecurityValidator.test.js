@@ -1,6 +1,7 @@
 /**
  * SECURITY VALIDATOR TESTS
  * Testes unitários para validação de código
+ * @jest-environment node
  */
 
 const SecurityValidator = require('../SecurityValidator');

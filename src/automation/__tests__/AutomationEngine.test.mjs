@@ -1,9 +1,10 @@
 /**
  * AUTOMATION ENGINE TESTS
  * Testes unitários para motor de automação
+ * @jest-environment node
  */
 
-const AutomationEngine = require('../AutomationEngine');
+import AutomationEngine from '../AutomationEngine.js';
 
 describe('AutomationEngine', () => {
   let engine;

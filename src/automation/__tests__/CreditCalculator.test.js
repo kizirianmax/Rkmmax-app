@@ -1,6 +1,7 @@
 /**
  * CREDIT CALCULATOR TESTS
  * Testes unitários para cálculo de créditos
+ * @jest-environment node
  */
 
 const CreditCalculator = require('../CreditCalculator');

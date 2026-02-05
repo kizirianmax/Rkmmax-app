@@ -1,5 +1,6 @@
 /**
  * Tests for Serginho Layer 3 and Layer 4 Integration
+ * @jest-environment node
  */
 
 const Serginho = require('../Serginho');
