@@ -1,6 +1,7 @@
 /**
  * MULTIMODAL PROCESSOR TESTS
  * Testes unitários para processamento multimodal
+ * @jest-environment node
  */
 
 const MultimodalProcessor = require('../MultimodalProcessor');

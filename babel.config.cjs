@@ -9,6 +9,7 @@ module.exports = {
       targets: {
         node: 'current',
       },
+      modules: 'auto', // Auto-detect module system
     }],
     ['@babel/preset-react', {
       runtime: 'automatic',

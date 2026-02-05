@@ -1,9 +1,11 @@
+e14d898db07c777ac0244a246a3a9217
 /**
  * AUTOMATION ENGINE TESTS
  * Testes unitários para motor de automação
+ * @jest-environment node
  */
 
-const AutomationEngine = require('../AutomationEngine');
+import AutomationEngine from '../AutomationEngine.js';
 
 describe('AutomationEngine', () => {
   let engine;

@@ -12,8 +12,8 @@ module.exports = {
   // ============================================
   // AMBIENTE E SETUP
   // ============================================
-  testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: 'jsdom', // Default para testes React
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
   
   // ============================================
   // TIMEOUT E PERFORMANCE
@@ -47,8 +47,8 @@ module.exports = {
   // PADRÕES DE ARQUIVO
   // ============================================
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.{js,jsx}',
-    '<rootDir>/src/**/*.{spec,test}.{js,jsx}',
+    '<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}',
+    '<rootDir>/src/**/*.{spec,test}.{js,jsx,mjs}',
   ],
   testPathIgnorePatterns: [
     '/node_modules/',
@@ -64,7 +64,7 @@ module.exports = {
   // TRANSFORMAÇÃO
   // ============================================
   transform: {
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|mjs)$': 'babel-jest',
   },
   transformIgnorePatterns: [
     'node_modules/(?!(recharts|victory|d3-.*|internmap|delaunay-triangulate|robust-predicates)/)',
