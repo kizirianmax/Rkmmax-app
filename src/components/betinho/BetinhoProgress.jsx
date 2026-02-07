@@ -38,7 +38,7 @@ export default function BetinhoProgress({ progress }) {
               key={i}
               className={`timeline-step ${
                 i < etapa ? 'completed' : i === etapa - 1 ? 'active' : ''
-              }}
+              }`}
             >
               {i < etapa ? '✓' : i === etapa - 1 ? '⏳' : '○'}
             </div>
