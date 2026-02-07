@@ -46,12 +46,8 @@ export default function AuthorizationDialog({ resumo, onConfirm, onCancel }) {
               <ul>
                 {resumo.etapas?.map((etapa, index) => (
                   <li key={index}>
-                    <span>
-                      <strong>{etapa.ordem}.</strong> {etapa.acao}
-                    </span>
-                    <span className="time-estimate">
-                      <Clock size={14} /> {etapa.tempo}
-                    </span>
+                    <span><strong>{etapa.ordem}.</strong> {etapa.acao}</span>
+                    <span className="time-estimate"><Clock size={14} /> {etapa.tempo}</span>
                   </li>
                 ))}
               </ul>
@@ -95,9 +91,7 @@ export default function AuthorizationDialog({ resumo, onConfirm, onCancel }) {
                   {resumo.avisoConteudo.acoes.map((acao, index) => (
                     <li key={index}>
                       <CheckCircle size={16} />
-                      <span>
-                        <strong>Etapa {acao.etapa}:</strong> {acao.descricao}
-                      </span>
+                      <span><strong>Etapa {acao.etapa}:</strong> {acao.descricao}</span>
                     </li>
                   ))}
                 </ul>
