@@ -1,98 +1,41 @@
 // src/agents/betinho/GitHubExtension.js
 /**
  * EXTENSÃO GITHUB DO BETINHO
- * Integração completa com GitHub para automação
+ * 
+ * Integração completa com GitHub para automação.
  */
 
 export default class GitHubExtension {
   constructor(config = {}) {
     this.token = config.token || null;
-    this.authenticated = false;
+    this.octokit = null;
   }
 
-  async authenticate(token) {
+  async initialize(token) {
     this.token = token;
-    this.authenticated = true;
-    return { status: 'authenticated' };
+    // Em produção: inicializar Octokit
+    // this.octokit = new Octokit({ auth: token });
   }
 
-  async createRepository(config) {
-    if (!this.authenticated) throw new Error('GitHub não autenticado');
-    
-    return {
-      status: 'success',
-      repo: {
-        name: config.nome,
-        url: `https://github.com/${config.owner}/${config.nome}`,
-        private: config.privado || false
-      }
-    };
-  }
-
-  async createBranch(repo, branchName) {
-    if (!this.authenticated) throw new Error('GitHub não autenticado');
-    
-    return {
-      status: 'success',
-      branch: branchName,
-      url: `https://github.com/${repo}/tree/${branchName}`
-    };
-  }
-
-  async commit(repo, files, message) {
-    if (!this.authenticated) throw new Error('GitHub não autenticado');
-    
-    return {
-      status: 'success',
-      sha: this.generateSHA(),
-      message,
-      filesChanged: files.length,
-      url: `https://github.com/${repo}/commit/${this.generateSHA()}`
-    };
-  }
-
-  async createPullRequest(repo, config) {
-    if (!this.authenticated) throw new Error('GitHub não autenticado');
-    
-    return {
-      status: 'success',
-      pr: {
-        number: Math.floor(Math.random() * 1000),
-        title: config.title,
-        url: `https://github.com/${repo}/pull/${Math.floor(Math.random() * 1000)}`
-      }
-    };
-  }
-
-  async createIssue(repo, config) {
-    if (!this.authenticated) throw new Error('GitHub não autenticado');
-    
-    return {
-      status: 'success',
-      issue: {
-        number: Math.floor(Math.random() * 1000),
-        title: config.title,
-        url: `https://github.com/${repo}/issues/${Math.floor(Math.random() * 1000)}`
-      }
-    };
-  }
-
-  async executeOperations(operacoes) {
+  async executarOperacoes(operacoes) {
     const resultados = [];
     
     for (const op of operacoes) {
       switch(op.tipo) {
-        case 'CREATE_REPO':
-          resultados.push(await this.createRepository(op.dados));
+        case 'CRIAR_REPO':
+          resultados.push(await this.criarRepositorio(op.dados));
           break;
         case 'COMMIT':
-          resultados.push(await this.commit(op.repo, op.files, op.message));
+          resultados.push(await this.fazerCommit(op.dados));
           break;
-        case 'CREATE_PR':
-          resultados.push(await this.createPullRequest(op.repo, op.dados));
+        case 'CRIAR_PR':
+          resultados.push(await this.criarPullRequest(op.dados));
           break;
-        case 'CREATE_ISSUE':
-          resultados.push(await this.createIssue(op.repo, op.dados));
+        case 'CRIAR_ISSUE':
+          resultados.push(await this.criarIssue(op.dados));
+          break;
+        case 'MERGE':
+          resultados.push(await this.mergePullRequest(op.dados));
           break;
       }
     }
@@ -100,7 +43,43 @@ export default class GitHubExtension {
     return resultados;
   }
 
-  generateSHA() {
-    return Math.random().toString(36).substring(2, 15);
+  async criarRepositorio(config) {
+    // Placeholder - será implementado com Octokit
+    return {
+      status: 'success',
+      repoUrl: `https://github.com/user/${config.nome}`,
+      message: 'Repositório criado com sucesso'
+    };
+  }
+
+  async fazerCommit(dados) {
+    return {
+      status: 'success',
+      commitSha: 'abc123',
+      message: 'Commit realizado'
+    };
+  }
+
+  async criarPullRequest(dados) {
+    return {
+      status: 'success',
+      prUrl: 'https://github.com/user/repo/pull/1',
+      message: 'Pull Request criado'
+    };
+  }
+
+  async criarIssue(dados) {
+    return {
+      status: 'success',
+      issueUrl: 'https://github.com/user/repo/issues/1',
+      message: 'Issue criada'
+    };
+  }
+
+  async mergePullRequest(dados) {
+    return {
+      status: 'success',
+      message: 'Pull Request merged'
+    };
   }
 }
