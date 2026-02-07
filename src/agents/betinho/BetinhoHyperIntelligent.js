@@ -10,5 +10,3 @@ class BetinhoHyperIntelligent {
 }
 
 // .. rest of the file content including other methods
-
-export default BetinhoHyperIntelligent;
