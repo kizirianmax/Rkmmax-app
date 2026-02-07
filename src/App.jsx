@@ -1,5 +1,16 @@
-import BetinhoPage from './pages/BetinhoPage';
+import BetinhoPage from './pages/BetinhoPage.jsx';
 
-// ... other imports
+// ... existing imports
 
-<Route path="/betinho" element={<BetinhoPage />} />
+function App() {
+    return (
+        <RequireSubscription>
+            {/* existing routes */}
+            <Route path='/hybrid' component={HybridPage} />
+            <Route path='/betinho' component={BetinhoPage} />
+            {/* other routes */}
+        </RequireSubscription>
+    );
+}
+
+export default App;
