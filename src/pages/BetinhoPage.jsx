@@ -5,13 +5,13 @@ import { useBetinho } from '../hooks/useBetinho';
 import '../components/betinho/BetinhoUI.css';
 
 export default function BetinhoPage() {
-  const userId = 'user-' + Date.now(); // Pode ser substituído por auth real
+  const userId = 'user-123'; // Substituir pelo ID do usuário logado
   const { betinho, isReady, error } = useBetinho(userId);
 
   if (error) {
     return (
       <div className="betinho-error">
-        <h1>❌ Erro ao inicializar Betinho</h1>
+        <h1>❌ Erro ao carregar Betinho</h1>
         <p>{error}</p>
       </div>
     );
@@ -21,8 +21,7 @@ export default function BetinhoPage() {
     return (
       <div className="betinho-loading">
         <div className="spinner"></div>
-        <h2>🤖 Inicializando Betinho...</h2>
-        <p>Aguarde enquanto carrego todos os sistemas...</p>
+        <h2>⚙️ Inicializando Betinho...</h2>
       </div>
     );
   }
