@@ -26,7 +26,9 @@ export default function BetinhoProgress({ progress }) {
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{percentage}%</span>
+        <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+          {percentage}%
+        </span>
       </div>
 
       {total > 1 && (
