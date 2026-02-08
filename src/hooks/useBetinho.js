@@ -1,6 +1,6 @@
 // src/hooks/useBetinho.js
 import { useState, useEffect } from 'react';
-import BetinhoHyperIntelligent from '../agents/betinho/BetinhoHyperIntelligent.js';
+import BetinhoHyperIntelligent from '../agents/betinho/BetinhoHyperIntelligent';
 
 export function useBetinho(userId) {
   const [betinho, setBetinho] = useState(null);
