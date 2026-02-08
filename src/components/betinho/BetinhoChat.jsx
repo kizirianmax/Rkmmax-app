@@ -1,6 +1,6 @@
 // src/components/betinho/BetinhoChat.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Loader, CheckCircle, AlertCircle } from 'lucide-react';
+import { Send, Loader } from 'lucide-react';
 import AuthorizationDialog from './AuthorizationDialog';
 import BetinhoProgress from './BetinhoProgress';
 import './BetinhoUI.css';

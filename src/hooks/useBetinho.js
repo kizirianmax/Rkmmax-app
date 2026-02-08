@@ -1,6 +1,6 @@
 // src/hooks/useBetinho.js
 import { useState, useEffect } from 'react';
-import BetinhoHyperIntelligent from '../backend/BetinhoHyperIntelligent';
+import BetinhoHyperIntelligent from '../agents/betinho/BetinhoHyperIntelligent.js';
 
 export function useBetinho(userId) {
   const [betinho, setBetinho] = useState(null);
@@ -41,6 +41,7 @@ export function useBetinho(userId) {
         betinho.shutdown?.();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   return { betinho, isReady, error };
