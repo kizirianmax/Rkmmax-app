@@ -2,6 +2,8 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { BRAND } from "../config/brand.js";
+import OwnerBadge from "./OwnerBadge.jsx";
+import OwnerMenu from "./OwnerMenu.jsx";
 
 export default function Header() {
   return (
@@ -12,6 +14,8 @@ export default function Header() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 12,
       }}
     >
       <Link
@@ -22,7 +26,7 @@ export default function Header() {
         <span className="brand-short">{BRAND.shortLockup}</span>
       </Link>
 
-      <nav className="nav" style={{ display: "flex", gap: 12 }}>
+      <nav className="nav" style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/serginho">Serginho</NavLink>
         <NavLink to="/hybrid" title="Sistema Híbrido Otimizado">🤖 Híbrido</NavLink>
@@ -30,6 +34,11 @@ export default function Header() {
         <NavLink to="/projects">Projetos</NavLink>
         <NavLink to="/study">Study Lab</NavLink>
       </nav>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <OwnerBadge />
+        <OwnerMenu />
+      </div>
     </header>
   );
 }

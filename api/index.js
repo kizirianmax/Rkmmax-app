@@ -19,6 +19,11 @@ import unifiedClaudeHandler from '../lib/handlers/unified-claude.js';
 import visionHandler from '../lib/handlers/vision.js';
 import githubOAuthHandler from '../lib/handlers/github-oauth.js';
 
+// Owner handlers
+import ownerStatsHandler from '../lib/handlers/owner-stats.js';
+import ownerUsersHandler from '../lib/handlers/owner-users.js';
+import checkAccessHandler from '../lib/handlers/check-access.js';
+
 /**
  * Apply CORS headers to all responses
  */
@@ -105,6 +110,19 @@ export default async function handler(req, res) {
       return feedbackHandler(req, res);
     }
 
+    // Owner endpoints
+    if (pathname === '/api/owner/stats' || pathname.startsWith('/api/owner/stats/')) {
+      return ownerStatsHandler(req, res);
+    }
+    
+    if (pathname === '/api/owner/users' || pathname.startsWith('/api/owner/users/')) {
+      return ownerUsersHandler(req, res);
+    }
+    
+    if (pathname === '/api/check-access' || pathname.startsWith('/api/check-access/')) {
+      return checkAccessHandler(req, res);
+    }
+
     // Health check
     if (pathname === '/api/health' || pathname === '/api') {
       return res.status(200).json({
@@ -123,7 +141,10 @@ export default async function handler(req, res) {
           '/api/prices',
           '/api/me-plan',
           '/api/stripe-webhook',
-          '/api/feedback'
+          '/api/feedback',
+          '/api/owner/stats',
+          '/api/owner/users',
+          '/api/check-access'
         ]
       });
     }
@@ -144,7 +165,10 @@ export default async function handler(req, res) {
         '/api/prices',
         '/api/me-plan',
         '/api/stripe-webhook',
-        '/api/feedback'
+        '/api/feedback',
+        '/api/owner/stats',
+        '/api/owner/users',
+        '/api/check-access'
       ]
     });
 

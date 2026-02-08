@@ -4,6 +4,7 @@ import { AuthProvider } from './auth/AuthProvider.jsx';
 import AuthGate from './auth/AuthGate.jsx';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
+import OwnerRoute from './components/OwnerRoute.jsx';
 
 // Auth Pages
 import Auth from './pages/Auth.jsx';
@@ -11,6 +12,11 @@ import Login from './auth/Login.jsx';
 import Signup from './auth/Signup.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import Logout from './pages/Logout.jsx';
+
+// Owner Pages
+import OwnerDashboard from './pages/OwnerDashboard.jsx';
+import ChangePassword from './pages/ChangePassword.jsx';
+import UserManagement from './pages/UserManagement.jsx';
 
 // Main Pages
 import Home from './pages/Home.jsx';
@@ -70,6 +76,23 @@ const App = () => (
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/logout" element={<Logout />} />
+
+        {/* Owner Routes - Protected */}
+        <Route path="/owner-dashboard" element={
+          <OwnerRoute>
+            <OwnerDashboard />
+          </OwnerRoute>
+        } />
+        <Route path="/change-password" element={
+          <OwnerRoute>
+            <ChangePassword />
+          </OwnerRoute>
+        } />
+        <Route path="/user-management" element={
+          <OwnerRoute>
+            <UserManagement />
+          </OwnerRoute>
+        } />
 
         {/* Public Routes - Main */}
         <Route path="/" element={<Home />} />
