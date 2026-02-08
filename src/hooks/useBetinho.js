@@ -41,6 +41,7 @@ export function useBetinho(userId) {
         betinho.shutdown?.();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   return { betinho, isReady, error };
