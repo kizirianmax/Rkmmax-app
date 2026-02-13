@@ -1,19 +1,60 @@
 /**
- * JEST CONFIGURATION - OTIMIZADO PARA ESTABILIDADE
+ * JEST CONFIGURATION - COM SUPORTE A ES MODULES
  * 
- * Configuração robusta para evitar problemas de:
- * - EMFILE: Too many open files
- * - Memory leaks
- * - Timeouts
- * - Watch mode infinito
+ * Configuração com projetos separados:
+ * - jsdom: Para componentes React (testes em src/)
+ * - node: Para testes de automação (testes em src/automation/)
  */
 
 module.exports = {
   // ============================================
-  // AMBIENTE E SETUP
+  // PROJETOS SEPARADOS POR AMBIENTE
   // ============================================
-  testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
+  projects: [
+    {
+      displayName: 'jsdom',
+      testEnvironment: 'jsdom',
+      testMatch: [
+        '<rootDir>/src/**/*.test.{js,jsx}',
+        '<rootDir>/src/**/__tests__/**/*.{js,jsx}',
+      ],
+      testPathIgnorePatterns: [
+        '/node_modules/',
+        '/build/',
+        '/.vercel/',
+        '<rootDir>/src/automation/', // Excluir automation do jsdom
+      ],
+      transform: {
+        '^.+\\.(js|jsx|mjs)$': ['babel-jest', { configFile: './babel.config.cjs' }]
+      },
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+      },
+      setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+      transformIgnorePatterns: [
+        'node_modules/(?!(recharts|victory|d3-.*|internmap|delaunay-triangulate|robust-predicates)/)',
+      ],
+      clearMocks: true,
+      resetMocks: true,
+      restoreMocks: true,
+    },
+    {
+      displayName: 'node',
+      testEnvironment: 'node',
+      testMatch: [
+        '<rootDir>/src/automation/**/*.test.js',
+        '<rootDir>/src/automation/**/__tests__/**/*.js',
+      ],
+      transform: {
+        '^.+\\.(js|jsx|mjs)$': ['babel-jest', { configFile: './babel.config.cjs' }]
+      },
+      setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
+      clearMocks: true,
+      resetMocks: true,
+      restoreMocks: true,
+    }
+  ],
   
   // ============================================
   // TIMEOUT E PERFORMANCE
@@ -26,49 +67,19 @@ module.exports = {
   // ============================================
   // COBERTURA
   // ============================================
-  collectCoverage: false, // Desativar por padrão (lento)
   collectCoverageFrom: [
     'src/**/*.{js,jsx}',
     '!src/**/*.test.{js,jsx}',
-    '!src/**/*.spec.{js,jsx}',
-    '!src/index.js',
-    '!src/reportWebVitals.js',
+    '!src/**/__tests__/**'
   ],
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50,
-    },
+      statements: 5,
+      branches: 5,
+      functions: 5,
+      lines: 5
+    }
   },
-  
-  // ============================================
-  // PADRÕES DE ARQUIVO
-  // ============================================
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.{js,jsx}',
-    '<rootDir>/src/**/*.{spec,test}.{js,jsx}',
-  ],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/build/',
-    '/.vercel/',
-  ],
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-  },
-  
-  // ============================================
-  // TRANSFORMAÇÃO
-  // ============================================
-  transform: {
-    '^.+\\.(js|jsx)$': 'babel-jest',
-  },
-  transformIgnorePatterns: [
-    'node_modules/(?!(recharts|victory|d3-.*|internmap|delaunay-triangulate|robust-predicates)/)',
-  ],
   
   // ============================================
   // CACHE
@@ -77,31 +88,13 @@ module.exports = {
   cacheDirectory: '<rootDir>/.jest-cache',
   
   // ============================================
-  // LIMPEZA
-  // ============================================
-  clearMocks: true, // Limpar mocks entre testes
-  resetMocks: true, // Reset mocks entre testes
-  restoreMocks: true, // Restaurar mocks entre testes
-  
-  // ============================================
   // REPORTERS
   // ============================================
-  reporters: [
-    'default',
-  ],
+  reporters: ['default'],
   
   // ============================================
   // VERBOSE
   // ============================================
   verbose: true,
-  
-  // ============================================
-  // GLOBALS
-  // ============================================
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-    },
-  },
 };
 

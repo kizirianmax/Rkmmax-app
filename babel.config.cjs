@@ -1,6 +1,6 @@
 /**
  * BABEL CONFIGURATION FOR JEST
- * Permite que Jest entenda módulos ES6
+ * Suporte a ES modules e React com runtime automático
  */
 
 module.exports = {
@@ -10,6 +10,8 @@ module.exports = {
         node: 'current',
       },
     }],
-    '@babel/preset-react',
+    ['@babel/preset-react', {
+      runtime: 'automatic'
+    }],
   ],
 };
