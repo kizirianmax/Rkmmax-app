@@ -2,10 +2,10 @@
  * Tests for Serginho Layer 3 and Layer 4 Integration
  */
 
-const Serginho = require('../Serginho');
+import Serginho from '../Serginho.js';
 
 // Mock AutomationEngine
-jest.mock('../../../automation/AutomationEngine', () => {
+jest.mock('../../../automation/AutomationEngine.js', () => {
   return jest.fn().mockImplementation(() => ({
     initializeGitHub: jest.fn(),
     executeAutomation: jest.fn().mockResolvedValue({
@@ -25,7 +25,7 @@ jest.mock('../../../automation/AutomationEngine', () => {
 });
 
 // Mock WebBrowserService
-jest.mock('../../../services/WebBrowserService', () => null);
+jest.mock('../../../services/WebBrowserService.js', () => null);
 
 describe('Serginho - Layer 3 and Layer 4 Integration', () => {
   let serginho;
