@@ -1,0 +1,35 @@
+{
+  "name": "@rkmmax/specialists",
+  "version": "2.0.0",
+  "description": "Biblioteca modular com 49 especialistas KIZI para o ecossistema RKMMAX",
+  "main": "specialists.js",
+  "type": "module",
+  "keywords": [
+    "ai",
+    "specialists",
+    "agents",
+    "rkmmax",
+    "kizi",
+    "chatbot",
+    "gemini",
+    "groq",
+    "llama"
+  ],
+  "author": "Roberto Kiziriam Max <roberto@kizirianmax.site>",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kizirianmax/rkmmax-specialists.git"
+  },
+  "exports": {
+    ".": "./specialists.js",
+    "./specialists": "./specialists.js"
+  },
+  "files": [
+    "specialists.js",
+    "README.md",
+    "INTEGRATION.md",
+    "LICENSE"
+  ]
+}
