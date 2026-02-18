@@ -1,11 +1,12 @@
 // src/config/adminCredentials.js
-// Credenciais hardcoded do dono (temporárias)
-// ATENÇÃO: O dono DEVE trocar a senha no primeiro acesso
+// Credenciais do dono (primeiro acesso)
+// ⚠️ ATENÇÃO: O dono DEVE trocar a senha no primeiro login
 
 export const OWNER_CREDENTIALS = {
-  email: "robertokizirianmax@gmail.com",
-  tempPassword: "Admin@2026!RKM",
-  role: "OWNER"
+  email: "robertokizirian@hotmail.com",
+  tempPassword: "RKMuk$LVBzKGXSB!",
+  role: "OWNER",
+  requirePasswordChange: true
 };
 
 /**

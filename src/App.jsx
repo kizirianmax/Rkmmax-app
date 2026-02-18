@@ -7,7 +7,6 @@ import Footer from './components/Footer.jsx';
 import OwnerRoute from './components/OwnerRoute.jsx';
 
 // Auth Pages
-import Auth from './pages/Auth.jsx';
 import Login from './auth/Login.jsx';
 import Signup from './auth/Signup.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
@@ -71,7 +70,6 @@ const App = () => (
     <AuthGate>
       <Routes>
         {/* Public Routes - Auth */}
-        <Route path="/auth" element={<Auth />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password" element={<ResetPassword />} />

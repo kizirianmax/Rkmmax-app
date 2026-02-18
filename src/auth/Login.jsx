@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider.jsx";
-import { isOwnerEmail } from "../config/adminCredentials.js";
+import { isOwnerEmail, OWNER_CREDENTIALS } from "../config/adminCredentials.js";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -27,8 +27,13 @@ export default function Login() {
 
       // Se é o owner fazendo login
       if (isOwnerEmail(email)) {
-        // Redireciona para o dashboard do owner
-        navigate("/owner-dashboard");
+        // Se está usando senha temporária, força troca de senha
+        if (password === OWNER_CREDENTIALS.tempPassword) {
+          navigate("/change-password");
+        } else {
+          // Redireciona para o dashboard do owner
+          navigate("/owner-dashboard");
+        }
       } else {
         // Redireciona para home
         navigate("/");
