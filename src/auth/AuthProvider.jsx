@@ -52,7 +52,8 @@ export function AuthProvider({ children }) {
       const userWithConfig = applyAccessConfig(data.user);
       setUser(userWithConfig);
 
-      return { data: userWithConfig, error: null };
+      // ✅ Retorna sessão completa para validação
+      return { data: { user: userWithConfig, session: data.session }, error: null };
     } catch (error) {
       return { data: null, error };
     }

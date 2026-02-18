@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider.jsx";
-import { isOwnerEmail, OWNER_CREDENTIALS } from "../config/adminCredentials.js";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,6 +16,7 @@ export default function Login() {
     setLoading(true);
 
     try {
+      // ✅ AUTENTICAÇÃO REAL VIA SUPABASE
       const { data, error: signInError } = await signIn(email, password);
 
       if (signInError) {
@@ -25,17 +25,19 @@ export default function Login() {
         return;
       }
 
-      // Se é o owner fazendo login
-      if (isOwnerEmail(email)) {
-        // Se está usando senha temporária, força troca de senha
-        if (password === OWNER_CREDENTIALS.tempPassword) {
-          navigate("/change-password");
-        } else {
-          // Redireciona para o dashboard do owner
-          navigate("/owner-dashboard");
-        }
+      // ✅ VALIDAÇÃO DE SESSÃO
+      if (!data || !data.session) {
+        setError("Erro ao criar sessão. Tente novamente.");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ REDIRECIONA BASEADO NA ROLE DO USUÁRIO
+      const userRole = data.user?.user_metadata?.role || data.user?.role;
+      
+      if (userRole === "owner") {
+        navigate("/owner-dashboard");
       } else {
-        // Redireciona para home
         navigate("/");
       }
     } catch (err) {
