@@ -1,3 +1,5 @@
+import { buildGeniusPrompt } from '../../prompts/geniusPrompts.js';
+
 /**
  * 🤖 RKMMAX SPECIALISTS - Biblioteca de Especialistas KIZI
  * 

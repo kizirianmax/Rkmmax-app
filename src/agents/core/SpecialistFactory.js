@@ -1,3 +1,4 @@
+import { buildGeniusPrompt } from '../../prompts/geniusPrompts.js';
 /**
  * SPECIALIST FACTORY - Gerador Dinâmico de Especialistas
  * Cria especialistas sob demanda sem código duplicado
@@ -43,7 +44,17 @@ class SpecialistFactory {
         this.capabilities = capabilities || [];
         this.category = category || 'general';
         this.apiEndpoint = apiEndpoint || null;
-        this.systemPrompt = systemPrompt || this._generateDefaultSystemPrompt();
+        // Priorizar geniusPrompt se specialist tiver useGeniusPrompt = true
+    if (this.config?.useGeniusPrompt) {
+      this.systemPrompt = buildGeniusPrompt('specialist', {
+        name: this.config.name,
+        description: this.config.description,
+        category: this.config.category,
+        systemPrompt: systemPrompt || this._generateDefaultSystemPrompt()
+      });
+    } else {
+      this.systemPrompt = systemPrompt || this._generateDefaultSystemPrompt();
+    }
       }
 
       /**
